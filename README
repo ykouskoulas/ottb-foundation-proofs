@@ -1,0 +1,57 @@
+* Dependencies
+
+These proofs formalizing horizontal one-turn-to-bearing motion were
+developed with the Coq proof assistant and the Coquelicot real
+library.
+
+One reliable way to get set up to check these proofs is to use the
+opam package manager.
+
+First use the package manager on your system to install opam, e.g.
+
+$ sudo apt-get install opam
+
+In some environments (e.g. if opam is already on your system)
+it might be necessary to 
+
+$ opam init
+
+$ opam init env
+
+Then you can install coq and coquelicot, letting opam handle
+dependencies:
+
+$ opam repo add coq-released https://coq.inria.fr/opam/released
+
+$ opam install coq
+
+$ opam install coq-coquelicot
+
+To check the proofs
+$ coqtop --version
+The Coq Proof Assistant, version 8.10.2 (December 2019)
+compiled on Dec 8 2019 9:00:07 with OCaml 4.07.1
+$ time make
+coqc util.v
+coqc atan2.v
+coqc ttyp.v
+coqc strt.v
+coqdoc -g -utf8 strt.v
+coqc strt2.v
+coqdoc -g -utf8 strt2.v
+coqdoc -g -utf8 atan2.v
+coqdoc -g -utf8 ttyp.v
+coqc tdyn.v
+coqdoc -g -utf8 tdyn.v
+coqc ttim.v
+coqc incr_function_le_ep.v
+coqc tlens.v
+coqdoc -g -utf8 tlens.v
+coqc dtlen.v
+coqdoc -g -utf8 dtlen.v
+
+real	7m6.977s
+user	6m46.128s
+sys	0m9.974s
+
+You can Print Assumptions to see axioms of the development.
