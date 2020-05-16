@@ -1,4 +1,4 @@
-all : util.vo strt.vo strt.html strt2.vo strt2.html atan2.vo atan2.html ttyp.vo ttyp.html tdyn.vo tdyn.html ttim.vo tlens.vo tlens.html incr_function_le_ep.vo dtlen.vo dtlen.html
+all : util.vo strt.vo strt.html strt2.vo strt2.html atan2.vo atan2.html ttyp.vo ttyp.html tdyn.vo tdyn.html ttim.vo ttim.html tlens.vo tlens.html incr_function_le_ep.vo dtlen.vo dtlen.html 
 
 util.vo: util.v
 	coqc util.v
@@ -33,6 +33,9 @@ incr_function_le_ep.vo : incr_function_le_ep.v util.vo
 atan2.html : atan2.vo atan2.v
 	coqdoc -g -utf8 atan2.v
 
+
+ttim.html : ttim.vo ttim.v
+	coqdoc -g -utf8 ttim.v
 
 tdyn.html : tdyn.vo tdyn.v
 	coqdoc -g -utf8 tdyn.v
