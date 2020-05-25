@@ -1,3 +1,9 @@
+## Documentation
+
+Main lemmas provided as html in doc/ folder for users who don't
+want to install Coq and don't need to machine-check proofs
+themselves.
+
 ## Dependencies
 
 These proofs formalizing horizontal one-turn-to-bearing motion were
