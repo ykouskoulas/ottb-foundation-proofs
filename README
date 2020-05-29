@@ -58,8 +58,9 @@ coqdoc -g -utf8 tlens.v
 coqc dtlen.v
 coqdoc -g -utf8 dtlen.v
 
-real	6m12.949s
-user	5m59.471s
-sys	0m6.129s
+real	7m3.619s
+user	6m44.490s
+sys	0m8.378s
 
+$ 
 You can Print Assumptions to see axioms of the development.
