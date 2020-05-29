@@ -156,6 +156,7 @@ Proof.
   left. assumption.
 Qed.
 
+(** Theorem 5: (Leading lagging equivalence) *)
 
 Lemma W_possible_collision : forall {p:pt} (i o : arrivebounds p),
     We i o <-> Wl i o.
@@ -166,6 +167,8 @@ Proof.
 Qed.
 
 Definition W {p:pt} (i o : arrivebounds p) := We i o.
+
+(** Theorem 6: (Pointwise safety) *)
 
 Lemma pointwise_safety :
   forall p (i o : arrivebounds p),
@@ -182,6 +185,7 @@ Record ca_point_timing (p:pt) :=
 Definition iab' {p:pt} (tmg : ca_point_timing p) := iab p tmg.
 Definition oab' {p:pt} (tmg : ca_point_timing p) := oab p tmg.
 
+(** Theorem 7: (Collision Timing) *)
 Lemma earliest_collision_time : forall p (tmg : ca_point_timing p),
     let i := iab' tmg in
     let o := oab' tmg in 

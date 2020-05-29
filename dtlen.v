@@ -434,6 +434,466 @@ Proof.
     ++ simpl; auto.
 Qed.
 
+Lemma theta1_pos_cond :
+  forall x y r
+         (zlty : 0 < y)
+         (zltr : 0 < r)
+         (rltlz : r < (x² + y²) / (2 * y)),
+    0 < θ1 x y r.
+Proof.
+  intros.
+  assert (straight r 0 0 0 x y) as phas. {
+    apply condstraight.
+    apply (Rmult_lt_reg_r (/ (2 * y))).
+    zltab.
+    lrag rltlz. }
+  assert (r <> 0) as rne0; try lra.
+  specialize (theta1_rsgn_lim _ _ _ rne0 phas) as [rgt rlt].
+  specialize (rgt zltr).
+  destruct rgt as [lt |eq]; try assumption.
+  exfalso.
+  symmetry in eq.
+  clear - zltr zlty eq rltlz.
+  unfold θ1 in eq.
+  destruct (total_order_T 0 r); [destruct s|]; try lra.
+  destruct (total_order_T 0 y); [destruct s|]; try lra.
+  destruct (total_order_T); [destruct s|].
+  destruct (total_order_T); [destruct s|].
+  (* Q1o *)
+  { rewrite <- (Rmult_0_r 2) in eq.
+    apply (Rmult_eq_reg_l 2) in eq; try lra.
+    apply (f_equal tan) in eq.
+    rewrite atan_right_inv, tan_0 in eq.
+    assert ((x - sqrt (x² - (2 * r - y) * y)) = 0) as s1. {
+      apply (Rmult_eq_reg_r (/ (2 * r - y))); try lra.
+      zltab. }
+    apply Rminus_diag_uniq in s1.
+    apply (f_equal Rsqr) in s1.
+    assert (0 < (x² - (2 * r - y) * y)) as sqp. {
+      apply (Rplus_lt_reg_r (2 * y * r)).
+      apply (Rmult_lt_reg_r (/ (2 * y))).
+      zltab.
+      lrag rltlz. }
+    rewrite Rsqr_sqrt in s1.
+    assert ((0 = (2 * r - y) * y)) as s2. {
+      apply (Rmult_eq_reg_r (-1)).
+      apply (Rplus_eq_reg_r (x²)).
+      lrag s1.
+      discrR. }
+    symmetry in s2.
+    apply Rmult_integral in s2.
+    lra.
+    left; assumption. }
+  (* Q1a *)
+  { rewrite <- (Rmult_0_r 2) in eq.
+    apply (Rmult_eq_reg_l 2) in eq; try lra.
+    apply (f_equal tan) in eq.
+    rewrite atan_right_inv, tan_0 in eq.
+    rewrite <- RmultRinv in eq.
+    apply Rmult_integral in eq.
+    destruct eq; try lra.
+
+    generalize r2; intro r3.
+    apply Rinv_0_lt_compat in r3.
+    rewrite Rinv_mult_distr in H; try lra. }
+  (* Q1t *)
+  { rewrite <- (Rmult_0_r 2) in eq.
+    apply (Rmult_eq_reg_l 2) in eq; try lra.
+    apply (f_equal tan) in eq.
+    rewrite atan_right_inv, tan_0 in eq.
+    assert ((x - sqrt (x² - (2 * r - y) * y)) = 0) as s1. {
+      apply (Rmult_eq_reg_r (/ (2 * r - y))); try lra.
+      zltab. }
+    apply Rminus_diag_uniq in s1.
+    apply (f_equal Rsqr) in s1.
+    assert (0 < (x² - (2 * r - y) * y)) as sqp. {
+      apply (Rplus_lt_reg_r (2 * y * r)).
+      apply (Rmult_lt_reg_r (/ (2 * y))).
+      zltab.
+      lrag rltlz. }
+    rewrite Rsqr_sqrt in s1.
+    assert ((0 = (2 * r - y) * y)) as s2. {
+      apply (Rmult_eq_reg_r (-1)).
+      apply (Rplus_eq_reg_r (x²)).
+      lrag s1.
+      discrR. }
+    symmetry in s2.
+    apply Rmult_integral in s2.
+    lra.
+    left; assumption. }
+  destruct (total_order_T); [destruct s|].
+  (* pos yaxis o *)
+  { rewrite <- (Rmult_0_r 2) in eq.
+    apply (Rmult_eq_reg_l 2) in eq; try lra.
+    apply (f_equal tan) in eq.
+    rewrite atan_right_inv, tan_0 in eq.
+    assert ((x - sqrt (x² - (2 * r - y) * y)) = 0) as s1. {
+      apply (Rmult_eq_reg_r (/ (2 * r - y))); try lra.
+      zltab. }
+    apply Rminus_diag_uniq in s1.
+    apply (f_equal Rsqr) in s1.
+    assert (0 < (x² - (2 * r - y) * y)) as sqp. {
+      apply (Rplus_lt_reg_r (2 * y * r)).
+      apply (Rmult_lt_reg_r (/ (2 * y))).
+      zltab.
+      lrag rltlz. }
+    rewrite Rsqr_sqrt in s1.
+    assert ((0 = (2 * r - y) * y)) as s2. {
+      apply (Rmult_eq_reg_r (-1)).
+      apply (Rplus_eq_reg_r (x²)).
+      lrag s1.
+      discrR. }
+    symmetry in s2.
+    apply Rmult_integral in s2.
+    lra.
+    left; assumption. }
+  specialize PI_RGT_0 as pigt0.
+  lra.
+  (* pos yaxis t *)
+  { rewrite <- (Rmult_0_r 2) in eq.
+    apply (Rmult_eq_reg_l 2) in eq; try lra.
+    apply (f_equal tan) in eq.
+    rewrite atan_right_inv, tan_0 in eq.
+    assert ((x - sqrt (x² - (2 * r - y) * y)) = 0) as s1. {
+      apply (Rmult_eq_reg_r (/ (2 * r - y))); try lra.
+      zltab. }
+    apply Rminus_diag_uniq in s1.
+    apply (f_equal Rsqr) in s1.
+    assert (0 < (x² - (2 * r - y) * y)) as sqp. {
+      apply (Rplus_lt_reg_r (2 * y * r)).
+      apply (Rmult_lt_reg_r (/ (2 * y))).
+      zltab.
+      lrag rltlz. }
+    rewrite Rsqr_sqrt in s1.
+    assert ((0 = (2 * r - y) * y)) as s2. {
+      apply (Rmult_eq_reg_r (-1)).
+      apply (Rplus_eq_reg_r (x²)).
+      lrag s1.
+      discrR. }
+    symmetry in s2.
+    apply Rmult_integral in s2.
+    lra.
+    left; assumption. }
+  destruct (total_order_T); [destruct s|].
+  (* Q2o *)
+  apply Rplus_opp_r_uniq in eq.
+  symmetry in eq.
+  assert (atan ((x - sqrt (x² - (2 * r - y) * y)) / (2 * r - y)) = - PI)
+    as at2. {
+    apply (Rmult_eq_reg_r (-2)); try lra. }
+  match goal with
+  | eq : atan ?arg = _ |- _ =>
+    specialize (atan_bound arg) as [atl atu]
+  end.
+  lra.
+  specialize PI_RGT_0 as pigt0.
+  lra.
+  (* Q2t *)
+  { rewrite <- (Rmult_0_r 2) in eq.
+    apply (Rmult_eq_reg_l 2) in eq; try lra.
+    apply (f_equal tan) in eq.
+    rewrite atan_right_inv, tan_0 in eq.
+    assert ((x - sqrt (x² - (2 * r - y) * y)) = 0) as s1. {
+      apply (Rmult_eq_reg_r (/ (2 * r - y))); try lra.
+      zltab. }
+    apply Rminus_diag_uniq in s1.
+    apply (f_equal Rsqr) in s1.
+    assert (0 < (x² - (2 * r - y) * y)) as sqp. {
+      apply (Rplus_lt_reg_r (2 * y * r)).
+      apply (Rmult_lt_reg_r (/ (2 * y))).
+      zltab.
+      lrag rltlz. }
+    rewrite Rsqr_sqrt in s1.
+    assert ((0 = (2 * r - y) * y)) as s2. {
+      apply (Rmult_eq_reg_r (-1)).
+      apply (Rplus_eq_reg_r (x²)).
+      lrag s1.
+      discrR. }
+    symmetry in s2.
+    apply Rmult_integral in s2.
+    lra.
+    left; assumption. }
+Qed.
+
+Lemma full_path_dist_increasing_turn_s :
+    forall (x y r s : R)
+           (nO : ~ (x = 0 /\ y = 0))
+         (phase : turning s 0 0 0 x y)
+         (rgt0 : 0 < r)
+         (sgtr : r < s),
+    let d := (fun t => t * (θ1 x y) t +
+                       (sqrt ((x - t * sin (θ1 x y t))² +
+                              (y - t * (1 - cos (θ1 x y t)))²))) in
+    d r < d s.
+Proof.
+  intros.
+  rename s into rz.
+
+  assert (0 < y) as zlty. {
+    apply turningcond in phase.
+    specialize (posss _ _ nO) as px2.
+    rewrite <- phase in px2.
+    apply zlt_mult in px2; try assumption.
+    zltab. }
+
+  assert (rz = (x² + y²) / (2 * y)) as rzd. {
+    apply turningcond in phase.
+    apply (Rmult_eq_reg_r (2 * y)); try lra.
+    lrag phase. }
+
+  assert (straight r 0 0 0 x y) as phaser. {
+    apply condstraight.
+    apply (Rmult_lt_reg_r (/ (2 * y))); try zltab.
+    setl r; try lra. }
+  
+  set (θmax := calcθ₁ 0 0 0 x y).
+
+  assert (~ (x - 0 = 0 /\ y - 0 = 0)) as notO; try lra.
+  assert (θmax <> 0) as notpx. {
+    intros tmeq0.
+    unfold θmax, calcθ₁ in tmeq0.
+    autorewrite with null in tmeq0.
+    assert (atan2 y x = 0) as meq0; try lra.
+    apply atan2_0_impl in meq0;
+      lra.  }
+  assert (θmax <> 2 * PI) as notnx.  {
+    intros tmeq0.
+    unfold θmax, calcθ₁ in tmeq0.
+    autorewrite with null in tmeq0.
+    assert (atan2 y x = PI) as meq0; try lra.
+    apply atan2_PI_impl in meq0;
+      lra.  }
+
+  specialize (tmax_radius_gen _ _ _ _ _ notO notpx notnx) as rzd2.
+  autorewrite with null in rzd2.
+  rewrite <- rzd in rzd2.
+  change (rz = (x * sin θmax - y * cos θmax)
+                 / (1 - cos θmax)) in rzd2.
+  specialize (t1eqtm_gen _ _ _ _ _ notO notpx notnx) as tmd.
+  autorewrite with null in tmd.
+  rewrite Rplus_comm in tmd.
+  rewrite <- rzd in tmd.
+  change (θ1 x y rz = θmax) in tmd.
+  rewrite <- tmd in rzd2.
+  
+  rename d into d1.
+  set (d2 := (fun r:R_AbsRing => r * θ1 x y r + sqrt (x² - (2 * r - y) * y))) in *.
+  set (d' := (fun ru:R_AbsRing => (θ1 x y ru - sin (θ1 x y ru)))) in *.
+  assert (forall (r:R), Rbar_lt 0 r -> Rbar_lt r rz ->
+                        is_derive d1 r (d' r)) as dderv. {
+    rename r into s.
+    intros r zltr rltrz.
+    unfold d1, d'.
+    apply full_path_dist_is_derive_s; try assumption.
+    apply condstraight.
+    rewrite rzd in rltrz.
+    clear - rltrz zltr zlty.
+    simpl in *.
+    apply (Rmult_lt_reg_r (/ (2 * y))).
+    zltab.
+    setl r.
+    zltab.
+    lra. }
+  
+  assert (forall r : R, Rbar_lt 0 r -> Rbar_lt r rz -> is_derive d2 r (d' r))
+    as dder2. {
+    rename r into s.
+    intros r zltr rltrz.
+    apply (is_derive_ext_loc d1 d2).
+    unfold locally, d1, d2.
+    
+    assert (0 < Rmin (rz - r) (r)) as egt0. {
+      unfold Rmin.
+      simpl in zltr, rltrz.
+      destruct Rle_dec; try assumption.
+      apply (Rplus_lt_reg_r r).
+      setr rz; try assumption.
+      arn.
+      assumption. }
+    
+    set (eps := (mkposreal (_:R) egt0)).
+    exists eps.
+    intros r0 bar.
+    simpl in *.
+    assert (straight r0 0 0 0 x y) as rstr. {
+      apply condstraight.
+      apply (Rmult_lt_reg_r (/ (2 * y))); try zltab.
+      setl r0; try lra.
+      rewrite RmultRinv.
+      rewrite <- rzd.
+      unfold ball in bar.
+      simpl in bar.
+      unfold AbsRing_ball, abs, minus, plus, opp in bar.
+      simpl in bar.
+      unfold Rmin, Rabs in bar;
+        destruct Rle_dec;
+        destruct Rcase_abs; lra.  }
+    assert (0 < r0) as zltr0. {
+      unfold ball, AbsRing_ball in bar.
+      simpl in bar, r0.
+      unfold AbsRing_ball, minus, plus, opp, abs in bar.
+      simpl in bar.
+      unfold Rmin, Rabs in bar;
+        destruct Rle_dec;
+        destruct Rcase_abs; lra. }
+    assert (r0 <> 0) as r0ne0; try lra.
+    rewrite (Darm_Q _ _ _ rstr r0ne0).
+    reflexivity.
+    apply dderv; try assumption. }
+  
+  
+  assert (forall r : R, Rbar_lt 0 r -> Rbar_lt r rz -> d' r > 0)
+    as pder. {
+    rename r into s.
+    intros r zltr rltlz.
+    unfold d'.
+    apply Rlt_gt.
+    simpl in zltr, rltlz.
+    rewrite rzd in rltlz.
+
+    assert (r <> 0) as rne0; try lra.
+    assert (~ (r < 0 /\ θmax = 2 * PI)) as nna; try lra.
+
+    specialize (theta1_pos_cond _ _ _ zlty zltr rltlz) as zgtt1.
+    apply x_minus_sin_x_pos; assumption. }
+
+  unfold d1.
+  rewrite tmd.
+  assert (0 = sqrt ((x - rz * sin θmax)² + (y - rz * (1 - cos θmax))²)) as zarm. {
+    rewrite <- sqrt_0.
+    apply f_equal.
+    repeat rewrite Rsqr_minus.
+    repeat rewrite Rsqr_mult.
+    repeat rewrite Rsqr_minus.
+    setr (x² + y²
+          + rz² * ((sin θmax)² + (cos θmax)²)
+            - 2 * x * rz * sin θmax
+          + 2 * y * rz *cos θmax
+          + rz²
+            - rz² * 2 * 1 * cos θmax
+            - 2 * y * rz
+         ).
+    rewrite sin2_cos2.
+    setr (x² + y² - 2 * y * rz
+          + 2 * rz² * ( 1 - cos  θmax)
+            - 2 * rz * (x * sin θmax - y * cos θmax)).
+    rewrite rzd at 1.
+    unfold Rsqr at 5.
+    rewrite rzd2 at 1.
+    repeat rewrite <- RmultRinv.
+    rewrite tmd.
+    setr 0; try lra.
+    split; try lra.
+    intro omceq0.
+    apply Rminus_diag_uniq_sym in omceq0.
+    apply cos_eq_1_2PI_0 in omceq0.
+    lra.
+    unfold θmax,calcθ₁.
+    arn.
+    setl (2 * 0).
+    apply Rmult_le_compat_l ; try lra.
+    destruct (total_order_T x 0); [destruct s|].
+    specialize (atan2Q2 _ _ r0 zlty) as [at2l at2u].
+    lra.
+    specialize (atan2_PI2 _ zlty) as at2b.
+    rewrite e, at2b.
+    specialize PI_RGT_0; try lra.
+    specialize (atan2Q1 _ _ r0 zlty) as [at2l at2u].
+    lra.
+    unfold θmax,calcθ₁.
+    arn.
+    specialize (atan2_bound _ _ nO) as [at2lb at2ub].
+    lra. }
+
+  rewrite <- zarm.
+  rewrite <- tmd.
+  arn.
+  rewrite Darm_Q; try (lra||assumption).
+  assert (0 = sqrt (x² - (2 * rz - y) * y)) as zdef. {
+    rewrite rzd.
+    rewrite <- sqrt_0.
+    apply f_equal.
+    unfold Rsqr.
+    field; lra. }
+  match goal with
+  | |- _ < ?R => rewrite <- (Rplus_0_r R)
+  end.
+  rewrite zdef.
+  change (d2 r < d2 rz).
+  
+  set (arcl := fun x y r => r * θ1 x y r) in *.
+  set (arclx := fun x y => extension_C0 (arcl x y) 0 rz) in *.
+  set (arml := fun x y r => sqrt (x² - (2 * r - y) * y)) in *.
+  set (armlx := fun x y => extension_C0 (arml x y) 0 rz) in *.
+  simpl in armlx.
+  set (d3 := fun r => plus (arclx x y r) (armlx x y r)) in *.
+  simpl in d3.
+  assert (forall r, 0 <= r <= rz -> d2 r = d3 r) as ird. {
+    intros *.
+    intros [rlb rub].
+    unfold d2, d3, plus, arcl, arclx, armlx, arml, extension_C0.
+    simpl.
+    destruct Rbar_le_dec; [ destruct Rbar_le_dec |].
+    reflexivity.
+    simpl in r0, n.
+    lra.
+    simpl in n.
+    lra. }
+  rewrite (ird r), (ird rz); try (split; lra).
+
+  assert (forall r : R, Rbar_lt 0 r -> Rbar_lt r rz -> is_derive d3 r (d' r))
+    as dder3. {
+    rename r into s.
+    intros *.
+    simpl.
+    intros zlr rltrz.
+    apply (is_derive_ext_loc d2); try (apply dder2; simpl; assumption).
+    unfold locally.
+    simpl.
+    assert (0 < Rmin r (rz - r)) as zlte. {
+      unfold Rmin.
+      destruct Rle_dec; lra. }
+    exists (mkposreal (Rmin r (rz - r)) zlte).
+    intros r0 br0.
+    unfold ball in br0.
+    simpl in br0.
+    unfold AbsRing_ball, minus, opp, plus, abs in br0.
+    simpl in br0.
+    unfold d2.
+    unfold d3, plus, arcl, arclx, armlx, arml, extension_C0.
+    destruct Rbar_le_dec;
+      [destruct Rbar_le_dec|].
+    reflexivity.
+    simpl in *.
+    apply Rnot_le_lt in n.
+    exfalso.
+    apply Rabs_def2 in br0.
+    destruct br0 as [lb ub].
+    unfold Rmin in *.
+    destruct Rle_dec;
+      lra.
+    simpl in n.
+    apply Rnot_le_lt in n.
+    exfalso.
+    apply Rabs_def2 in br0.
+    destruct br0 as [lb ub].
+    unfold Rmin in *.
+    destruct Rle_dec;
+      lra. }
+  
+  assert (forall r : R, Rbar_le 0 r -> Rbar_le r rz -> continuous d3 r)
+    as d3c. {
+    rename r into s.
+    simpl; intros.
+    unfold d3.
+    unfold arclx, armlx.
+    rewrite rzd.
+    apply cont_dist_posy; lra.
+  }
+
+  apply (incr_function_le_cont_ep d3c dder3 pder); try (simpl; lra).
+Qed.
+
 (* end hide *)
 
 Lemma full_path_dist_increasing :
@@ -469,6 +929,8 @@ Proof.
     try lra.
   apply full_path_dist_increasing_s; assumption.
 Qed.
+
+(** Theorem 8 (Approach angle orders turn-to-bearing path radii) *)
 
 Lemma ottb_bigger_theta_bigger_r_ep :
   forall θ₀ x₀ y₀ x₁ y₁ θr θs,
@@ -585,31 +1047,59 @@ Proof.
 Qed.
 
 (* begin hide *)
-(* Standard form of Theorem 4 (Radius orders one-turn-to-bearing path 
-    lengths) *)
+
 Theorem ottb_bigger_r_longer_path_std :
-  forall x y r s Dr Ds
+  forall x y r s Dr Ds θr θs
          (tmns : calcθ₁ 0 0 0 x y <> 0) (* cannot omit turn *)
-         (phaser : straight r 0 0 0 x y) (* straight part of ottb *)
-         (phases : straight s 0 0 0 x y),
-    let θr := θ1 x y r in
-    let θs := θ1 x y s in
-    forall
-      (rp : 0 < r) rtp
-      (ro : r < s) stp
-      (Pr : path_segment Dr (Hx r 0 0 θr rtp) (Hy r 0 0 θr rtp)
-                         (mkpt 0 0) (mkpt x y))
-      (Ps : path_segment Ds (Hx s 0 0 θs stp) (Hy s 0 0 θs stp)
-                         (mkpt 0 0) (mkpt x y)),
+         (*phaser : straight r 0 0 0 x y*) (* straight part of ottb *)
+         (phases : straight s 0 0 0 x y)
+         (rp : 0 < r) rtp
+         (ro : r < s) stp
+         (Pr : path_segment Dr (Hx r 0 0 θr rtp) (Hy r 0 0 θr rtp)
+                            (mkpt 0 0) (mkpt x y))
+         (Ps : path_segment Ds (Hx s 0 0 θs stp) (Hy s 0 0 θs stp)
+                            (mkpt 0 0) (mkpt x y)),
     Dr < Ds.
 Proof.
   intros.
-  generalize phaser; intro nO.
-  unfold straight in nO.
-  apply (straight_not_stationary2) in nO.
-  
+
+  assert (~ (x = 0 /\ y = 0)) as nO. {
+    apply straightcond in phases.
+    intros [xd yd].
+    rewrite xd, yd in phases.
+    autorewrite with null in phases.
+    lra. }
+
+  assert (straight r 0 0 0 x y) as phaser. {
+    apply straightcond in phases.
+    apply condstraight.
+    destruct (total_order_T 0 y); [destruct s0|].
+    - apply (Rlt_trans _ (2 * s * y)).
+      repeat rewrite Rmult_assoc.
+      repeat rewrite (Rmult_comm _ y).
+      repeat rewrite <- Rmult_assoc.
+      apply Rmult_lt_compat_l; try lra.
+      assumption.
+    - apply (Rle_lt_trans _ (2 * s * y)).
+      rewrite <- e.
+      arn.
+      right; reflexivity.
+      assumption.
+    - apply (Rlt_trans _ (-0)).
+      setl (- (2 * r * -y)).
+      apply Ropp_lt_contravar.
+      zltab.
+      arn.
+      apply posss.
+      assumption. }
+
+  specialize (ottb_compute_straight_t_s _ _ _ _ rtp Dr phaser Pr) as trdef.
+  specialize (ottb_compute_straight_t_s _ _ _ _ stp Ds phases Ps) as tsdef.
+
   set (o := {| ptx := 0; pty := 0 |}) in *.
 
+  rewrite <- (Rminus_0_r x) in nO.
+  rewrite <- (Rminus_0_r y) in nO.
   specialize (rotated_straight_path_equiv
                 _ _ _ _ _ nO tmns) as npx.
   autorewrite with null in npx.
@@ -617,14 +1107,12 @@ Proof.
   assert (0 <= θr < 2 * PI) as t1r. {
     assert (r<>0) as rne0. lra.
     specialize (theta1_rsgn_bnd _ _ _ rne0 phaser) as [t1p t1n].
-    change (0 < r -> 0 <= θr < 2 * PI) in t1p.
     lra.
   }
 
   assert (0 <= θs < 2 * PI) as t1s. {
     assert (s<>0) as sne0. lra.
     specialize (theta1_rsgn_bnd _ _ _ sne0 phases) as [t1p t1n].
-    change (0 < s -> 0 <= θs < 2 * PI) in t1p.
     lra.
   }
   rename Pr into Drdef.
@@ -654,22 +1142,178 @@ Proof.
   fieldrewrite (x - (0 - s * 0 + s * sin (θs))) (x - s * sin θs).
   fieldrewrite (y - (s * 1 - s * cos θs)) (y - s * (1 - cos θs)).
 
-  unfold θr,θs.
+  rewrite trdef, tsdef.
   apply full_path_dist_increasing_s; try assumption.
 Qed.
-(* end hide *)
 
-(** General form of Theorem 4 (Radius orders one-turn-to-bearing path 
-    lengths) *)
-Theorem ottb_bigger_r_longer_path :
-  forall θ₀ x₀ y₀ x₁ y₁ r s Dr Ds
+Theorem ottb_bigger_r_longer_path_turn_std :
+  forall x y r s Dr Ds θr θs 
+         (nO : ~ (x = 0 /\ y = 0))
+         (phases : turning s 0 0 0 x y)
+         (rp : 0 < r) rtp
+         (ro : r < s) stp
+         (Pr : path_segment Dr (Hx r 0 0 θr rtp) (Hy r 0 0 θr rtp)
+                            (mkpt 0 0) (mkpt x y))
+         (Ps : path_segment Ds (Hx s 0 0 θs stp) (Hy s 0 0 θs stp)
+                            (mkpt 0 0) (mkpt x y)),
+    Dr < Ds.
+Proof.
+  intros.
+
+  assert (0 < y) as zlty. {
+    apply turningcond in phases.
+    autorewrite with null in nO.
+    specialize (posss _ _ nO) as px2.
+    rewrite <- phases in px2.
+    apply zlt_mult in px2; try assumption.
+    zltab. }
+
+  assert (straight r 0 0 0 x y) as phaser. {
+    apply turningcond in phases.
+    apply condstraight.
+    rewrite <- phases.
+    repeat rewrite Rmult_assoc.
+    repeat rewrite (Rmult_comm _ y).
+    repeat rewrite <- Rmult_assoc.
+    apply Rmult_lt_compat_l; try lra. }
+
+  specialize (ottb_compute_straight_t_s _ _ _ _ rtp Dr phaser Pr) as trdef.
+  set (o := {| ptx := 0; pty := 0 |}) in *.
+
+  assert (~ (0 <= x /\ y = 0)) as npx; try lra.
+
+  assert (0 <= θr < 2 * PI) as t1r. {
+    assert (r<>0) as rne0. lra.
+    specialize (theta1_rsgn_bnd _ _ _ rne0 phaser) as [t1p t1n].
+    rewrite <- trdef in t1p.
+    change (0 < r -> 0 <= θr < 2 * PI) in t1p.
+    lra.
+  }
+
+  assert (0 <= θs < 2 * PI) as t1s. {
+    assert (0 < s) as sne0. lra.
+    split.
+    left; apply (Rmult_lt_reg_l s); try lra.
+    apply (Rmult_lt_reg_l s); try lra.
+    rewrite <- (Rabs_pos_eq s) at 2; try lra. }
+  rename Pr into Drdef.
+  rename Ps into Dsdef.
+
+  autorewrite with null in nO.
+  specialize (ottb_compute_turning_r_s _ _ _ _ _ _ phases nO Dsdef) as rzd.
+  
+  apply (ottb_path_distance) in Drdef.
+  destruct t1r as [t1rl t1ru].
+  
+  apply ottb_path_distance in Dsdef.
+  destruct t1s as [t1sl t1su].
+  
+  destruct Drdef as [[trn Drdef] |[str Drdef]].
+  unfold turning, Tcx, Tcy in trn.
+  unfold straight, Tcx, Tcy in phaser.
+  lra. clear str.
+
+  destruct Dsdef as [[trn Dsdef] |[str Dsdef]].
+  2 : {
+    unfold straight, Tcx, Tcy in str.
+    unfold turning, Tcx, Tcy in phases.
+    lra. }
+
+  rewrite Drdef, Dsdef. clear Drdef Dsdef.
+  rewrite sin_0, cos_0 in *.
+  repeat rewrite Rplus_0_l.
+
+  fieldrewrite (x - (0 - r * 0 + r * sin (θr))) (x - r * sin θr).
+  fieldrewrite (y - (r * 1 - r * cos θr)) (y - r * (1 - cos θr)).
+
+  rewrite <- eqv_calcs; [| arn; assumption | assumption].
+  set (θmax := calcθ₁ 0 0 0 x y) in *.
+  rewrite <- (Rplus_0_r (s * θmax)).
+
+  assert (~ (x - 0 = 0 /\ y - 0 = 0)) as notO; try lra.
+  assert (θmax <> 0) as notpx. {
+    intros tmeq0.
+    unfold θmax, calcθ₁ in tmeq0.
+    autorewrite with null in tmeq0.
+    assert (atan2 y x = 0) as meq0; try lra.
+    apply atan2_0_impl in meq0;
+      lra.  }
+  assert (θmax <> 2 * PI) as notnx.  {
+    intros tmeq0.
+    unfold θmax, calcθ₁ in tmeq0.
+    autorewrite with null in tmeq0.
+    assert (atan2 y x = PI) as meq0; try lra.
+    apply atan2_PI_impl in meq0 as [xlt0 yeq0]; try lra. }
+
+  specialize (tmax_radius_gen _ _ _ _ _ notO notpx notnx) as rzd2.
+  autorewrite with null in rzd2.
+  rewrite Rplus_comm in rzd.
+  rewrite <- rzd in rzd2.
+  rename s into rz.
+  change (rz = (x * sin θmax - y * cos θmax)
+                 / (1 - cos θmax)) in rzd2.
+  specialize (t1eqtm_gen _ _ _ _ _ notO notpx notnx) as tmd.
+  autorewrite with null in tmd.
+  rewrite Rplus_comm in tmd.
+  rewrite <- rzd in tmd.
+  change (θ1 x y rz = θmax) in tmd.
+  rewrite <- tmd in rzd2.
+
+  assert (0 = sqrt ((x - rz * sin θmax)² + (y - rz * (1 - cos θmax))²)) as zarm. {
+    rewrite <- sqrt_0.
+    apply f_equal.
+    repeat rewrite Rsqr_minus.
+    repeat rewrite Rsqr_mult.
+    repeat rewrite Rsqr_minus.
+    setr (x² + y²
+          + rz² * ((sin θmax)² + (cos θmax)²)
+            - 2 * x * rz * sin θmax
+          + 2 * y * rz *cos θmax
+          + rz²
+            - rz² * 2 * 1 * cos θmax
+            - 2 * y * rz
+         ).
+    rewrite sin2_cos2.
+    setr (x² + y² - 2 * y * rz
+          + 2 * rz² * ( 1 - cos  θmax)
+            - 2 * rz * (x * sin θmax - y * cos θmax)).
+    rewrite rzd at 1.
+    unfold Rsqr at 5.
+    rewrite rzd2 at 1.
+    repeat rewrite <- RmultRinv.
+    rewrite tmd.
+    setr 0; try lra.
+    split; try lra.
+    intro omceq0.
+    apply Rminus_diag_uniq_sym in omceq0.
+
+    specialize (atan2_bound _ _ nO) as [a2lb a2ub].
+    apply cos_eq_1_2PI_0 in omceq0.
+    lra.
+
+    unfold θmax,calcθ₁ in *.
+    arn.
+    destruct (total_order_T 0 x); [destruct s|].
+    specialize (atan2Q1 _ _ r0 zlty) as [at2l at2u].
+    lra.
+    specialize (atan2_PI2 _ zlty) as at2b.
+    rewrite <- e, at2b.
+    specialize PI_RGT_0; try lra.
+    specialize (atan2Q2 _ _ r0 zlty) as [at2l at2u].
+    lra.
+    unfold θmax,calcθ₁ in *; arn; lra. }
+
+  rewrite zarm.
+  rewrite trdef.
+  rewrite <- tmd.
+  apply full_path_dist_increasing_turn_s; try assumption.
+Qed.
+
+Theorem ottb_bigger_r_longer_path_turn :
+  forall θ₀ x₀ y₀ x₁ y₁ r s Dr Ds θr θs 
          (tmns : calcθ₁ θ₀ x₀ y₀ x₁ y₁ <> 0) (* cannot omit turn *)
-         (phaser : straight r θ₀ x₀ y₀ x₁ y₁) (* straight part of ottb *)
-         (phases : straight s θ₀ x₀ y₀ x₁ y₁),
-    let x := (x₁ - x₀) * cos θ₀ + (y₁ - y₀) * sin θ₀ in
-    let y := - (x₁ - x₀) * sin θ₀ + (y₁ - y₀) * cos θ₀ in
-    let θr := θ1 x y r in
-    let θs := θ1 x y s in
+         (phases : turning s θ₀ x₀ y₀ x₁ y₁)
+         (nog : ~ (x₁ - x₀ = 0 /\ y₁ - y₀ = 0)),
     forall
       (rp : 0 < r) rtp
       (ro : r < s) stp
@@ -681,14 +1325,112 @@ Theorem ottb_bigger_r_longer_path :
     Dr < Ds.
 Proof.
   intros.
+  
+  apply turning_rot in phases.
+  set (x := (x₁ - x₀) * cos θ₀ + (y₁ - y₀) * sin θ₀) in *.
+  set (y := - (x₁ - x₀) * sin θ₀ + (y₁ - y₀) * cos θ₀) in *.
+
+  generalize nog; intro no.
+  apply (notid_rot θ₀) in no.
+  change (~ (x = 0 /\ y = 0)) in no.
+
+  assert (0 < y) as zlty. {
+    apply turningcond in phases.
+    specialize (posss _ _ no) as zlt2.
+    rewrite <- phases in zlt2.
+    apply zlt_mult in zlt2; lra. }
+
+  assert (straight r 0 0 0 x y) as phaser. {
+    apply condstraight.
+    apply turningcond in phases.
+    rewrite <- phases.
+    repeat rewrite Rmult_assoc.
+    repeat rewrite (Rmult_comm _ y).
+    repeat rewrite <- Rmult_assoc.
+    apply Rmult_lt_compat_l; try zltab.
+    assumption. }
+
+  set (o := {| ptx := 0; pty := 0 |}) in *.
+
+  specialize (rotated_straight_path_equiv
+                _ _ _ _ _ nog tmns) as npx.
+  change (~(0 <= x /\ y = 0)) in npx.
+
+
+  apply path_std in Pr; try lra.
+  apply path_std in Ps; try lra.
+  change (path_segment Dr (Hx r 0 0 θr rtp) (Hy r 0 0 θr rtp)
+                       o {| ptx := x; pty := y |}) in Pr.
+  change (path_segment Ds (Hx s 0 0 θs stp)
+                       (Hy s 0 0 θs stp)
+                       o {| ptx := x; pty := y |}) in Ps.
+  rename Pr into Drdef.
+  rename Ps into Dsdef.
+
+  eapply ottb_bigger_r_longer_path_turn_std.
+  apply no.
+  apply phases.
+  apply rp.
+  assumption.
+  apply Drdef.
+  apply Dsdef.
+Qed.
+
+Theorem ottb_bigger_r_longer_path_straight :
+  forall θ₀ x₀ y₀ x₁ y₁ r s Dr Ds θr θs
+         (tmns : calcθ₁ θ₀ x₀ y₀ x₁ y₁ <> 0) (* cannot omit turn *)
+         (phases : straight s θ₀ x₀ y₀ x₁ y₁)
+         (rp : 0 < r) rtp
+         (ro : r < s) stp
+         (Pr : path_segment Dr (Hx r θ₀ x₀ θr rtp) (Hy r θ₀ y₀ θr rtp)
+                            (mkpt x₀ y₀) (mkpt x₁ y₁))
+         (Ps : path_segment Ds (Hx s θ₀ x₀ θs stp)
+                            (Hy s θ₀ y₀ θs stp)
+                            (mkpt x₀ y₀) (mkpt x₁ y₁)),
+    Dr < Ds.
+Proof.
+  intros.
   generalize phases; intro nO.
+
+  apply path_std in Pr; try lra.
+  apply path_std in Ps; try lra.
+  set (x := (x₁ - x₀) * cos θ₀ + (y₁ - y₀) * sin θ₀) in *.
+  set (y := - (x₁ - x₀) * sin θ₀ + (y₁ - y₀) * cos θ₀) in *.
+  set (o := {| ptx := 0; pty := 0 |}) in *.
+
   apply (straight_not_stationary2) in nO.
   
   apply straight_rot in phases.
   change (straight s 0 0 0 x y) in phases.
-  apply straight_rot in phaser.
-  change (straight r 0 0 0 x y) in phaser.
-  set (o := {| ptx := 0; pty := 0 |}) in *.
+
+  assert (straight r 0 0 0 x y) as phaser. {
+    apply straightcond in phases.
+    apply condstraight.
+    destruct (total_order_T 0 y); [destruct s0|].
+    - apply (Rlt_trans _ (2 * s * y)).
+      repeat rewrite Rmult_assoc.
+      repeat rewrite (Rmult_comm _ y).
+      repeat rewrite <- Rmult_assoc.
+      apply Rmult_lt_compat_l; try lra.
+      assumption.
+    - apply (Rle_lt_trans _ (2 * s * y)).
+      rewrite <- e.
+      arn.
+      right; reflexivity.
+      assumption.
+    - apply (Rlt_trans _ (-0)).
+      setl (- (2 * r * -y)).
+      apply Ropp_lt_contravar.
+      zltab.
+      arn.
+      apply posss.
+      apply notid_rot; assumption. }
+  
+  generalize Pr; intro trd.
+  apply ottb_compute_straight_t in trd; try assumption.
+  generalize Ps; intro tsd.
+  apply ottb_compute_straight_t in tsd; try assumption.
+  autorewrite with null in *.
 
   specialize (rotated_straight_path_equiv
                 _ _ _ _ _ nO tmns) as npx.
@@ -697,23 +1439,16 @@ Proof.
   assert (0 <= θr < 2 * PI) as t1r. {
     assert (r<>0) as rne0. lra.
     specialize (theta1_rsgn_bnd _ _ _ rne0 phaser) as [t1p t1n].
-    change (0 < r -> 0 <= θr < 2 * PI) in t1p.
+    rewrite <- trd in t1p.
     lra.
   }
 
   assert (0 <= θs < 2 * PI) as t1s. {
     assert (s<>0) as sne0. lra.
     specialize (theta1_rsgn_bnd _ _ _ sne0 phases) as [t1p t1n].
-    change (0 < s -> 0 <= θs < 2 * PI) in t1p.
+    rewrite <- tsd in t1p.
     lra.
   }
-  apply path_std in Pr; try lra.
-  apply path_std in Ps; try lra.
-  change (path_segment Dr (Hx r 0 0 θr rtp) (Hy r 0 0 θr rtp)
-                       o {| ptx := x; pty := y |}) in Pr.
-  change (path_segment Ds (Hx s 0 0 θs stp)
-                       (Hy s 0 0 θs stp)
-                       o {| ptx := x; pty := y |}) in Ps.
   rename Pr into Drdef.
   rename Ps into Dsdef.
 
@@ -741,12 +1476,34 @@ Proof.
   fieldrewrite (x - (0 - s * 0 + s * sin (θs))) (x - s * sin θs).
   fieldrewrite (y - (s * 1 - s * cos θs)) (y - s * (1 - cos θs)).
 
-  unfold θr,θs.
+  rewrite trd, tsd.
   apply full_path_dist_increasing_s; try assumption.
 Qed.
+(* end hide *)
 
-(* Standard form of Theorem 5 (Maximum bearing-constrained
-     path length) *)
+(** Theorem 9 (Radius orders one-turn-to-bearing path lengths) *)
+Theorem ottb_bigger_r_longer_path :
+  forall θ₀ x₀ y₀ x₁ y₁ r s Dr Ds θr θs
+         (nog : ~ (x₁ - x₀ = 0 /\ y₁ - y₀ = 0))
+         (tmns : calcθ₁ θ₀ x₀ y₀ x₁ y₁ <> 0) (* cannot omit turn *)
+         (rp : 0 < r) rtp
+         (ro : r < s) stp
+         (Pr : path_segment Dr (Hx r θ₀ x₀ θr rtp) (Hy r θ₀ y₀ θr rtp)
+                            (mkpt x₀ y₀) (mkpt x₁ y₁))
+         (Ps : path_segment Ds (Hx s θ₀ x₀ θs stp)
+                            (Hy s θ₀ y₀ θs stp)
+                            (mkpt x₀ y₀) (mkpt x₁ y₁)),
+    Dr < Ds.
+Proof.
+  intros.
+  specialize (ottb_r_constraints _ _ _ _ _ _ _ _ _ Ps) as [trn |str].
+  eapply ottb_bigger_r_longer_path_turn; try eassumption.
+  eapply ottb_bigger_r_longer_path_straight; try eassumption.
+Qed.
+
+(* begin hide *)
+(* Standard form of Maximum bearing-constrained
+     path length *)
 Theorem maxlength_path_std :
   forall x y ra rb θc θd Du ru θu tup
          (lt : 0 < ra)
@@ -970,7 +1727,7 @@ Proof.
        +++ split; auto.
            left.
            apply (ottb_bigger_r_longer_path_std
-                    _ _ _ _ Du Db nc2 phaseu stt zltru tup' rult rtp u v).
+                    _ _ _ _ Du Db _ _ nc2 stt zltru tup rult rtp u v).
            
     ++ right.
        apply Rnot_le_lt in t1rbgttd.
@@ -1070,17 +1827,13 @@ Proof.
            left.
            eapply ottb_bigger_r_longer_path_std.
            apply nc2.
-           apply phaseu.
            apply srd.
+           apply zltru.
            assumption.
-           assumption.
-           assumption.
+           apply u.
            dependent rewrite tc1 in d.
-           assumption.
+           apply d.
            
-           Unshelve.
-           assumption.
-           assumption.
        +++ assert (0 < ru * θd < Rabs ru * 2 * PI) as tup''. {
              rewrite <- tueqtd.
              assumption. }
@@ -1177,7 +1930,7 @@ Proof.
       lrag nst. }
 
     assert (y <> 0) as yne0; try lra.
-    specialize (intro_turning_path_std _ _ _ phasez yne0) as [rtp pt].
+    specialize (intro_turning_path_std _ _ _ phasez no) as [rtp pt].
     change (0 < rz * θmax < Rabs rz * 2 * PI) in rtp.
     change (path_segment {| nonneg := rz * θmax; cond_nonneg := nna rz θmax rtp |}
                          (Hx rz 0 0 θmax rtp) (Hy rz 0 0 θmax rtp)
@@ -1382,8 +2135,6 @@ Proof.
     ++ apply Rnot_le_lt in tmgttd.
        left.
        
-       (*****)
-       
        set (rd := (x * sin θd - y * cos θd) / (1 - cos θd)) in *.
        assert (rd < rz) as rdltrb. {
          specialize (chord_length_std _ _ _ phasez yne0) as id.
@@ -1538,17 +2289,11 @@ Proof.
                 left.
                 eapply ottb_bigger_r_longer_path_std.
                 apply nc2.
-                apply phaseu.
                 apply srd.
-                assumption.
-                assumption.
-                assumption.
-                dependent rewrite tc1 in d.
-                assumption.
-                
-                Unshelve.
-                assumption.
-                assumption.
+                apply zltru.
+                apply regtrd.
+                apply u.
+                apply d.
        +++ assert (0 < ru * θd < Rabs ru * 2 * PI) as tup''. {
              rewrite <- tueqtd.
              assumption. }
@@ -1566,6 +2311,139 @@ Proof.
            right; reflexivity.
 Qed.
 
+Theorem maxlength_path_turn_std :
+  forall x y ra rb θc θd Du ru θu tup
+         (lt : 0 < ra)
+         (rur : ra <= ru <= rb)
+         (tur : θc <= θu <= θd)
+         (phaseu : turning ru 0 0 0 x y),
+    let o := (mkpt 0 0) in
+    let p := (mkpt x y) in
+    let θmax := calcθ₁ 0 0 0 x y in
+    forall (nc : ~ (0 <= x /\ y = 0)),
+      path_segment Du (Hx ru 0 0 θu tup) (Hy ru 0 0 θu tup) o p ->
+      (exists Dw rw twp,
+          (ra <= rw <= rb /\
+           path_segment Dw (Hx rw 0 0 θmax twp) (Hy rw 0 0 θmax twp) o p /\
+           Du <= Dw)).
+Proof.
+  intros until 5.
+  intro u.
+
+  specialize PI_RGT_0 as pigt0.
+
+  assert (~(x = 0 /\ y = 0)) as no; try lra.
+
+  assert (-2 * PI < θmax <= 2 * PI) as [tml tmu]. {
+    unfold θmax, calcθ₁.
+    arn.
+    split.
+    apply (Rmult_lt_reg_r (/2)); try lra.
+    setl (-PI).
+    setr (atan2 y x).
+    apply atan2_bound; try assumption.
+    apply (Rmult_le_reg_r (/2)); try lra.
+    setr (PI).
+    setl (atan2 y x).
+    apply atan2_bound; try assumption. }
+
+  assert (θmax / 2 <= PI) as tmub; try lra.
+  assert (- PI < θmax / 2) as tmlb; try lra.
+
+  assert (0 < θmax / 2 + 2 * PI) as tm2lb; try lra.
+  assert (θmax / 2 - 2 * PI < 0) as tm2ub; try lra.
+
+  assert (0 < ru) as zltru. lra.
+  assert (0 < θu) as zlttu. {
+    eapply zlt_mult.
+    instantiate (1:=ru).
+    destruct tup.
+    assumption.
+    left; assumption. }
+
+  assert (rb <> 0) as rbne0. lra.
+  assert (0 < rb) as zltrb. lra.
+  assert (~ (rb < 0 /\ θmax = 2 * PI)) as trm. {
+    unfold θmax.
+    intros [rblt0 els].
+    lra. }
+
+  generalize nc; intro nc2.
+  apply thmaxne0 in nc2.
+  change (θmax <> 0) in nc2.
+
+  specialize (ottb_compute_turning_t_s _ _ _ _ tup Du no phaseu u) as dudef.
+  simpl in dudef.
+  change (Rabs θmax <= Rabs θu < 2 * PI) in dudef.
+  rewrite (Rabs_pos_eq θu) in dudef; try lra.
+
+  assert (0 < y) as zlty. {
+    apply turningcond in phaseu.
+    specialize (posss _ _ no) as zlt2.
+    rewrite <- phaseu in zlt2.
+    apply zlt_mult in zlt2; lra. }
+
+  assert (0 < θmax) as zlttm. {
+    unfold θmax, calcθ₁.
+    arn.
+    setl (2 * 0).
+    apply Rmult_lt_compat_l; try lra.
+    destruct (total_order_T 0 x); [destruct s|].
+    - specialize (atan2Q1 _ _ r zlty) as [at2l at2u].
+      lra.
+    - rewrite <- e.
+      rewrite (atan2_PI2 _ zlty).
+      lra.
+    - specialize (atan2Q2 _ _ r zlty) as [at2l at2u].
+      lra. }
+  
+  rewrite (Rabs_pos_eq θmax) in dudef; try lra.
+  destruct dudef as [tul tuu].
+
+  specialize (ottb_compute_turning_r_s _ _ _ _ tup Du phaseu no u) as rudef.
+
+  assert (straight rb 0 0 0 x y \/
+          ~ straight rb 0 0 0 x y) as [stt | nstt]. {
+    unfold straight.
+    destruct (Rlt_dec (rb²) ((x - Tcx rb 0 0)² +
+                             (y - Tcy rb 0 0)²)).
+    left; assumption.
+    right; assumption. }
+  
+  + exfalso.
+    apply straightcond in stt.
+    apply turningcond in phaseu.
+    rewrite <- phaseu in stt.
+    assert (rb < ru) as rbltru. {
+      apply (Rmult_lt_reg_l 2); try lra.
+      apply (Rmult_lt_reg_r y); try lra. }
+    lra.
+  + specialize (intro_turning_path_std _ _ _ phaseu no) as [rtp u2].
+    unfold θmax in *; clear θmax.
+    set (θmax := calcθ₁ 0 0 0 x y) in *.
+    set (Du2 := {| nonneg := ru * θmax; cond_nonneg := nna ru θmax rtp |}) in *.
+    exists Du2, ru, rtp.
+    split; try lra.
+    split; try lra.
+    apply u2.
+    right.
+
+    specialize (ottb_path_distance _ _ _ _ _ _ _ _ tup u) as [[trn dst] | [stt dst]].
+    simpl.
+    rewrite dst.
+    rewrite <- eqv_calcs.
+    unfold θmax.
+    reflexivity.
+    arn.
+    assumption.
+    assumption.
+
+    exfalso.
+    apply straightcond in stt.
+    apply turningcond in phaseu.
+    clear - stt phaseu.
+    lra.
+Qed.
 
 
 Corollary maxlength_path_std_part1 :
@@ -1777,8 +2655,7 @@ Proof.
        +++ split; auto.
            left.
            apply (ottb_bigger_r_longer_path_std
-                    _ _ _ _ Du Db nc2 phaseu stt zltru tup' rult rtp u v).
-           
+                    _ _ _ _ Du Db _ _ nc2 stt zltru tup' rult rtp u v).
 Qed.
 
 
@@ -1992,17 +2869,12 @@ Proof.
            left.
            eapply ottb_bigger_r_longer_path_std.
            apply nc2.
-           apply phaseu.
            apply srd.
+           apply zltru.
            assumption.
-           assumption.
-           assumption.
-           dependent rewrite tc1 in d.
-           assumption.
+           apply u.
+           apply d.
            
-           Unshelve.
-           assumption.
-           assumption.
        +++ assert (0 < ru * θd < Rabs ru * 2 * PI) as tup''. {
              rewrite <- tueqtd.
              assumption. }
@@ -2020,7 +2892,8 @@ Proof.
            right; reflexivity.
 Qed.
 
-Corollary maxlength_path_std_part3 :
+
+Corollary maxlength_path_std_vacuous :
   forall x y ra rb θc θd Du ru θu tup
          (lt : 0 < ra)
          (rulb : ra <= ru)
@@ -2034,10 +2907,7 @@ Corollary maxlength_path_std_part3 :
            (t1rbgttd : θ1 x y rb > θd)
            (stt: straight rb 0 0 0 x y),
       path_segment Du (Hx ru 0 0 θu tup) (Hy ru 0 0 θu tup) o p ->
-      (exists Dv θv tvp,
-          (θc <= θv <= θd /\
-           path_segment Dv (Hx rb 0 0 θv tvp) (Hy rb 0 0 θv tvp) o p
-           /\ Du <= Dv)).
+      False.
 Proof.
   intros until 9.
   intro u.
@@ -2118,29 +2988,12 @@ Proof.
   change ((0 < θmax /\ (θmax / 2 < θ1 x y ru < θmax \/ -2 * PI < θ1 x y ru < θmax / 2 - 2 * PI)) \/
           (θmax < 0 /\ (θmax < θ1 x y ru < θmax / 2 \/ θmax / 2 + 2 * PI < θ1 x y ru < 2 * PI))) in t1urng.
 
-  + (* introduce rb path *)
-    specialize (intro_r_path_std _ _ _ stt nc2 rbne0 trm) as [rtp [dnnpf v]].
-    set (θb := θ1 x y rb) in *.
-    set (Lb := rb * θb + calcL rb 0 0 0 x y θb) in *.
-    set (Db := {| nonneg := Lb; cond_nonneg := dnnpf |}) in *.
-    change (path_segment Db (Hx rb 0 0 θb rtp) (Hy rb 0 0 θb rtp) o p) in v.
-
-    specialize (ottb_compute_straight_r
-                  _ _ _ _ _ _ _ rtp _ stt v) as rvdef.
-    autorewrite with null in *.
-    specialize (ottb_tinrng _ _ _ _ _ _ _ rtp Db stt v) as t1vrng.
-    simpl in t1vrng.
-    change ((0 < θmax /\ (θmax / 2 < θ1 x y rb < θmax \/ -2 * PI < θ1 x y rb < θmax / 2 - 2 * PI)) \/
-            (θmax < 0 /\ (θmax < θ1 x y rb < θmax / 2 \/ θmax / 2 + 2 * PI < θ1 x y rb < 2 * PI))) in t1vrng.
-
-    rewrite <- rueq in *;
-      exists Du, (θ1 x y ru), tup';
-      repeat (split; auto);
-      right; reflexivity.
+  rewrite rueq in tur.
+  lra.
 Qed.
 
 
-Corollary maxlength_path_std_part4 :
+Corollary maxlength_path_std_part3 :
   forall x y ra rb θc θd Du ru θu tup
          (lt : 0 < ra)
          (rur : ra <= ru <= rb)
@@ -2321,7 +3174,7 @@ Proof.
       lrag nst. }
 
     assert (y <> 0) as yne0; try lra.
-    specialize (intro_turning_path_std _ _ _ phasez yne0) as [rtp pt].
+    specialize (intro_turning_path_std _ _ _ phasez no) as [rtp pt].
     change (0 < rz * θmax < Rabs rz * 2 * PI) in rtp.
     change (path_segment {| nonneg := rz * θmax; cond_nonneg := nna rz θmax rtp |}
                          (Hx rz 0 0 θmax rtp) (Hy rz 0 0 θmax rtp)
@@ -2525,7 +3378,7 @@ Proof.
 Qed.
 
 
-Corollary maxlength_path_std_part5 :
+Corollary maxlength_path_std_part4 :
   forall x y ra rb θc θd Du ru θu tup
          (lt : 0 < ra)
          (rur : ra <= ru <= rb)
@@ -2708,18 +3561,13 @@ Proof.
     lrag nst. }
   
   assert (y <> 0) as yne0; try lra.
-  specialize (intro_turning_path_std _ _ _ phasez yne0) as [rtp pt].
+  specialize (intro_turning_path_std _ _ _ phasez no) as [rtp pt].
   change (0 < rz * θmax < Rabs rz * 2 * PI) in rtp.
   change (path_segment {| nonneg := rz * θmax; cond_nonneg := nna rz θmax rtp |}
                        (Hx rz 0 0 θmax rtp) (Hy rz 0 0 θmax rtp)
                        o p) in pt.
   set (Dz := {| nonneg := rz * θmax; cond_nonneg := nna rz θmax rtp |}) in *.
-  + (*apply Rnot_le_lt in tmgttd. *)
-    (* left. *)
-    
-    (*****)
-    
-    set (rd := (x * sin θd - y * cos θd) / (1 - cos θd)) in *.
+  + set (rd := (x * sin θd - y * cos θd) / (1 - cos θd)) in *.
     assert (rd < rz) as rdltrb. {
       specialize (chord_length_std _ _ _ phasez yne0) as id.
       simpl in id.
@@ -2874,17 +3722,12 @@ Proof.
                 left.
                 eapply ottb_bigger_r_longer_path_std.
                 apply nc2.
-                apply phaseu.
                 apply srd.
+                apply zltru.
                 assumption.
-                assumption.
-                assumption.
-                dependent rewrite tc1 in d.
-                assumption.
-                
-                Unshelve.
-                assumption.
-                assumption.
+                apply u.
+                apply d.
+
        ++ assert (0 < ru * θd < Rabs ru * 2 * PI) as tup''. {
              rewrite <- tueqtd.
              assumption. }
@@ -3006,7 +3849,6 @@ Proof.
           (θmax < 0 /\ (θmax < θ1 x y ru < θmax / 2 \/
                         θmax / 2 + 2 * PI < θ1 x y ru < 2 * PI))) in t1urng.
 
-  (* working here *)
   (* path_segment with r=0 -> theta=thetamax/2 *)
   (* 0 < ra -> thetamax/2 < thetaa *)
   (* issue is where does thetac fall, with respect to thetamax/2? *)
@@ -3149,17 +3991,13 @@ Proof.
            left.
            eapply ottb_bigger_r_longer_path_std.
            apply nc2.
-           apply srd.
            apply phaseu.
-           lra.
+           assert (0 < rc) as zltrc; try lra.
+           apply zltrc.
            assumption.
-           dependent rewrite tc1 in d.
-           assumption.
-           assumption.
-           
-           Unshelve.
-           assumption.
-           assumption.
+           apply d.
+           apply u.
+
        +++ assert (0 < ru * θc < Rabs ru * 2 * PI) as tup''. {
              rewrite tceqtu.
              assumption. }
@@ -3260,7 +4098,7 @@ Proof.
        +++ split; auto.
            left.
            apply (ottb_bigger_r_longer_path_std
-                    _ _ _ _ Da Du nc2 stt phaseu lt rtp ralt tup' v u).
+                    _ _ _ _ Da Du _ _ nc2 phaseu lt rtp ralt tup' v u).
            
   + right.
     destruct rur as [[rult |rueq] ruub ].
@@ -3342,8 +4180,1060 @@ Proof.
     assert (y <> 0) as yne0; try lra.
 Qed.
 
+Theorem minlength_path_turn_std :
+  forall x y ra rb θc θd Du ru θu tup
+         (lt : 0 < ra)
+         (rur : ra <= ru <= rb)
+         (tur : θc <= θu <= θd)
+         (phaseu : turning ru 0 0 0 x y),
+    let o := (mkpt 0 0) in
+    let p := (mkpt x y) in
+    let θmax := calcθ₁ 0 0 0 x y in
+    forall (nc : ~ (0 <= x /\ y = 0)),
+      path_segment Du (Hx ru 0 0 θu tup) (Hy ru 0 0 θu tup) o p ->
+      (exists Dv θv tvp,
+          (θc <= θv <= θd /\
+           path_segment Dv (Hx ra 0 0 θv tvp) (Hy ra 0 0 θv tvp) o p
+           /\  Dv <= Du)) \/
+      (exists Dw rw twp,
+          (ra <= rw <= rb /\
+           path_segment Dw (Hx rw 0 0 θc twp) (Hy rw 0 0 θc twp) o p /\
+           Dw <= Du)) \/
+      (exists Dw rw twp,
+          (ra <= rw <= rb /\
+           path_segment Dw (Hx rw 0 0 θmax twp) (Hy rw 0 0 θmax twp) o p /\
+           Dw <= Du)).
+Proof.
+  intros until 5.
+  intro u.
 
-Corollary minlength_path_std_part4 :
+  specialize PI_RGT_0 as pigt0.
+
+  assert (~(x = 0 /\ y = 0)) as no; try lra.
+
+
+  assert (-2 * PI < θmax <= 2 * PI) as [tml tmu]. {
+    unfold θmax, calcθ₁.
+    arn.
+    split.
+    apply (Rmult_lt_reg_r (/2)); try lra.
+    setl (-PI).
+    setr (atan2 y x).
+    apply atan2_bound; try assumption.
+    apply (Rmult_le_reg_r (/2)); try lra.
+    setr (PI).
+    setl (atan2 y x).
+    apply atan2_bound; try assumption. }
+
+  assert (θmax / 2 <= PI) as tmub; try lra.
+  assert (- PI < θmax / 2) as tmlb; try lra.
+
+  assert (0 < θmax / 2 + 2 * PI) as tm2lb; try lra.
+  assert (θmax / 2 - 2 * PI < 0) as tm2ub; try lra.
+
+  assert (0 < ru) as zltru. lra.
+  assert (0 < θu) as zlttu. {
+    eapply zlt_mult.
+    instantiate (1:=ru).
+    destruct tup.
+    assumption.
+    left; assumption. }
+
+  assert (ra <> 0) as rbne0. lra.
+  assert (0 < ra) as zltrb. lra.
+  assert (~ (ra < 0 /\ θmax = 2 * PI)) as trm. {
+    unfold θmax.
+    intros [rblt0 els].
+    lra. }
+
+  generalize nc; intro nc2.
+  apply thmaxne0 in nc2.
+  change (θmax <> 0) in nc2.
+
+  specialize (ottb_compute_turning_t_s _ _ _ _ tup Du no phaseu u) as dudef.
+  simpl in dudef.
+  change (Rabs θmax <= Rabs θu < 2 * PI) in dudef.
+  rewrite (Rabs_pos_eq θu) in dudef; try lra.
+
+  assert (0 < y) as zlty. {
+    apply turningcond in phaseu.
+    specialize (posss _ _ no) as zlt2.
+    rewrite <- phaseu in zlt2.
+    apply zlt_mult in zlt2; lra. }
+
+  assert (0 < θmax) as zlttm. {
+    unfold θmax, calcθ₁.
+    arn.
+    setl (2 * 0).
+    apply Rmult_lt_compat_l; try lra.
+    destruct (total_order_T 0 x); [destruct s|].
+    - specialize (atan2Q1 _ _ r zlty) as [at2l at2u].
+      lra.
+    - rewrite <- e.
+      rewrite (atan2_PI2 _ zlty).
+      lra.
+    - specialize (atan2Q2 _ _ r zlty) as [at2l at2u].
+      lra. }
+  
+  rewrite (Rabs_pos_eq θmax) in dudef; try lra.
+  destruct dudef as [tul tuu].
+
+  specialize (ottb_compute_turning_r_s _ _ _ _ tup Du phaseu no u) as rudef.
+
+  specialize (intro_turning_path_std _ _ _ phaseu no) as [tup2 u2].
+  unfold θmax in *; clear θmax.
+
+  assert (y <> 0) as yne0; try lra.
+  specialize (t1eqtm _ _ no yne0) as t1d.
+  rewrite <- rudef in t1d.
+  set (θmax := calcθ₁ 0 0 0 x y) in *.
+  set (Du2 := {| nonneg := ru * θmax; cond_nonneg := nna ru θmax tup2 |}) in *.
+
+  rename tup into tup'.
+  generalize tup2; intro tup.
+  rewrite <- t1d in tup.
+
+  
+  assert ((straight ra 0 0 0 x y)
+          \/ ~ straight ra 0 0 0 x y) as [stt | nstt]. {
+    unfold straight.
+    destruct (Rlt_dec (ra²) ((x - Tcx ra 0 0)² +
+                             (y - Tcy ra 0 0)²)).
+    left; assumption.
+    right; assumption. }
+  
+  + (* introduce ra path *)
+    specialize (intro_r_path_std _ _ _ stt nc2 rbne0 trm) as [rtp [dnnpf v]].
+    set (θa := θ1 x y ra) in *.
+    set (La := ra * θa + calcL ra 0 0 0 x y θa) in *.
+    set (Da := {| nonneg := La; cond_nonneg := dnnpf |}) in *.
+    change (path_segment Da (Hx ra 0 0 θa rtp) (Hy ra 0 0 θa rtp) o p) in v.
+
+    specialize (ottb_compute_straight_r
+                  _ _ _ _ _ _ _ rtp _ stt v) as rvdef.
+    autorewrite with null in *.
+    specialize (ottb_tinrng _ _ _ _ _ _ _ rtp Da stt v) as t1vrng.
+    simpl in t1vrng.
+    change ((0 < θmax /\ (θmax / 2 < θ1 x y ra < θmax \/
+                          -2 * PI < θ1 x y ra < θmax / 2 - 2 * PI)) \/
+            (θmax < 0 /\ (θmax < θ1 x y ra < θmax / 2 \/
+                          θmax / 2 + 2 * PI < θ1 x y ra < 2 * PI))) in t1vrng.
+
+    destruct rur as [[ralt |raeq] ruub].
+    2 : { rewrite raeq in *.
+          exfalso.
+          clear - stt phaseu.
+          apply straightcond in stt.
+          apply turningcond in phaseu.
+          rewrite phaseu in stt.
+          lra. }
+
+    (* ra < ru (reminder: θc and (θ1 x y ra) are not related) *)
+    destruct (Rlt_dec (θ1 x y ra) θc) as [t1rbletd| t1rbgttd].
+    ++ right.
+       change (θa < θc) in t1rbletd.
+
+       assert (0 < θa) as zltta. {
+         destruct rtp.
+         clear - lt r.
+         apply (Rmult_lt_reg_l ra); try assumption.
+         setl 0.
+         assumption. } 
+
+       assert (0 < θc) as zlttd; try lra.
+       
+       change (0 < θmax /\ (θmax / 2 < θa < θmax \/ -2 * PI < θa < θmax / 2 - 2 * PI) \/
+               θmax < 0 /\ (θmax < θa < θmax / 2 \/ θmax / 2 + 2 * PI < θa < 2 * PI)) in t1vrng.
+
+       destruct (Rge_dec θc θmax).
+       {
+         apply Rge_le in r.
+         right.
+         exists Du2, ru, tup2.
+         split.
+         lra.
+         split.
+         apply u2.
+         simpl.
+
+         specialize (ottb_path_distance _ _ _ _ _ _ _ _ _ u) as [[trn dst] | [stu dst]].
+         simpl.
+         rewrite dst.
+         rewrite <- eqv_calcs.
+         unfold θmax.
+         right.
+         reflexivity.
+         arn.
+         assumption.
+         assumption.
+
+         exfalso.
+         apply straightcond in stu.
+         apply turningcond in phaseu.
+         clear - stu phaseu.
+         lra. }
+       
+       apply Rnot_ge_lt in n.
+       set (rc := (x * sin θc - y * cos θc) / (1 - cos θc)) in *.
+       assert (ra < rc) as rdltrb. {
+         rewrite rvdef.
+         unfold rc.
+         destruct t1vrng as [[tordv [vpr|vnr]]|[tord poof]]; try lra.
+         apply ottb_bigger_theta_bigger_r_std; try assumption.
+         split; try lra.
+         destruct vpr as [vprl vprh].
+         change (θmax / 2 < θc).
+         apply (Rlt_le_trans _ θa); lra.
+         change (θc < θmax).
+         assumption.
+         lra. }
+       
+       destruct tur as [[tclttu | tceqtu] tuletc].
+       +++ assert (rc < ru) as ralerd. {
+             rewrite rudef.
+             unfold rc.
+             destruct t1vrng as [[tordv [vpr|vnr]]|[tord poof]]; try lra.
+
+             rewrite Rplus_comm.
+             rewrite tmax_radius; try lra.
+             change ((x * sin θc - y * cos θc) / (1 - cos θc) <
+                     (x * sin θmax - y * cos θmax) / (1 - cos θmax)).
+             destruct vpr as [vprl vprh].
+             apply ottb_bigger_theta_bigger_r_ep_std; try lra.
+             split; try lra.
+             apply (Rle_trans _ θa); try lra.
+             left; assumption.
+             left; assumption.
+             change (θmax / 2 <= θmax <= θmax).
+             split; lra. }
+           
+           assert (θmax / 2 < θc < θmax \/ -2 * PI < θc < θmax / 2 - 2 * PI \/
+                   θmax < θc < θmax / 2 \/ θmax / 2 + 2 * PI < θc < 2 * PI) as tdr; try lra.
+           unfold θmax in tdr.
+           
+           assert (straight rc 0 0 0 x y) as srd. {
+             apply turningcond in phaseu.
+             apply condstraight.
+             rewrite <- phaseu.
+             repeat rewrite Rmult_assoc.
+             repeat rewrite (Rmult_comm _ y).
+             repeat rewrite <- Rmult_assoc.
+             apply Rmult_lt_compat_l; try lra. }
+           
+           assert (~ (rc < 0 /\ calcθ₁ 0 0 0 x y = 2 * PI)) as rdc; try (intros [rdlt0 poof]; lra).
+           specialize (intro_theta_path_std x y θc tdr srd rdc) as [trd [lengt0 d]].
+           change (0 < rc * θc < Rabs rc * 2 * PI) in trd.
+           change (0 <= rc * θc + calcL rc 0 0 0 x y θc) in lengt0.
+           change (path_segment
+                     {| nonneg := rc * θc + calcL rc 0 0 0 x y θc;
+                        cond_nonneg := lengt0 |} (Hx rc 0 0 θc trd) (Hy rc 0 0 θc trd) o p) in d.
+           set (Lc := rc * θc + calcL rc 0 0 0 x y θc) in *.
+           set (Dc := {| nonneg := Lc; cond_nonneg := lengt0 |}) in *.
+           
+           specialize (ottb_compute_straight_t _ _ _ _ _ _ _ trd Dc srd d) as dddef.
+           simpl in dddef.
+           autorewrite with null in *.
+           
+           assert (0 < rc * (θ1 x y rc) < Rabs rc * 2 * PI) as trd'. {
+             rewrite <- dddef.
+             assumption. }
+           
+           set (f := (fun t => 0 < rc * t < Rabs rc * 2 * PI)).
+           assert (existT f θc trd =
+                   existT f (θ1 x y rc) trd') as tc1. {
+             clear - trd' trd dddef.
+             apply ProofIrrelevance.ProofIrrelevanceTheory.subsetT_eq_compat;
+               try assumption. }
+           left.
+           exists Dc, rc, trd.
+           split; [lra|].
+           split; try assumption.
+           left.
+
+           eapply ottb_bigger_r_longer_path_turn_std.
+           apply no.
+           apply phaseu.
+           assert (0 < rc) as zltrc; try lra.
+           apply zltrc.
+           assumption.
+           apply d.
+           apply u.
+           
+       +++ assert (0 < ru * θc < Rabs ru * 2 * PI) as tup''. {
+             rewrite tceqtu.
+             assumption. }
+           
+           set (f := (fun t => 0 < ru * t < Rabs ru * 2 * PI)).
+           assert (existT f θu tup' =
+                   existT f θc tup'') as tc1. {
+             clear - tup' tup'' tceqtu.
+             apply ProofIrrelevance.ProofIrrelevanceTheory.subsetT_eq_compat;
+               auto. }
+           dependent rewrite tc1 in u.
+           exfalso.
+           lra.
+
+    ++ left.
+       apply Rnot_lt_le in t1rbgttd.
+       exists Da, (θ1 x y ra), rtp.
+       split.
+       +++ split; try assumption.
+           apply (Rle_trans _ (θ1 x y ru)); try lra.
+                
+       +++ split; auto.
+           left.
+           apply (ottb_bigger_r_longer_path_turn_std
+                    _ _ _ _ Da Du _ _ no phaseu lt rtp ralt tup' v u).
+           
+  + right.
+    destruct rur as [[rult |rueq] ruub ].
+
+    exfalso.
+    apply nstt.
+    apply condstraight.
+    apply turningcond in phaseu.
+    rewrite <- phaseu.
+    repeat rewrite Rmult_assoc.
+    repeat rewrite (Rmult_comm _ y).
+    repeat rewrite <- Rmult_assoc.
+    apply Rmult_lt_compat_l; try lra.
+
+    right.
+    exists Du2, ru, tup2.
+    split ; try lra.
+    split; try assumption.
+    simpl.
+
+    specialize (ottb_path_distance _ _ _ _ _ _ _ _ _ u) as [[trn dst] | [stt dst]].
+    simpl.
+    rewrite dst.
+    rewrite <- eqv_calcs.
+    unfold θmax.
+    right.
+    reflexivity.
+    arn.
+    assumption.
+    assumption.
+
+    exfalso.
+    apply straightcond in stt.
+    apply turningcond in phaseu.
+    clear - stt phaseu.
+    lra.
+Qed.
+
+Corollary minlength_path_turn_std_part1 :
+  forall x y ra rb θc θd Du ru θu tup
+         (lt : 0 < ra)
+         (rur : ra <= ru <= rb)
+         (tur : θc <= θu <= θd)
+         (phaseu : turning ru 0 0 0 x y),
+    let o := (mkpt 0 0) in
+    let p := (mkpt x y) in
+    let θmax := calcθ₁ 0 0 0 x y in
+    forall (nc : ~ (0 <= x /\ y = 0))
+           (stt : straight ra 0 0 0 x y)
+           (t1rbgttd : θc <= θ1 x y ra),
+      path_segment Du (Hx ru 0 0 θu tup) (Hy ru 0 0 θu tup) o p ->
+      (exists Dv θv tvp,
+          (θc <= θv <= θd /\
+           path_segment Dv (Hx ra 0 0 θv tvp) (Hy ra 0 0 θv tvp) o p
+           /\  Dv <= Du)).
+Proof.
+  intros until 8.
+  intro u.
+
+  specialize PI_RGT_0 as pigt0.
+
+  assert (~(x = 0 /\ y = 0)) as no; try lra.
+
+
+  assert (-2 * PI < θmax <= 2 * PI) as [tml tmu]. {
+    unfold θmax, calcθ₁.
+    arn.
+    split.
+    apply (Rmult_lt_reg_r (/2)); try lra.
+    setl (-PI).
+    setr (atan2 y x).
+    apply atan2_bound; try assumption.
+    apply (Rmult_le_reg_r (/2)); try lra.
+    setr (PI).
+    setl (atan2 y x).
+    apply atan2_bound; try assumption. }
+
+  assert (θmax / 2 <= PI) as tmub; try lra.
+  assert (- PI < θmax / 2) as tmlb; try lra.
+
+  assert (0 < θmax / 2 + 2 * PI) as tm2lb; try lra.
+  assert (θmax / 2 - 2 * PI < 0) as tm2ub; try lra.
+
+  assert (0 < ru) as zltru. lra.
+  assert (0 < θu) as zlttu. {
+    eapply zlt_mult.
+    instantiate (1:=ru).
+    destruct tup.
+    assumption.
+    left; assumption. }
+
+  assert (ra <> 0) as rbne0. lra.
+  assert (0 < ra) as zltrb. lra.
+  assert (~ (ra < 0 /\ θmax = 2 * PI)) as trm. {
+    unfold θmax.
+    intros [rblt0 els].
+    lra. }
+
+  generalize nc; intro nc2.
+  apply thmaxne0 in nc2.
+  change (θmax <> 0) in nc2.
+
+  specialize (ottb_compute_turning_t_s _ _ _ _ tup Du no phaseu u) as dudef.
+  simpl in dudef.
+  change (Rabs θmax <= Rabs θu < 2 * PI) in dudef.
+  rewrite (Rabs_pos_eq θu) in dudef; try lra.
+
+  assert (0 < y) as zlty. {
+    apply turningcond in phaseu.
+    specialize (posss _ _ no) as zlt2.
+    rewrite <- phaseu in zlt2.
+    apply zlt_mult in zlt2; lra. }
+
+  assert (0 < θmax) as zlttm. {
+    unfold θmax, calcθ₁.
+    arn.
+    setl (2 * 0).
+    apply Rmult_lt_compat_l; try lra.
+    destruct (total_order_T 0 x); [destruct s|].
+    - specialize (atan2Q1 _ _ r zlty) as [at2l at2u].
+      lra.
+    - rewrite <- e.
+      rewrite (atan2_PI2 _ zlty).
+      lra.
+    - specialize (atan2Q2 _ _ r zlty) as [at2l at2u].
+      lra. }
+  
+  rewrite (Rabs_pos_eq θmax) in dudef; try lra.
+  destruct dudef as [tul tuu].
+
+  specialize (ottb_compute_turning_r_s _ _ _ _ tup Du phaseu no u) as rudef.
+
+  specialize (intro_turning_path_std _ _ _ phaseu no) as [tup2 u2].
+  unfold θmax in *; clear θmax.
+
+  assert (y <> 0) as yne0; try lra.
+  specialize (t1eqtm _ _ no yne0) as t1d.
+  rewrite <- rudef in t1d.
+  set (θmax := calcθ₁ 0 0 0 x y) in *.
+  set (Du2 := {| nonneg := ru * θmax; cond_nonneg := nna ru θmax tup2 |}) in *.
+
+  rename tup into tup'.
+  generalize tup2; intro tup.
+  rewrite <- t1d in tup.
+
+  (* introduce ra path *)
+    specialize (intro_r_path_std _ _ _ stt nc2 rbne0 trm) as [rtp [dnnpf v]].
+    set (θa := θ1 x y ra) in *.
+    set (La := ra * θa + calcL ra 0 0 0 x y θa) in *.
+    set (Da := {| nonneg := La; cond_nonneg := dnnpf |}) in *.
+    change (path_segment Da (Hx ra 0 0 θa rtp) (Hy ra 0 0 θa rtp) o p) in v.
+
+    specialize (ottb_compute_straight_r
+                  _ _ _ _ _ _ _ rtp _ stt v) as rvdef.
+    autorewrite with null in *.
+    specialize (ottb_tinrng _ _ _ _ _ _ _ rtp Da stt v) as t1vrng.
+    simpl in t1vrng.
+    change ((0 < θmax /\ (θmax / 2 < θ1 x y ra < θmax \/
+                          -2 * PI < θ1 x y ra < θmax / 2 - 2 * PI)) \/
+            (θmax < 0 /\ (θmax < θ1 x y ra < θmax / 2 \/
+                          θmax / 2 + 2 * PI < θ1 x y ra < 2 * PI))) in t1vrng.
+
+    destruct rur as [[ralt |raeq] ruub].
+    2 : { rewrite raeq in *.
+          exfalso.
+          clear - stt phaseu.
+          apply straightcond in stt.
+          apply turningcond in phaseu.
+          rewrite phaseu in stt.
+          lra. }
+
+    (* ra < ru (reminder: θc and (θ1 x y ra) are not related) *)
+  exists Da, (θ1 x y ra), rtp.
+  split.
+  +++ split; try assumption.
+      apply (Rle_trans _ (θ1 x y ru)); try lra.
+    
+  +++ split; auto.
+      left.
+      apply (ottb_bigger_r_longer_path_turn_std
+               _ _ _ _ Da Du _ _ no phaseu lt rtp ralt tup' v u).
+Qed.
+
+Corollary minlength_path_turn_std_part2 :
+  forall x y ra rb θc θd Du ru θu tup
+         (lt : 0 < ra)
+         (rur : ra < ru <= rb)
+         (tur : θc <= θu <= θd)
+         (phaseu : turning ru 0 0 0 x y),
+    let o := (mkpt 0 0) in
+    let p := (mkpt x y) in
+    let θmax := calcθ₁ 0 0 0 x y in
+    forall (nc : ~ (0 <= x /\ y = 0))
+           (t1rbletd : θ1 x y ra < θc)
+           (n : θc < θmax),
+      path_segment Du (Hx ru 0 0 θu tup) (Hy ru 0 0 θu tup) o p ->
+      (exists Dw rw twp,
+          (ra <= rw <= rb /\
+           path_segment Dw (Hx rw 0 0 θc twp) (Hy rw 0 0 θc twp) o p /\
+           Dw <= Du)).
+Proof.
+  intros until 7.
+  intro u.
+
+  specialize PI_RGT_0 as pigt0.
+
+  assert (~(x = 0 /\ y = 0)) as no; try lra.
+
+
+  assert (-2 * PI < θmax <= 2 * PI) as [tml tmu]. {
+    unfold θmax, calcθ₁.
+    arn.
+    split.
+    apply (Rmult_lt_reg_r (/2)); try lra.
+    setl (-PI).
+    setr (atan2 y x).
+    apply atan2_bound; try assumption.
+    apply (Rmult_le_reg_r (/2)); try lra.
+    setr (PI).
+    setl (atan2 y x).
+    apply atan2_bound; try assumption. }
+
+  assert (θmax / 2 <= PI) as tmub; try lra.
+  assert (- PI < θmax / 2) as tmlb; try lra.
+
+  assert (0 < θmax / 2 + 2 * PI) as tm2lb; try lra.
+  assert (θmax / 2 - 2 * PI < 0) as tm2ub; try lra.
+
+  assert (0 < ru) as zltru. lra.
+  assert (0 < θu) as zlttu. {
+    eapply zlt_mult.
+    instantiate (1:=ru).
+    destruct tup.
+    assumption.
+    left; assumption. }
+
+  assert (ra <> 0) as rbne0. lra.
+  assert (0 < ra) as zltrb. lra.
+  assert (~ (ra < 0 /\ θmax = 2 * PI)) as trm. {
+    unfold θmax.
+    intros [rblt0 els].
+    lra. }
+
+  generalize nc; intro nc2.
+  apply thmaxne0 in nc2.
+  change (θmax <> 0) in nc2.
+
+  specialize (ottb_compute_turning_t_s _ _ _ _ tup Du no phaseu u) as dudef.
+  simpl in dudef.
+  change (Rabs θmax <= Rabs θu < 2 * PI) in dudef.
+  rewrite (Rabs_pos_eq θu) in dudef; try lra.
+
+  assert (0 < y) as zlty. {
+    apply turningcond in phaseu.
+    specialize (posss _ _ no) as zlt2.
+    rewrite <- phaseu in zlt2.
+    apply zlt_mult in zlt2; lra. }
+
+  assert (0 < θmax) as zlttm. {
+    unfold θmax, calcθ₁.
+    arn.
+    setl (2 * 0).
+    apply Rmult_lt_compat_l; try lra.
+    destruct (total_order_T 0 x); [destruct s|].
+    - specialize (atan2Q1 _ _ r zlty) as [at2l at2u].
+      lra.
+    - rewrite <- e.
+      rewrite (atan2_PI2 _ zlty).
+      lra.
+    - specialize (atan2Q2 _ _ r zlty) as [at2l at2u].
+      lra. }
+  
+  rewrite (Rabs_pos_eq θmax) in dudef; try lra.
+  destruct dudef as [tul tuu].
+
+  specialize (ottb_compute_turning_r_s _ _ _ _ tup Du phaseu no u) as rudef.
+
+  specialize (intro_turning_path_std _ _ _ phaseu no) as [tup2 u2].
+  unfold θmax in *; clear θmax.
+
+  assert (y <> 0) as yne0; try lra.
+  specialize (t1eqtm _ _ no yne0) as t1d.
+  rewrite <- rudef in t1d.
+  set (θmax := calcθ₁ 0 0 0 x y) in *.
+  set (Du2 := {| nonneg := ru * θmax; cond_nonneg := nna ru θmax tup2 |}) in *.
+
+  rename tup into tup'.
+  generalize tup2; intro tup.
+  rewrite <- t1d in tup.
+
+  assert (straight ra 0 0 0 x y) as stt. {
+    destruct rur as [lb ub].
+    clear - lb phaseu zlty.
+    apply turningcond in phaseu.
+    apply condstraight.
+    rewrite <- phaseu.
+    repeat rewrite Rmult_assoc.
+    repeat rewrite (Rmult_comm _ y).
+    repeat rewrite <- Rmult_assoc.
+    apply Rmult_lt_compat_l; try lra. }
+
+    specialize (intro_r_path_std _ _ _ stt nc2 rbne0 trm) as [rtp [dnnpf v]].
+    set (θa := θ1 x y ra) in *.
+    set (La := ra * θa + calcL ra 0 0 0 x y θa) in *.
+    set (Da := {| nonneg := La; cond_nonneg := dnnpf |}) in *.
+    change (path_segment Da (Hx ra 0 0 θa rtp) (Hy ra 0 0 θa rtp) o p) in v.
+
+    specialize (ottb_compute_straight_r
+                  _ _ _ _ _ _ _ rtp _ stt v) as rvdef.
+    autorewrite with null in *.
+    specialize (ottb_tinrng _ _ _ _ _ _ _ rtp Da stt v) as t1vrng.
+    simpl in t1vrng.
+    change ((0 < θmax /\ (θmax / 2 < θ1 x y ra < θmax \/
+                          -2 * PI < θ1 x y ra < θmax / 2 - 2 * PI)) \/
+            (θmax < 0 /\ (θmax < θ1 x y ra < θmax / 2 \/
+                          θmax / 2 + 2 * PI < θ1 x y ra < 2 * PI))) in t1vrng.
+
+    destruct rur as [ralt ruub].
+
+    (* ra < ru (reminder: θc and (θ1 x y ra) are not related) *)
+    change (θa < θc) in t1rbletd.
+
+    assert (0 < θa) as zltta. {
+      destruct rtp.
+      clear - lt r.
+      apply (Rmult_lt_reg_l ra); try assumption.
+      setl 0.
+      assumption. } 
+    
+    assert (0 < θc) as zlttd; try lra.
+    
+    change (0 < θmax /\ (θmax / 2 < θa < θmax \/ -2 * PI < θa < θmax / 2 - 2 * PI) \/
+                        θmax < 0 /\ (θmax < θa < θmax / 2 \/ θmax / 2 + 2 * PI < θa < 2 * PI)) in t1vrng.
+    
+    set (rc := (x * sin θc - y * cos θc) / (1 - cos θc)) in *.
+    assert (ra < rc) as rdltrb. {
+      rewrite rvdef.
+      unfold rc.
+      destruct t1vrng as [[tordv [vpr|vnr]]|[tord poof]]; try lra.
+      apply ottb_bigger_theta_bigger_r_std; try assumption.
+      split; try lra.
+      destruct vpr as [vprl vprh].
+      change (θmax / 2 < θc).
+      apply (Rlt_le_trans _ θa); lra.
+      change (θc < θmax).
+      assumption.
+      lra. }
+    
+    destruct tur as [[tclttu | tceqtu] tuletc].
+  +++ assert (rc < ru) as ralerd. {
+        rewrite rudef.
+        unfold rc.
+        destruct t1vrng as [[tordv [vpr|vnr]]|[tord poof]]; try lra.
+        
+        rewrite Rplus_comm.
+        rewrite tmax_radius; try lra.
+        change ((x * sin θc - y * cos θc) / (1 - cos θc) <
+                (x * sin θmax - y * cos θmax) / (1 - cos θmax)).
+        destruct vpr as [vprl vprh].
+        apply ottb_bigger_theta_bigger_r_ep_std; try lra.
+        split; try lra.
+        apply (Rle_trans _ θa); try lra.
+        left; assumption.
+        left; assumption.
+        change (θmax / 2 <= θmax <= θmax).
+        split; lra. }
+      
+      assert (θmax / 2 < θc < θmax \/ -2 * PI < θc < θmax / 2 - 2 * PI \/
+              θmax < θc < θmax / 2 \/ θmax / 2 + 2 * PI < θc < 2 * PI) as tdr; try lra.
+      unfold θmax in tdr.
+      
+      assert (straight rc 0 0 0 x y) as srd. {
+        apply turningcond in phaseu.
+        apply condstraight.
+        rewrite <- phaseu.
+        repeat rewrite Rmult_assoc.
+        repeat rewrite (Rmult_comm _ y).
+        repeat rewrite <- Rmult_assoc.
+        apply Rmult_lt_compat_l; try lra. }
+      
+      assert (~ (rc < 0 /\ calcθ₁ 0 0 0 x y = 2 * PI)) as rdc; try (intros [rdlt0 poof]; lra).
+      specialize (intro_theta_path_std x y θc tdr srd rdc) as [trd [lengt0 d]].
+      change (0 < rc * θc < Rabs rc * 2 * PI) in trd.
+      change (0 <= rc * θc + calcL rc 0 0 0 x y θc) in lengt0.
+      change (path_segment
+                {| nonneg := rc * θc + calcL rc 0 0 0 x y θc;
+                   cond_nonneg := lengt0 |} (Hx rc 0 0 θc trd) (Hy rc 0 0 θc trd) o p) in d.
+      set (Lc := rc * θc + calcL rc 0 0 0 x y θc) in *.
+      set (Dc := {| nonneg := Lc; cond_nonneg := lengt0 |}) in *.
+      
+      specialize (ottb_compute_straight_t _ _ _ _ _ _ _ trd Dc srd d) as dddef.
+      simpl in dddef.
+      autorewrite with null in *.
+      
+      assert (0 < rc * (θ1 x y rc) < Rabs rc * 2 * PI) as trd'. {
+        rewrite <- dddef.
+        assumption. }
+      
+      set (f := (fun t => 0 < rc * t < Rabs rc * 2 * PI)).
+      assert (existT f θc trd =
+              existT f (θ1 x y rc) trd') as tc1. {
+        clear - trd' trd dddef.
+        apply ProofIrrelevance.ProofIrrelevanceTheory.subsetT_eq_compat;
+          try assumption. }
+      exists Dc, rc, trd.
+      split; [lra|].
+      split; try assumption.
+      left.
+      
+      eapply ottb_bigger_r_longer_path_turn_std.
+      apply no.
+      apply phaseu.
+      assert (0 < rc) as zltrc; try lra.
+      apply zltrc.
+      assumption.
+      apply d.
+      apply u.
+
+  +++ assert (0 < ru * θc < Rabs ru * 2 * PI) as tup''. {
+        rewrite tceqtu.
+        assumption. }
+      
+      set (f := (fun t => 0 < ru * t < Rabs ru * 2 * PI)).
+      assert (existT f θu tup' =
+              existT f θc tup'') as tc1. {
+        clear - tup' tup'' tceqtu.
+        apply ProofIrrelevance.ProofIrrelevanceTheory.subsetT_eq_compat;
+          auto. }
+      dependent rewrite tc1 in u.
+      exfalso.
+      lra.
+Qed.
+
+Corollary minlength_path_turn_std_part3 :
+  forall x y ra rb θc θd Du ru θu tup
+         (lt : 0 < ra)
+         (rur : ra < ru <= rb)
+         (tur : θc <= θu <= θd)
+         (phaseu : turning ru 0 0 0 x y),
+    let o := (mkpt 0 0) in
+    let p := (mkpt x y) in
+    let θmax := calcθ₁ 0 0 0 x y in
+    forall (nc : ~ (0 <= x /\ y = 0))
+           (r : θmax <= θc)
+           (t1rbletd : θ1 x y ra < θc),
+      path_segment Du (Hx ru 0 0 θu tup) (Hy ru 0 0 θu tup) o p ->
+      (exists Dw rw twp,
+          (ra <= rw <= rb /\
+           path_segment Dw (Hx rw 0 0 θmax twp) (Hy rw 0 0 θmax twp) o p /\
+           Dw <= Du)).
+Proof.
+  intros until 7.
+  intro u.
+
+  specialize PI_RGT_0 as pigt0.
+
+  assert (~(x = 0 /\ y = 0)) as no; try lra.
+
+
+  assert (-2 * PI < θmax <= 2 * PI) as [tml tmu]. {
+    unfold θmax, calcθ₁.
+    arn.
+    split.
+    apply (Rmult_lt_reg_r (/2)); try lra.
+    setl (-PI).
+    setr (atan2 y x).
+    apply atan2_bound; try assumption.
+    apply (Rmult_le_reg_r (/2)); try lra.
+    setr (PI).
+    setl (atan2 y x).
+    apply atan2_bound; try assumption. }
+
+  assert (θmax / 2 <= PI) as tmub; try lra.
+  assert (- PI < θmax / 2) as tmlb; try lra.
+
+  assert (0 < θmax / 2 + 2 * PI) as tm2lb; try lra.
+  assert (θmax / 2 - 2 * PI < 0) as tm2ub; try lra.
+
+  assert (0 < ru) as zltru. lra.
+  assert (0 < θu) as zlttu. {
+    eapply zlt_mult.
+    instantiate (1:=ru).
+    destruct tup.
+    assumption.
+    left; assumption. }
+
+  assert (ra <> 0) as rbne0. lra.
+  assert (0 < ra) as zltrb. lra.
+  assert (~ (ra < 0 /\ θmax = 2 * PI)) as trm. {
+    unfold θmax.
+    intros [rblt0 els].
+    lra. }
+
+  generalize nc; intro nc2.
+  apply thmaxne0 in nc2.
+  change (θmax <> 0) in nc2.
+
+  specialize (ottb_compute_turning_t_s _ _ _ _ tup Du no phaseu u) as dudef.
+  simpl in dudef.
+  change (Rabs θmax <= Rabs θu < 2 * PI) in dudef.
+  rewrite (Rabs_pos_eq θu) in dudef; try lra.
+
+  assert (0 < y) as zlty. {
+    apply turningcond in phaseu.
+    specialize (posss _ _ no) as zlt2.
+    rewrite <- phaseu in zlt2.
+    apply zlt_mult in zlt2; lra. }
+
+  assert (0 < θmax) as zlttm. {
+    unfold θmax, calcθ₁.
+    arn.
+    setl (2 * 0).
+    apply Rmult_lt_compat_l; try lra.
+    destruct (total_order_T 0 x); [destruct s|].
+    - specialize (atan2Q1 _ _ r0 zlty) as [at2l at2u].
+      lra.
+    - rewrite <- e.
+      rewrite (atan2_PI2 _ zlty).
+      lra.
+    - specialize (atan2Q2 _ _ r0 zlty) as [at2l at2u].
+      lra. }
+  
+  rewrite (Rabs_pos_eq θmax) in dudef; try lra.
+  destruct dudef as [tul tuu].
+
+  specialize (ottb_compute_turning_r_s _ _ _ _ tup Du phaseu no u) as rudef.
+
+  specialize (intro_turning_path_std _ _ _ phaseu no) as [tup2 u2].
+  unfold θmax in *; clear θmax.
+
+  assert (y <> 0) as yne0; try lra.
+  specialize (t1eqtm _ _ no yne0) as t1d.
+  rewrite <- rudef in t1d.
+  set (θmax := calcθ₁ 0 0 0 x y) in *.
+  set (Du2 := {| nonneg := ru * θmax; cond_nonneg := nna ru θmax tup2 |}) in *.
+
+  rename tup into tup'.
+  generalize tup2; intro tup.
+  rewrite <- t1d in tup.
+
+  assert (straight ra 0 0 0 x y) as stt. {
+    destruct rur as [ralt ruub].
+    clear - ralt zlty phaseu.
+    apply turningcond in phaseu.
+    apply condstraight.
+    rewrite <- phaseu.
+    repeat rewrite Rmult_assoc.
+    repeat rewrite (Rmult_comm _ y).
+    repeat rewrite <- Rmult_assoc.
+    apply Rmult_lt_compat_l; try lra. }
+
+  (* introduce ra path *)
+    specialize (intro_r_path_std _ _ _ stt nc2 rbne0 trm) as [rtp [dnnpf v]].
+    set (θa := θ1 x y ra) in *.
+    set (La := ra * θa + calcL ra 0 0 0 x y θa) in *.
+    set (Da := {| nonneg := La; cond_nonneg := dnnpf |}) in *.
+    change (path_segment Da (Hx ra 0 0 θa rtp) (Hy ra 0 0 θa rtp) o p) in v.
+
+    specialize (ottb_compute_straight_r
+                  _ _ _ _ _ _ _ rtp _ stt v) as rvdef.
+    autorewrite with null in *.
+    specialize (ottb_tinrng _ _ _ _ _ _ _ rtp Da stt v) as t1vrng.
+    simpl in t1vrng.
+    change ((0 < θmax /\ (θmax / 2 < θ1 x y ra < θmax \/
+                          -2 * PI < θ1 x y ra < θmax / 2 - 2 * PI)) \/
+            (θmax < 0 /\ (θmax < θ1 x y ra < θmax / 2 \/
+                          θmax / 2 + 2 * PI < θ1 x y ra < 2 * PI))) in t1vrng.
+
+    destruct rur as [ralt ruub].
+
+    (* ra < ru (reminder: θc and (θ1 x y ra) are not related) *)
+    change (θa < θc) in t1rbletd.
+
+       assert (0 < θa) as zltta. {
+         clear - lt r rtp.
+         destruct rtp.
+         apply (Rmult_lt_reg_l ra); try assumption.
+         setl 0.
+         assumption. } 
+
+       assert (0 < θc) as zlttd; try lra.
+       
+       change (0 < θmax /\ (θmax / 2 < θa < θmax \/ -2 * PI < θa < θmax / 2 - 2 * PI) \/
+               θmax < 0 /\ (θmax < θa < θmax / 2 \/ θmax / 2 + 2 * PI < θa < 2 * PI)) in t1vrng.
+
+       exists Du2, ru, tup2.
+       split.
+       lra.
+       split.
+       apply u2.
+       simpl.
+       
+       specialize (ottb_path_distance _ _ _ _ _ _ _ _ _ u) as [[trn dst] | [stu dst]].
+       simpl.
+       rewrite dst.
+       rewrite <- eqv_calcs.
+       unfold θmax.
+       right.
+       reflexivity.
+       arn.
+       assumption.
+       assumption.
+       
+       exfalso.
+       apply straightcond in stu.
+       apply turningcond in phaseu.
+       clear - stu phaseu.
+       lra.
+Qed.   
+
+
+Corollary minlength_path_turn_std_part4 :
+  forall x y ra rb θc θd Du ru θu tup
+         (lt : 0 < ra)
+         (rueq : ra = ru)
+         (ruub : ru <= rb)
+         (tur : θc <= θu <= θd)
+         (phaseu : turning ru 0 0 0 x y),
+    let o := (mkpt 0 0) in
+    let p := (mkpt x y) in
+    let θmax := calcθ₁ 0 0 0 x y in
+    forall (nc : ~ (0 <= x /\ y = 0)),
+      path_segment Du (Hx ru 0 0 θu tup) (Hy ru 0 0 θu tup) o p ->
+      (exists Dw rw twp,
+          (ra <= rw <= rb /\
+           path_segment Dw (Hx rw 0 0 θmax twp) (Hy rw 0 0 θmax twp) o p /\
+           Dw <= Du)).
+Proof.
+  intros until 6.
+  intro u.
+
+  specialize PI_RGT_0 as pigt0.
+
+  assert (~(x = 0 /\ y = 0)) as no; try lra.
+
+
+  assert (-2 * PI < θmax <= 2 * PI) as [tml tmu]. {
+    unfold θmax, calcθ₁.
+    arn.
+    split.
+    apply (Rmult_lt_reg_r (/2)); try lra.
+    setl (-PI).
+    setr (atan2 y x).
+    apply atan2_bound; try assumption.
+    apply (Rmult_le_reg_r (/2)); try lra.
+    setr (PI).
+    setl (atan2 y x).
+    apply atan2_bound; try assumption. }
+
+  assert (θmax / 2 <= PI) as tmub; try lra.
+  assert (- PI < θmax / 2) as tmlb; try lra.
+
+  assert (0 < θmax / 2 + 2 * PI) as tm2lb; try lra.
+  assert (θmax / 2 - 2 * PI < 0) as tm2ub; try lra.
+
+  assert (0 < ru) as zltru. lra.
+  assert (0 < θu) as zlttu. {
+    eapply zlt_mult.
+    instantiate (1:=ru).
+    destruct tup.
+    assumption.
+    left; assumption. }
+
+  assert (ra <> 0) as rbne0. lra.
+  assert (0 < ra) as zltrb. lra.
+  assert (~ (ra < 0 /\ θmax = 2 * PI)) as trm. {
+    unfold θmax.
+    intros [rblt0 els].
+    lra. }
+
+  generalize nc; intro nc2.
+  apply thmaxne0 in nc2.
+  change (θmax <> 0) in nc2.
+
+  specialize (ottb_compute_turning_t_s _ _ _ _ tup Du no phaseu u) as dudef.
+  simpl in dudef.
+  change (Rabs θmax <= Rabs θu < 2 * PI) in dudef.
+  rewrite (Rabs_pos_eq θu) in dudef; try lra.
+
+  assert (0 < y) as zlty. {
+    apply turningcond in phaseu.
+    specialize (posss _ _ no) as zlt2.
+    rewrite <- phaseu in zlt2.
+    apply zlt_mult in zlt2; lra. }
+
+  assert (0 < θmax) as zlttm. {
+    unfold θmax, calcθ₁.
+    arn.
+    setl (2 * 0).
+    apply Rmult_lt_compat_l; try lra.
+    destruct (total_order_T 0 x); [destruct s|].
+    - specialize (atan2Q1 _ _ r zlty) as [at2l at2u].
+      lra.
+    - rewrite <- e.
+      rewrite (atan2_PI2 _ zlty).
+      lra.
+    - specialize (atan2Q2 _ _ r zlty) as [at2l at2u].
+      lra. }
+  
+  rewrite (Rabs_pos_eq θmax) in dudef; try lra.
+  destruct dudef as [tul tuu].
+
+  specialize (ottb_compute_turning_r_s _ _ _ _ tup Du phaseu no u) as rudef.
+
+  specialize (intro_turning_path_std _ _ _ phaseu no) as [tup2 u2].
+  unfold θmax in *; clear θmax.
+
+  assert (y <> 0) as yne0; try lra.
+  specialize (t1eqtm _ _ no yne0) as t1d.
+  rewrite <- rudef in t1d.
+  set (θmax := calcθ₁ 0 0 0 x y) in *.
+  set (Du2 := {| nonneg := ru * θmax; cond_nonneg := nna ru θmax tup2 |}) in *.
+
+  rename tup into tup'.
+  generalize tup2; intro tup.
+  rewrite <- t1d in tup.
+
+  assert (~ straight ra 0 0 0 x y) as nstt. {
+    rewrite rueq in *.
+    intro sru.
+    clear - sru phaseu.
+    apply straightcond in sru.
+    apply turningcond in phaseu.
+    rewrite phaseu in sru.
+    lra. }
+
+    exists Du2, ru, tup2.
+    split ; try lra.
+    split; try assumption.
+    simpl.
+
+    specialize (ottb_path_distance _ _ _ _ _ _ _ _ _ u) as [[trn dst] | [stt dst]].
+    simpl.
+    rewrite dst.
+    rewrite <- eqv_calcs.
+    unfold θmax.
+    right.
+    reflexivity.
+    arn.
+    assumption.
+    assumption.
+
+    exfalso.
+    apply straightcond in stt.
+    apply turningcond in phaseu.
+    clear - stt phaseu.
+    lra.
+Qed.
+
+Corollary minlength_path_std_vacuous :
   forall x y ra rb θc θd Du ru θu tup
          (lt : 0 < ra)
          (rur : ra <= ru <= rb)
@@ -3648,7 +5538,7 @@ Proof.
   2 : {
     exfalso.
     assert (ra <= ru <= rb) as rbnd; try lra.
-    eapply minlength_path_std_part4.
+    eapply minlength_path_std_vacuous.
     apply zltrb.
     apply rbnd.
     apply tur.
@@ -3778,17 +5668,14 @@ Proof.
            left.
            eapply ottb_bigger_r_longer_path_std.
            apply nc2.
-           apply srd.
            apply phaseu.
-           lra.
+           assert (0 < rc) as zltrc; try lra.
+           apply zltrc.
            assumption.
            dependent rewrite tc1 in d.
-           assumption.
-           assumption.
-           
-           Unshelve.
-           assumption.
-           assumption.
+           apply d.
+           apply u.
+
        +++ assert (0 < ru * θc < Rabs ru * 2 * PI) as tup''. {
              rewrite tceqtu.
              assumption. }
@@ -3923,7 +5810,7 @@ Proof.
   2 : {
     exfalso.
     assert (ra <= ru <= rb) as rbnd; try lra.
-    eapply minlength_path_std_part4.
+    eapply minlength_path_std_vacuous.
     apply zltrb.
     apply rbnd.
     apply tur.
@@ -4072,7 +5959,7 @@ Proof.
   2 : {
     exfalso.
     assert (ra <= ru <= rb) as rbnd; try lra.
-    eapply minlength_path_std_part4.
+    eapply minlength_path_std_vacuous.
     apply zltrb.
     apply rbnd.
     apply tur.
@@ -4190,16 +6077,13 @@ Proof.
        +++ split; auto.
            left.
            apply (ottb_bigger_r_longer_path_std
-                    _ _ _ _ Da Du nc2 stt phaseu lt rtp ralt tup' v u).
+                    _ _ _ _ Da Du _ _ nc2 phaseu lt rtp ralt tup' v u).
 Qed.
-
-
 
 (* end hide *)
 
 
-(** General version of Theorem 5 (Maximum bearing-constrained path 
-    length) of the paper. *)
+(** Theorem 10 (Maximum bearing-constrained path length) from the paper. *)
 Theorem maxlength_path :
   forall θ₀ x₀ y₀ x₁ y₁ ra rb  θc θd Du ru θu tup
          (lt : 0 < ra)
@@ -4393,68 +6277,8 @@ Proof.
 Qed.
 
 
+
 Corollary maxlength_path_part3 :
-  forall θ₀ x₀ y₀ x₁ y₁ ra rb  θc θd Du ru θu tup
-         (lt : 0 < ra)
-         (rulb : ra <= ru)
-         (rueq : ru = rb)
-         (tur : θc <= θu <= θd)
-         (phaseu :straight ru θ₀ x₀ y₀ x₁ y₁),
-    let o := (mkpt x₀ y₀) in
-    let p := (mkpt x₁ y₁) in
-    let x := ((x₁ - x₀) * cos θ₀ + (y₁ - y₀) * sin θ₀) in
-    let y := (- (x₁ - x₀) * sin θ₀ + (y₁ - y₀) * cos θ₀) in
-    let θmax := calcθ₁ θ₀ x₀ y₀ x₁ y₁ in
-    forall (nO : ~ (x₁ - x₀ = 0 /\ y₁ - y₀ = 0))
-           (nc : θmax <> 0)
-           (t1rbletd : θ1 x y rb > θd)
-           (stt: straight rb θ₀ x₀ y₀ x₁ y₁),
-      path_segment Du (Hx ru θ₀ x₀ θu tup) (Hy ru θ₀ y₀ θu tup) o p ->
-      (exists Dv θv tvp,
-          (θc <= θv <= θd /\
-           path_segment Dv (Hx rb θ₀ x₀ θv tvp) (Hy rb θ₀ y₀ θv tvp) o p
-           /\ Du <= Dv)).
-Proof.
-  intros until 9.
-  intro u.
-
-  apply path_std in u.
-  unfold θmax in *.
-  clear θmax.
-  rewrite calc_angle_std in *.
-  apply straight_rot in phaseu.
-  apply straight_rot in stt.
-  unfold x, y in *; clear x y.
-  set (x := ((x₁ - x₀) * cos θ₀ + (y₁ - y₀) * sin θ₀)) in *.
-  set (y := (- (x₁ - x₀) * sin θ₀ + (y₁ - y₀) * cos θ₀)) in *.
-  set (θmax := calcθ₁ 0 0 0 x y) in *.
-
-  assert (~(0 <= x /\ y = 0)) as npx. {
-    intros [zlex yeq0].
-    apply nc.
-    unfold θmax.
-    rewrite thms, yeq0.
-    destruct zlex as [zltx |zeqx].
-    rewrite atan2_0.
-    field.
-    assumption.
-    exfalso.
-    apply straightcond in phaseu.
-    rewrite <- zeqx, yeq0 in phaseu.
-    autorewrite with null in phaseu.
-    lra. }
-
-  unfold o, p.
-  specialize (maxlength_path_std_part3
-                _ _ _ _ _ _ Du ru θu tup lt rulb rueq tur phaseu npx t1rbletd stt u)
-    as [Dv [pv [tvp v]]].
-  exists Dv, pv, tvp;
-    unfold o, p;
-    rewrite path_std;
-    assumption.
-Qed.
-
-Corollary maxlength_path_part4 :
   forall θ₀ x₀ y₀ x₁ y₁ ra rb  θc θd Du ru θu tup
          (lt : 0 < ra)
          (rur : ra <= ru <= rb)
@@ -4502,7 +6326,7 @@ Proof.
     lra. }
 
   unfold o, p.
-  specialize (maxlength_path_std_part4
+  specialize (maxlength_path_std_part3
                 _ _ _ _ _ _ Du ru θu tup lt rur tur phaseu npx tmletd stt u)
     as [Dv [pv [tvp v]]].
   exists Dv, pv, tvp;
@@ -4512,7 +6336,7 @@ Proof.
 Qed.
 
 
-Corollary maxlength_path_part5 :
+Corollary maxlength_path_part4 :
   forall θ₀ x₀ y₀ x₁ y₁ ra rb  θc θd Du ru θu tup
          (lt : 0 < ra)
          (rur : ra <= ru <= rb)
@@ -4560,7 +6384,7 @@ Proof.
     lra. }
 
   unfold o, p.
-  specialize (maxlength_path_std_part5
+  specialize (maxlength_path_std_part4
                 _ _ _ _ _ _ Du ru θu tup lt rur tur phaseu npx tmgttd rbt u)
     as [Dv [pv [tvp v]]].
   exists Dv, pv, tvp;
@@ -4568,6 +6392,64 @@ Proof.
     rewrite path_std;
     assumption.
 Qed.
+
+
+Theorem maxlength_path_turn :
+  forall θ₀ x₀ y₀ x₁ y₁ ra rb  θc θd Du ru θu tup
+         (lt : 0 < ra)
+         (rur : ra <= ru <= rb)
+         (tur : θc <= θu <= θd)
+         (phaseu : turning ru θ₀ x₀ y₀ x₁ y₁),
+    let o := (mkpt x₀ y₀) in
+    let p := (mkpt x₁ y₁) in
+    let θmax := calcθ₁ θ₀ x₀ y₀ x₁ y₁ in
+    forall (no : ~ (x₁ - x₀ = 0 /\ y₁ - y₀ = 0))
+           (nc : θmax <> 0),
+      path_segment Du (Hx ru θ₀ x₀ θu tup) (Hy ru θ₀ y₀ θu tup) o p ->
+      (exists Dw rw twp,
+          (ra <= rw <= rb /\
+           path_segment Dw (Hx rw θ₀ x₀ θmax twp) (Hy rw θ₀ y₀ θmax twp) o p /\
+           Du <= Dw)).
+Proof.
+  intros until 6.
+  intro u.
+
+  apply path_std in u.
+  unfold θmax in *.
+  clear θmax.
+  rewrite calc_angle_std in *.
+  apply turning_rot in phaseu.
+  apply (notid_rot θ₀) in no.
+
+  set (x := ((x₁ - x₀) * cos θ₀ + (y₁ - y₀) * sin θ₀)) in *.
+  set (y := (- (x₁ - x₀) * sin θ₀ + (y₁ - y₀) * cos θ₀)) in *.
+  set (θmax := calcθ₁ 0 0 0 x y) in *.
+
+  assert (~(0 <= x /\ y = 0)) as npx. {
+    intros [zlex yeq0].
+    apply nc.
+    unfold θmax.
+    rewrite thms, yeq0.
+    destruct zlex as [zltx |zeqx].
+    rewrite atan2_0.
+    field.
+    assumption.
+    exfalso.
+    apply turningcond in phaseu.
+    rewrite <- zeqx, yeq0 in phaseu.
+    autorewrite with null in phaseu.
+    lra. }
+
+  specialize (maxlength_path_turn_std
+           _ _ _ _ _ _ Du ru θu tup lt rur tur phaseu npx u)
+    as [Dv [pv [tvp v]]].
+  exists Dv, pv, tvp;
+    unfold o, p;
+    rewrite path_std;
+    assumption.
+Qed.
+
+(** Theorem 11 (Minimum bearing-constrained path length) from the paper. *)
 
 Theorem minlength_path :
   forall θ₀ x₀ y₀ x₁ y₁ ra rb  θc θd Du ru θu tup
@@ -4805,70 +6687,327 @@ Proof.
     assumption.
 Qed.
 
+Theorem minlength_path_turn :
+  forall θ₀ x₀ y₀ x₁ y₁ ra rb  θc θd Du ru θu tup
+         (lt : 0 < ra)
+         (rur : ra <= ru <= rb)
+         (tur : θc <= θu <= θd)
+         (phaseu : turning ru θ₀ x₀ y₀ x₁ y₁),
+    let o := (mkpt x₀ y₀) in
+    let p := (mkpt x₁ y₁) in
+    let θmax := calcθ₁ θ₀ x₀ y₀ x₁ y₁ in
+    forall (no : ~ (x₁ - x₀ = 0 /\ y₁ - y₀ = 0))
+           (nc : θmax <> 0),
+      path_segment Du (Hx ru θ₀ x₀ θu tup) (Hy ru θ₀ y₀ θu tup) o p ->
+      (exists Dv θv tvp,
+          (θc <= θv <= θd /\
+           path_segment Dv (Hx ra θ₀ x₀ θv tvp) (Hy ra θ₀ y₀ θv tvp) o p
+           /\  Dv <= Du)) \/
+      (exists Dw rw twp,
+          (ra <= rw <= rb /\
+           path_segment Dw (Hx rw θ₀ x₀ θc twp) (Hy rw θ₀ y₀ θc twp) o p /\
+           Dw <= Du)) \/
+      (exists Dw rw twp,
+          (ra <= rw <= rb /\
+           path_segment Dw (Hx rw θ₀ x₀ θmax twp) (Hy rw θ₀ y₀ θmax twp) o p /\
+           Dw <= Du)).
+Proof.
+  intros until 6.
+  intro u.
+
+  apply path_std in u.
+  unfold θmax in *.
+  clear θmax.
+  rewrite calc_angle_std in *.
+  apply turning_rot in phaseu.
+  apply (notid_rot θ₀) in no.
+
+  set (x := ((x₁ - x₀) * cos θ₀ + (y₁ - y₀) * sin θ₀)) in *.
+  set (y := (- (x₁ - x₀) * sin θ₀ + (y₁ - y₀) * cos θ₀)) in *.
+  set (θmax := calcθ₁ 0 0 0 x y) in *.
+
+  assert (~(0 <= x /\ y = 0)) as npx. {
+    intros [zlex yeq0].
+    apply nc.
+    unfold θmax.
+    rewrite thms, yeq0.
+    destruct zlex as [zltx |zeqx].
+    rewrite atan2_0.
+    field.
+    assumption.
+    exfalso.
+    apply turningcond in phaseu.
+    rewrite <- zeqx, yeq0 in phaseu.
+    autorewrite with null in phaseu.
+    lra. }
+
+  specialize (minlength_path_turn_std
+           _ _ _ _ _ _ Du ru θu tup lt rur tur phaseu npx u)
+    as [[Dv [pv [tvp v]]] | [[Dw [pw [twp w]]] | [Dw [pw [twp w]]]]].
+  left.
+  exists Dv, pv, tvp;
+    unfold o, p;
+    rewrite path_std;
+    assumption.
+
+  right; left.
+  exists Dw, pw, twp;
+    unfold o, p;
+    rewrite path_std;
+    assumption.
+
+  right; right.
+  exists Dw, pw, twp;
+    unfold o, p;
+    rewrite path_std;
+    assumption.
+Qed.
+
+Corollary minlength_path_turn_part1 :
+  forall θ₀ x₀ y₀ x₁ y₁ ra rb  θc θd Du ru θu tup
+         (lt : 0 < ra)
+         (rur : ra <= ru <= rb)
+         (tur : θc <= θu <= θd)
+         (phaseu : turning ru θ₀ x₀ y₀ x₁ y₁),
+    let o := (mkpt x₀ y₀) in
+    let p := (mkpt x₁ y₁) in
+    let x := ((x₁ - x₀) * cos θ₀ + (y₁ - y₀) * sin θ₀) in
+    let y := (- (x₁ - x₀) * sin θ₀ + (y₁ - y₀) * cos θ₀) in
+    let θmax := calcθ₁ θ₀ x₀ y₀ x₁ y₁ in
+    forall (no : ~ (x₁ - x₀ = 0 /\ y₁ - y₀ = 0))
+           (nc : θmax <> 0)
+           (stt : straight ra θ₀ x₀ y₀ x₁ y₁)
+           (t1rbgttd : θc <= θ1 x y ra),
+      path_segment Du (Hx ru θ₀ x₀ θu tup) (Hy ru θ₀ y₀ θu tup) o p ->
+      (exists Dv θv tvp,
+          (θc <= θv <= θd /\
+           path_segment Dv (Hx ra θ₀ x₀ θv tvp) (Hy ra θ₀ y₀ θv tvp) o p
+           /\  Dv <= Du)).
+Proof.
+  intros until 8.
+  intro u.
+
+  apply path_std in u.
+  unfold θmax in *.
+  clear θmax.
+  rewrite calc_angle_std in *.
+  apply turning_rot in phaseu.
+  apply (notid_rot θ₀) in no.
+  apply straight_rot in stt.
+
+  unfold x, y in *.
+  clear x y.
+  set (x := ((x₁ - x₀) * cos θ₀ + (y₁ - y₀) * sin θ₀)) in *.
+  set (y := (- (x₁ - x₀) * sin θ₀ + (y₁ - y₀) * cos θ₀)) in *.
+  set (θmax := calcθ₁ 0 0 0 x y) in *.
+
+  assert (~(0 <= x /\ y = 0)) as npx. {
+    intros [zlex yeq0].
+    apply nc.
+    unfold θmax.
+    rewrite thms, yeq0.
+    destruct zlex as [zltx |zeqx].
+    rewrite atan2_0.
+    field.
+    assumption.
+    exfalso.
+    apply turningcond in phaseu.
+    rewrite <- zeqx, yeq0 in phaseu.
+    autorewrite with null in phaseu.
+    lra. }
+
+  specialize (minlength_path_turn_std_part1
+           _ _ _ _ _ _ Du ru θu tup lt rur tur phaseu npx stt t1rbgttd u)
+    as [Dv [pv [tvp v]]].
+  exists Dv, pv, tvp;
+    unfold o, p;
+    rewrite path_std;
+    assumption.
+Qed.
+
+Corollary minlength_path_turn_part2 :
+  forall θ₀ x₀ y₀ x₁ y₁ ra rb θc θd Du ru θu tup
+         (lt : 0 < ra)
+         (rur : ra < ru <= rb)
+         (tur : θc <= θu <= θd)
+         (phaseu : turning ru θ₀ x₀ y₀ x₁ y₁),
+    let o := (mkpt x₀ y₀) in
+    let p := (mkpt x₁ y₁) in
+    let x := ((x₁ - x₀) * cos θ₀ + (y₁ - y₀) * sin θ₀) in
+    let y := (- (x₁ - x₀) * sin θ₀ + (y₁ - y₀) * cos θ₀) in
+    let θmax := calcθ₁ θ₀ x₀ y₀ x₁ y₁ in
+    forall (no : ~ (x₁ - x₀ = 0 /\ y₁ - y₀ = 0))
+           (nc : θmax <> 0)
+           (stt : straight ra θ₀ x₀ y₀ x₁ y₁)
+           (t1rbletd : θ1 x y ra < θc)
+           (n : θc < θmax),
+      path_segment Du (Hx ru θ₀ x₀ θu tup) (Hy ru θ₀ y₀ θu tup) o p ->
+      (exists Dw rw twp,
+          (ra <= rw <= rb /\
+           path_segment Dw (Hx rw θ₀ x₀ θc twp) (Hy rw θ₀ y₀ θc twp) o p /\
+           Dw <= Du)).
+Proof.
+  intros until 9.
+  intro u.
+
+  apply path_std in u.
+  unfold θmax in *.
+  clear θmax.
+  rewrite calc_angle_std in *.
+  apply turning_rot in phaseu.
+  apply (notid_rot θ₀) in no.
+  apply straight_rot in stt.
+
+  unfold x, y in *.
+  clear x y.
+  set (x := ((x₁ - x₀) * cos θ₀ + (y₁ - y₀) * sin θ₀)) in *.
+  set (y := (- (x₁ - x₀) * sin θ₀ + (y₁ - y₀) * cos θ₀)) in *.
+  set (θmax := calcθ₁ 0 0 0 x y) in *.
+
+  assert (~(0 <= x /\ y = 0)) as npx. {
+    intros [zlex yeq0].
+    apply nc.
+    unfold θmax.
+    rewrite thms, yeq0.
+    destruct zlex as [zltx |zeqx].
+    rewrite atan2_0.
+    field.
+    assumption.
+    exfalso.
+    apply turningcond in phaseu.
+    rewrite <- zeqx, yeq0 in phaseu.
+    autorewrite with null in phaseu.
+    lra. }
+
+  specialize (minlength_path_turn_std_part2
+           _ _ _ _ _ _ Du ru θu tup lt rur tur phaseu npx t1rbletd n u)
+    as [Dv [pv [tvp v]]].
+  exists Dv, pv, tvp;
+    unfold o, p;
+    rewrite path_std;
+    assumption.
+Qed.  
 
 
-(*
+Corollary minlength_path_turn_part3 :
+  forall θ₀ x₀ y₀ x₁ y₁ ra rb θc θd Du ru θu tup
+         (lt : 0 < ra)
+         (rur : ra < ru <= rb)
+         (tur : θc <= θu <= θd)
+         (phaseu : turning ru θ₀ x₀ y₀ x₁ y₁),
+    let o := (mkpt x₀ y₀) in
+    let p := (mkpt x₁ y₁) in
+    let x := ((x₁ - x₀) * cos θ₀ + (y₁ - y₀) * sin θ₀) in
+    let y := (- (x₁ - x₀) * sin θ₀ + (y₁ - y₀) * cos θ₀) in
+    let θmax := calcθ₁ θ₀ x₀ y₀ x₁ y₁ in
+    forall (no : ~ (x₁ - x₀ = 0 /\ y₁ - y₀ = 0))
+           (nc : θmax <> 0)
+           (r : θmax <= θc)
+           (t1rbletd : θ1 x y ra < θc),
+      path_segment Du (Hx ru θ₀ x₀ θu tup) (Hy ru θ₀ y₀ θu tup) o p ->
+      (exists Dw rw twp,
+          (ra <= rw <= rb /\
+           path_segment Dw (Hx rw θ₀ x₀ θmax twp) (Hy rw θ₀ y₀ θmax twp) o p /\
+           Dw <= Du)).
+Proof.
+  intros until 8.
+  intro u.
 
-nuking a mosqito, i.e. solving a simple-seeming problem with machinery
-more
+  apply path_std in u.
+  unfold θmax in *.
+  clear θmax.
+  rewrite calc_angle_std in *.
+  apply turning_rot in phaseu.
+  apply (notid_rot θ₀) in no.
 
-however, it is these simple-seeming problems upon which engineers make
-their judgements and build systems;
+  unfold x, y in *.
+  clear x y.
+  set (x := ((x₁ - x₀) * cos θ₀ + (y₁ - y₀) * sin θ₀)) in *.
+  set (y := (- (x₁ - x₀) * sin θ₀ + (y₁ - y₀) * cos θ₀)) in *.
+  set (θmax := calcθ₁ 0 0 0 x y) in *.
 
-if we are to apply formal methods to guarantee the correctness of
-practical systems, we must be able to formalize and prove properties
-about these problems with ease
+  assert (~(0 <= x /\ y = 0)) as npx. {
+    intros [zlex yeq0].
+    apply nc.
+    unfold θmax.
+    rewrite thms, yeq0.
+    destruct zlex as [zltx |zeqx].
+    rewrite atan2_0.
+    field.
+    assumption.
+    exfalso.
+    apply turningcond in phaseu.
+    rewrite <- zeqx, yeq0 in phaseu.
+    autorewrite with null in phaseu.
+    lra. }
 
-This is the sort of problems that engineers consider straightforward
-in practice, but formalizing it is not. If we expect our tools to be
-adopted for wider use, the added difficulty of formalizing the problem
-should be commensurate with the difficulty of solving the problem in
-the first place.
+  specialize (minlength_path_turn_std_part3
+           _ _ _ _ _ _ Du ru θu tup lt rur tur phaseu npx r t1rbletd u)
+    as [Dv [pv [tvp v]]].
+  exists Dv, pv, tvp;
+    unfold o, p;
+    rewrite path_std;
+    assumption.
+Qed.
 
-The tools that we have for the task today are adequate, but a great
-deal of infrastructure -- in terms of basic mathematical facts -- is
-missing and sometimes needs to be constructed.
 
-The verdict of this paper is that it is not yet possible to widely
-adopt tools, there are too many basic mathematical facts that people
-take for granted that are missing from the standard library. But we
-are almost there. Even during this development some of the decision
-procedures for basic arithmetic were upgraded, allowing for
-significant speedups in development (i.e. improvements to the fourier
-tactic to lra)
+Corollary minlength_path_turn_part4 :
+  forall θ₀ x₀ y₀ x₁ y₁ ra rb θc θd Du ru θu tup
+         (lt : 0 < ra)
+         (rueq : ra = ru)
+         (ruub : ru <= rb)
+         (tur : θc <= θu <= θd)
+         (phaseu : turning ru θ₀ x₀ y₀ x₁ y₁),
+    let o := (mkpt x₀ y₀) in
+    let p := (mkpt x₁ y₁) in
+    let x := ((x₁ - x₀) * cos θ₀ + (y₁ - y₀) * sin θ₀) in
+    let y := (- (x₁ - x₀) * sin θ₀ + (y₁ - y₀) * cos θ₀) in
+    let θmax := calcθ₁ θ₀ x₀ y₀ x₁ y₁ in
+    forall (no : ~ (x₁ - x₀ = 0 /\ y₁ - y₀ = 0))
+           (nc : θmax <> 0),
+      path_segment Du (Hx ru θ₀ x₀ θu tup) (Hy ru θ₀ y₀ θu tup) o p ->
+      (exists Dw rw twp,
+          (ra <= rw <= rb /\
+           path_segment Dw (Hx rw θ₀ x₀ θmax twp) (Hy rw θ₀ y₀ θmax twp) o p /\
+           Dw <= Du)).
+Proof.
+  intros until 9.
+  intro u.
 
-This analysis in intended to: provide insight into timing properties
-of one-turn-to-bearing motion; analyze timing parameters so that we
-can effectively compose these dynamics with others; and find an
-efficient strategy for computing one-turn-to-bearing timing
-characteristics
+  apply path_std in u.
+  unfold θmax in *.
+  clear θmax.
+  rewrite calc_angle_std in *.
+  apply turning_rot in phaseu.
+  apply (notid_rot θ₀) in no.
 
-quantifies over the reachable geometry in unbounded time
+  unfold x, y in *.
+  clear x y.
+  set (x := ((x₁ - x₀) * cos θ₀ + (y₁ - y₀) * sin θ₀)) in *.
+  set (y := (- (x₁ - x₀) * sin θ₀ + (y₁ - y₀) * cos θ₀)) in *.
+  set (θmax := calcθ₁ 0 0 0 x y) in *.
 
-Why spend time formalizing one-turn-to-bearing properties for aircraft
-that are translated and rotated?  For full generality when reasoning
-about the timing and motion of two vehicles, the timing needs to be We
-did this for properties we judged would be useful for
+  assert (~(0 <= x /\ y = 0)) as npx. {
+    intros [zlex yeq0].
+    apply nc.
+    unfold θmax.
+    rewrite thms, yeq0.
+    destruct zlex as [zltx |zeqx].
+    rewrite atan2_0.
+    field.
+    assumption.
+    exfalso.
+    apply turningcond in phaseu.
+    rewrite <- zeqx, yeq0 in phaseu.
+    autorewrite with null in phaseu.
+    lra. }
 
-Developed a library about turning, and applied it to a reasoning task,
-that of quantifying timing characteristics.
-
-This is just the type of analysis engineers encounter in their daily
-work. It helps us understand the details of our system behavier, and
-use that understanding to develop architecture and solutions.
-
-This formalization serves as a case sudy for the use of formal methods
-in daily workflow, as well as the development of infrastructure (the
-library of proofs) to make reasoning about this type of geometric
-problem easier in the future.
-
-The library is somewhat disorganized, because developing it was
-simultaneously an exploration of the dynamics and an exploration of
-how to formalize those ideas in our proof environment.
-
-We did this with a focus on the limited time and resources.
-
-*)                                           
-
-(* require_turn *)
-
+  specialize (minlength_path_turn_std_part4
+           _ _ _ _ _ _ Du ru θu tup lt rueq ruub tur phaseu npx u)
+    as [Dv [pv [tvp v]]].
+  exists Dv, pv, tvp;
+    unfold o, p;
+    rewrite path_std;
+    assumption.
+Qed.
+  

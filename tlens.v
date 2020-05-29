@@ -3527,147 +3527,6 @@ Proof.
            lra.
 Qed.
 
-Lemma straight_rot : forall r θ₀ x₀ y₀ x₁ y₁,
-    straight r θ₀ x₀ y₀ x₁ y₁ ->
-    straight r 0 0 0 ((x₁ - x₀) * cos θ₀ + (y₁ - y₀) * sin θ₀)
-             (- (x₁-x₀)* sin θ₀ + (y₁-y₀)*cos θ₀).
-Proof.
-  intros *. intro strt.
-
-  unfold straight, Tcx, Tcy in *.
-  autorewrite with null.
-
-  assert (x₁ - (x₀ + r * cos (PI / 2 + θ₀)) =
-          ((x₁ - x₀) + r * - cos (PI / 2 + θ₀))) as id. field.
-  rewrite id in strt. clear id.
-  assert (y₁ - (y₀ + r * sin (PI / 2 + θ₀)) =
-          ((y₁ - y₀) - r * sin (PI / 2 + θ₀))) as id. field.
-  rewrite id in strt. clear id.
-  rewrite <- cos_sin, <- sin_cos in strt.
-  rewrite Rsqr_plus, (Rsqr_minus (y₁ - y₀)) in strt.
-  fieldrewrite ((- (x₁ - x₀) * sin θ₀ + (y₁ - y₀) * cos θ₀ - r))
-               ((- (x₁ - x₀) * sin θ₀) + ((y₁ - y₀) * cos θ₀ - r)).
-  rewrite Rsqr_plus.
-  rewrite Rsqr_plus.
-  fieldrewrite (((x₁ - x₀) * cos θ₀)² + ((y₁ - y₀) * sin θ₀)² +
-                2 * ((x₁ - x₀) * cos θ₀) * ((y₁ - y₀) * sin θ₀) +
-                ((- (x₁ - x₀) * sin θ₀)² + ((y₁ - y₀) * cos θ₀ - r)² +
-                 2 * (- (x₁ - x₀) * sin θ₀) * ((y₁ - y₀) * cos θ₀ - r)))
-               ((x₁ - x₀)² * ((sin θ₀)² + (cos θ₀)²) +
-                (y₁ - y₀)² * ((sin θ₀)² + (cos θ₀)²) +
-                r² +
-                2 * r * ((x₁ - x₀) * sin θ₀ - (y₁ - y₀) * cos θ₀)
-               ).
-  rewrite sin2_cos2, Rmult_1_r, Rmult_1_r.
-  rewrite <- (Rmult_1_r (r²)) at 2.
-  rewrite <- (sin2_cos2 θ₀).
-  setr ((x₁ - x₀)² + (r * sin θ₀)² + 2 * (x₁ - x₀) * (r * sin θ₀) +
-        ((y₁ - y₀)² + (r * cos θ₀)² - 2 * (y₁ - y₀) * (r * cos θ₀))).
-  assumption.
-Qed.
-
-Lemma rot_straight : forall r θ₀ x₀ y₀ x₁ y₁,
-    straight r 0 0 0 ((x₁ - x₀) * cos θ₀ + (y₁ - y₀) * sin θ₀)
-             (- (x₁-x₀)* sin θ₀ + (y₁-y₀)*cos θ₀) ->
-    straight r θ₀ x₀ y₀ x₁ y₁.
-Proof.
-    intros *. intro strt.
-
-  unfold straight, Tcx, Tcy in *.
-  autorewrite with null in *.
-
-  assert (x₁ - (x₀ + r * cos (PI / 2 + θ₀)) =
-          ((x₁ - x₀) + r * - cos (PI / 2 + θ₀))) as id. field.
-  rewrite id. clear id.
-  assert (y₁ - (y₀ + r * sin (PI / 2 + θ₀)) =
-          ((y₁ - y₀) - r * sin (PI / 2 + θ₀))) as id. field.
-  rewrite id. clear id.
-  rewrite <- cos_sin, <- sin_cos.
-  rewrite Rsqr_plus, (Rsqr_minus (y₁ - y₀)).
-  assert ((- (x₁ - x₀) * sin θ₀ + (y₁ - y₀) * cos θ₀ - r)=
-          (- (x₁ - x₀) * sin θ₀) + ((y₁ - y₀) * cos θ₀ - r)) as id; try lra.
-  rewrite id in strt; clear id.
-  rewrite Rsqr_plus in strt.
-  rewrite Rsqr_plus in strt.
-  assert (((x₁ - x₀) * cos θ₀)² + ((y₁ - y₀) * sin θ₀)² +
-                2 * ((x₁ - x₀) * cos θ₀) * ((y₁ - y₀) * sin θ₀) +
-                ((- (x₁ - x₀) * sin θ₀)² + ((y₁ - y₀) * cos θ₀ - r)² +
-                 2 * (- (x₁ - x₀) * sin θ₀) * ((y₁ - y₀) * cos θ₀ - r)) = 
-               ((x₁ - x₀)² * ((sin θ₀)² + (cos θ₀)²) +
-                (y₁ - y₀)² * ((sin θ₀)² + (cos θ₀)²) +
-                r² +
-                2 * r * ((x₁ - x₀) * sin θ₀ - (y₁ - y₀) * cos θ₀)
-               )) as id. unfold Rsqr. field. rewrite id in strt; clear id.
-  rewrite sin2_cos2, Rmult_1_r, Rmult_1_r in strt.
-  rewrite <- (Rmult_1_r (r²)) in strt at 2 .
-  rewrite <- (sin2_cos2 θ₀) in strt.
-  lrag strt.
-Qed.
-
-
-
-Lemma turning_rot : forall r θ₀ x₀ y₀ x₁ y₁,
-    turning r θ₀ x₀ y₀ x₁ y₁ ->
-    turning r 0 0 0 ((x₁ - x₀) * cos θ₀ + (y₁ - y₀) * sin θ₀) (- (x₁ - x₀) * sin θ₀ + (y₁ - y₀) * cos θ₀).
-Proof.
-  intros * phase.
-  unfold turning, Tcx, Tcy in *.
-  autorewrite with null in *.
-  rewrite <- cos_sin in phase.
-  assert (x₁ - (x₀ + r * cos (PI / 2 + θ₀)) = x₁ - x₀ + r * - cos (PI / 2 + θ₀)) as id.
-  field.
-  rewrite id in phase.
-  clear id.
-  rewrite <- sin_cos in phase.
-  rewrite phase. clear phase.
-  repeat rewrite Rsqr_plus in *.
-  repeat rewrite Rsqr_minus in *.
-  repeat rewrite Rsqr_plus in *.
-  
-  setl ((x₁ - x₀)²
-        + (y₁ - y₀)²
-        + r² * ((sin θ₀)² + (cos θ₀)²)
-        + 2 * (x₁ - x₀) * (r * sin θ₀)
-        + (- 2 * (y₁ - y₀) * (r * cos θ₀))).
-  setr ((x₁ - x₀)² * ((sin θ₀)² + (cos θ₀)²)
-        + (y₁ - y₀)² * ((sin θ₀)² + (cos θ₀)²)
-        + r²
-          - 2 * (- (x₁ - x₀) * sin θ₀ + (y₁ - y₀) * cos θ₀) * r).
-  repeat rewrite sin2_cos2.
-  field.
-Qed.
-
-Lemma rot_turning : forall r θ₀ x₀ y₀ x₁ y₁,
-    turning r 0 0 0 ((x₁ - x₀) * cos θ₀ + (y₁ - y₀) * sin θ₀)
-            (- (x₁ - x₀) * sin θ₀ + (y₁ - y₀) * cos θ₀) ->
-    turning r θ₀ x₀ y₀ x₁ y₁.
-Proof.
-  intros * phase.
-  unfold turning, Tcx, Tcy in *.
-  autorewrite with null in *.
-  rewrite <- cos_sin.
-  assert (x₁ - (x₀ + r * cos (PI / 2 + θ₀)) = x₁ - x₀ + r * - cos (PI / 2 + θ₀)) as id.
-  field.
-  rewrite id.
-  clear id.
-  rewrite <- sin_cos.
-  rewrite phase. clear phase.
-  repeat rewrite Rsqr_plus in *.
-  repeat rewrite Rsqr_minus in *.
-  repeat rewrite Rsqr_plus in *.
-  
-  setr ((x₁ - x₀)²
-        + (y₁ - y₀)²
-        + r² * ((sin θ₀)² + (cos θ₀)²)
-        + 2 * (x₁ - x₀) * (r * sin θ₀)
-        + (- 2 * (y₁ - y₀) * (r * cos θ₀))).
-  setl ((x₁ - x₀)² * ((sin θ₀)² + (cos θ₀)²)
-        + (y₁ - y₀)² * ((sin θ₀)² + (cos θ₀)²)
-        + r²
-          - 2 * (- (x₁ - x₀) * sin θ₀ + (y₁ - y₀) * cos θ₀) * r).
-  repeat rewrite sin2_cos2.
-  field.
-Qed.
 
 Lemma straight_path_exists : forall (x₀ y₀ θ₀ x₁ y₁ θc : R),
     let θmax := calcθ₁ θ₀ x₀ y₀ x₁ y₁ in
@@ -4935,6 +4794,8 @@ Qed.
 
 (* end hide *)
 
+(** Theorem 4: Straight path segment expression *)
+
 Lemma Darm_Q_gen :
   forall θ₀ x₀ y₀ x₁ y₁ r (phase : straight r θ₀ x₀ y₀ x₁ y₁) (rne0 : r <> 0),
     let x := ((x₁ - x₀) * cos θ₀ + (y₁ - y₀) * sin θ₀) in
@@ -4994,25 +4855,6 @@ Qed.
 
 
 (* begin hide *)
-
-Lemma turningcond : forall x y r,
-    turning r 0 0 0 x y -> 2 * r * y = x² + y².
-Proof.
-  intros * trn.
-  unfold turning, Tcx, Tcy in trn.
-  autorewrite with null in trn.
-  rewrite Rsqr_minus in trn.
-  lra.
-Qed.
-  
-Lemma tscond : forall x y r,
-    turning r 0 0 0 x y \/ straight r 0 0 0 x y ->
-    2 * r * y <= x² + y².
-Proof.
-  intros * [trn | str].
-  apply turningcond in trn; right; assumption.
-  apply straightcond in str; left; assumption.
-Qed.
 
 Lemma theta1_Q1_ex_derive :
   forall r x y 
@@ -8910,6 +8752,7 @@ Proof.
 Qed.
 (* end hide *)
 
+(** Theorem 2 : Turn-to-bearing dependent radius *)
 Theorem intro_theta_path : forall (x₀ y₀ x₁ y₁ θ₀ θc : R),
     let θmax := calcθ₁ θ₀ x₀ y₀ x₁ y₁ in
     forall (tcrng : θmax / 2 < θc < θmax \/
@@ -9145,14 +8988,24 @@ Qed.
 Theorem intro_turning_path_std : forall (x y r : R),
     let θmax := calcθ₁ 0 0 0 x y in
     forall (phase : turning r 0 0 0 x y)
-           (yne0 : y <> 0),
+           (no : ~(x = 0 /\ y = 0)),
       exists rtp,
         path_segment (mknonnegreal (r * θmax) (nna _ _ rtp))
                      (Hx r 0 0 θmax rtp) (Hy r 0 0 θmax rtp)
                      (mkpt 0 0) (mkpt x y).
 Proof.
   intros.
-  assert ( ~(x = 0 /\ y = 0)) as no; try lra.
+
+  assert (~ (y = 0)) as yne0. {
+    intro yeq0.
+    rewrite yeq0 in *.
+    apply turningcond in phase.
+    autorewrite with null in phase.
+    symmetry in phase.
+    unfold Rsqr in phase.
+    apply Rmult_integral in phase.
+    lra. }
+    
   assert (r = (x² + y²)/ (2 * y)) as rd. {
     unfold turning, Tcx, Tcy in phase.
     autorewrite with null in phase.
@@ -9337,8 +9190,6 @@ Theorem intro_turning_path : forall (θ₀ x₀ y₀ x₁ y₁ r : R),
     let θmax := calcθ₁ θ₀ x₀ y₀ x₁ y₁ in
     forall (phase : turning r θ₀ x₀ y₀ x₁ y₁)
            (no : ~ (x₁ - x₀ = 0 /\ y₁ - y₀ = 0))
-           (tmaxne0 : θmax <> 0)
-           (tmaxne2PI : θmax <> 2 * PI)
            (rne0 : r <> 0),
       exists rtp,
         path_segment (mknonnegreal (r * θmax) (nna _ _ rtp))
@@ -9359,16 +9210,20 @@ Proof.
     
   set (θmax := calcθ₁ 0 0 0 x y) in *.
 
-  assert (y <> 0) as yne0. {
-    intros yeq0.
-    apply thmaxne0impl in tmaxne0.
-    apply thmaxnePIimpl in tmaxne2PI.
-    lra. }
-
   apply turning_rot in phase.
   change (turning r 0 0 0 x y) in phase.
 
-  specialize (intro_turning_path_std _ _ _ phase yne0) as [rtp ps].
+  assert (y <> 0) as yne0. {
+    apply turningcond in phase.
+    intros yeq0.
+    rewrite yeq0 in phase.
+    autorewrite with null in phase.
+    symmetry in phase.
+    unfold Rsqr in phase.
+    apply Rmult_integral in phase.
+    lra. }
+
+  specialize (intro_turning_path_std _ _ _ phase not) as [rtp ps].
   exists rtp.
   rewrite path_std.
   assumption.
@@ -9751,6 +9606,7 @@ Proof.
 Qed.
 (* end hide *)
 
+(** Theorem 3 : Turn-to-bearing dependent approach angle *)
 Theorem intro_r_path : forall (x₀ y₀ x₁ y₁ θ₀ r : R),
     let θmax := calcθ₁ θ₀ x₀ y₀ x₁ y₁ in
     forall (phase : straight r θ₀ x₀ y₀ x₁ y₁)
@@ -11036,9 +10892,9 @@ Proof.
 Qed.
 
 
-(**
- This justifies equation (15) of the paper.
- Given path segment P, this expression calculates distance traveled. *)
+(** This justifies equation (24) in the paper. Given path segment P,
+ this expression calculates distance traveled between starting and
+ ending points. *)
 Theorem ottb_path_distance : forall (D:nonnegreal) (x₀ y₀ x₁ y₁ r θ₀ θc:R)
     rtp (P : path_segment D (Hx r θ₀ x₀ θc rtp) (Hy r θ₀ y₀ θc rtp)
                       (mkpt x₀ y₀) (mkpt x₁ y₁)),

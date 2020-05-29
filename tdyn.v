@@ -8,15 +8,13 @@ Require Import atan2.
 Require Import ttyp.
 
 Import Lra.
-(* end hide *)
 
 (* Coquelicot library continuity using balls is consistent with the
 real library's delta-epsilon definition *)
 
-(**
-The turn is modeled as a circular arc. During the turn, path always
-maintains a constant distance from the turn's center.
-*)
+
+(* The turn is modeled as a circular arc. During the turn, path always
+maintains a constant distance from the turn's center. *)
 Lemma turncenter : forall r θ₀ x₀ y₀, 0 <= r ->
     (magnitude (fun d => (Hxarc r θ₀ x₀ d) - (Tcx r θ₀ x₀))
                (fun d => (Hyarc r θ₀ y₀ d) - (Tcy r θ₀ y₀))) =
@@ -42,7 +40,10 @@ Proof.
   apply sqrt_Rsqr. assumption.
 Qed.
 
-(** Derivatives and continuity for path H and components *)
+(* end hide *)
+
+(** Theorem 1 : (Turn-to-bearing dynamics)
+    Derivatives and continuity for path and components *)
 
 Theorem Hxarc_deriv : forall (r θ₀ x₀ d :R),
     0 <> r ->

@@ -17,21 +17,6 @@ Set Bullet Behavior "Strict Subproofs".
 (* end hide *)
 (* begin hide *)
 
-Lemma straightcond : forall r x y,
-    straight r 0 0 0 x y -> (2 * r * y < x² + y²).
-Proof.
-  intros *. intro phase.
-  unfold straight, Tcy, Tcx in phase.
-  rewrite Rplus_0_r, sin_PI2, cos_PI2, Rmult_0_r,
-  Rplus_0_l, Rplus_0_l, Rminus_0_r, Rmult_1_r in phase.
-  rewrite Rsqr_minus in phase.
-  apply (Rplus_lt_compat_r (-r²)) in phase.
-  apply Rminus_gt_0_lt.
-  setl (r² + - r²). setr (x² + (y² + r² - 2 * y * r) + - r²).
-  assumption.
-Qed.
-
-
 Lemma theta1_req0_thetamax (x y : R) (xne0 : x <> 0) (yne0 : y <> 0):
   2*atan((x - sqrt(x^2 - (2*0 - y)*y))/(2*0-y)) = atan2 y x.
 Proof.
@@ -7328,7 +7313,7 @@ Proof.
     ++ apply Rnot_le_lt in y1lt0.
        specialize (atan2Q3 _ _ x1lt0 y1lt0) as [at2lb at2ub]. lra.
 Qed.
-
+    
 
 Lemma r_sign_tmp : forall x₁ y₁ θc,
     let θmax := calcθ₁ 0 0 0 x₁ y₁ in
