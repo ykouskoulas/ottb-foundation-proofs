@@ -930,7 +930,7 @@ Proof.
   apply full_path_dist_increasing_s; assumption.
 Qed.
 
-(** Theorem 8 (Approach angle orders turn-to-bearing path radii) *)
+(** Theorem 7 (Approach angle orders turn-to-bearing path radii) *)
 
 Lemma ottb_bigger_theta_bigger_r_ep :
   forall θ₀ x₀ y₀ x₁ y₁ θr θs,
@@ -1481,7 +1481,7 @@ Proof.
 Qed.
 (* end hide *)
 
-(** Theorem 9 (Radius orders one-turn-to-bearing path lengths) *)
+(** Theorem 8 (Radius orders one-turn-to-bearing path lengths) *)
 Theorem ottb_bigger_r_longer_path :
   forall θ₀ x₀ y₀ x₁ y₁ r s Dr Ds θr θs
          (nog : ~ (x₁ - x₀ = 0 /\ y₁ - y₀ = 0))
@@ -6449,7 +6449,7 @@ Proof.
     assumption.
 Qed.
 
-(** Theorem 11 (Minimum bearing-constrained path length) from the paper. *)
+(** Theorem 9 (Minimum bearing-constrained path length) from the paper. *)
 
 Theorem minlength_path :
   forall θ₀ x₀ y₀ x₁ y₁ ra rb  θc θd Du ru θu tup

@@ -4794,7 +4794,7 @@ Qed.
 
 (* end hide *)
 
-(** Theorem 4: Straight path segment expression *)
+(** Theorem 3: Straight path segment expression *)
 
 Lemma Darm_Q_gen :
   forall θ₀ x₀ y₀ x₁ y₁ r (phase : straight r θ₀ x₀ y₀ x₁ y₁) (rne0 : r <> 0),
@@ -8752,7 +8752,7 @@ Proof.
 Qed.
 (* end hide *)
 
-(** Theorem 2 : Turn-to-bearing dependent radius *)
+(** Theorem 1 : Turn-to-bearing dependent radius *)
 Theorem intro_theta_path : forall (x₀ y₀ x₁ y₁ θ₀ θc : R),
     let θmax := calcθ₁ θ₀ x₀ y₀ x₁ y₁ in
     forall (tcrng : θmax / 2 < θc < θmax \/
@@ -9606,7 +9606,7 @@ Proof.
 Qed.
 (* end hide *)
 
-(** Theorem 3 : Turn-to-bearing dependent approach angle *)
+(** Theorem 2 : Turn-to-bearing dependent approach angle *)
 Theorem intro_r_path : forall (x₀ y₀ x₁ y₁ θ₀ r : R),
     let θmax := calcθ₁ θ₀ x₀ y₀ x₁ y₁ in
     forall (phase : straight r θ₀ x₀ y₀ x₁ y₁)

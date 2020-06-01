@@ -42,8 +42,8 @@ Qed.
 
 (* end hide *)
 
-(** Theorem 1 : (Turn-to-bearing dynamics)
-    Derivatives and continuity for path and components *)
+(** Turn-to-bearing dynamics: derivatives and continuity for path and
+components *)
 
 Theorem Hxarc_deriv : forall (r θ₀ x₀ d :R),
     0 <> r ->
