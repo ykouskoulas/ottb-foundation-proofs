@@ -5706,10 +5706,7 @@ Corollary minlength_path_std_part2 :
     forall (nc : ~ (0 <= x /\ y = 0))
            (t1rbletd : (θ1 x y ra) < θc),
       path_segment Du (Hx ru 0 0 θu tup) (Hy ru 0 0 θu tup) o p ->
-      (exists Dv θv tvp,
-          (θc <= θv <= θd /\
-           path_segment Dv (Hx ra 0 0 θv tvp) (Hy ra 0 0 θv tvp) o p
-           /\  Dv <= Du)).
+      False.
 Proof.
   intros until 8.
   intro u.
@@ -5835,11 +5832,10 @@ Proof.
                           -2 * PI < θ1 x y ra < θmax / 2 - 2 * PI)) \/
             (θmax < 0 /\ (θmax < θ1 x y ra < θmax / 2 \/
                           θmax / 2 + 2 * PI < θ1 x y ra < 2 * PI))) in t1vrng.
-
+    unfold θa in *.
+    clear - t1rbletd tur raeq θa.
     rewrite raeq in *.
-    exists Du, (θ1 x y ru), tup'.
-    repeat (split; auto).
-    right; reflexivity.
+    lra.
 Qed.
 
 
@@ -6571,7 +6567,8 @@ Proof.
     assumption.
 Qed.
 
-Corollary minlength_path_part2 :
+(* begin hide *)
+Corollary minlength_path_vacuous :
   forall θ₀ x₀ y₀ x₁ y₁ ra rb  θc θd Du ru θu tup
          (lt : 0 < ra)
          (raeq : ra = ru)
@@ -6587,10 +6584,7 @@ Corollary minlength_path_part2 :
            (nc : θmax <> 0)
            (t1rbletd : (θ1 x y ra) < θc),
       path_segment Du (Hx ru θ₀ x₀ θu tup) (Hy ru θ₀ y₀ θu tup) o p ->
-      (exists Dv θv tvp,
-          (θc <= θv <= θd /\
-           path_segment Dv (Hx ra θ₀ x₀ θv tvp) (Hy ra θ₀ y₀ θv tvp) o p
-           /\  Dv <= Du)).
+      False.
 Proof.
   intros until 8.
   intro u.
@@ -6620,17 +6614,12 @@ Proof.
     autorewrite with null in phaseu.
     lra. }
 
-  specialize (minlength_path_std_part2
-           _ _ _ _ _ _ Du ru θu tup lt raeq ruub tur phaseu npx t1rbletd u)
-    as [Dv [pv [tvp v]]].
-  exists Dv, pv, tvp;
-    unfold o, p;
-    rewrite path_std;
-    assumption.
+  apply (minlength_path_std_part2
+           _ _ _ _ _ _ Du ru θu tup lt raeq ruub tur phaseu npx t1rbletd u).
 Qed.
+(* end hide *)
 
-
-Corollary minlength_path_part3 :
+Corollary minlength_path_part2 :
   forall θ₀ x₀ y₀ x₁ y₁ ra rb  θc θd Du ru θu tup
          (lt : 0 < ra)
          (rur : ra <= ru <= rb)
