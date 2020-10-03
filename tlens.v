@@ -3,7 +3,6 @@ Require Import Reals.
 Require Import Ranalysis5.
 Require Import FunctionalExtensionality.
 Require Import Coquelicot.Coquelicot.
-Require Import Omega.
 Require Import Lia.
 Require Import Lra.
 Require Import atan2.
@@ -10577,7 +10576,7 @@ Proof.
          lra. }
        clear - id.
        apply eq_IZR in id.
-       omega.
+       lia.
 Qed.
 
 Lemma npx_turning_s :
@@ -11196,7 +11195,7 @@ Proof.
     generalize H0. clear H0.
     change (IZR q * 2 <> 1).
     discrR.
-    omega.
+    lia.
     lra.
     rewrite <- H. field. auto.
     rewrite <- H. field. auto.

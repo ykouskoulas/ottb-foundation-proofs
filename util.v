@@ -3,8 +3,6 @@ Require Import Coquelicot.Coquelicot.
 Require Import Lra.
 Require Import Lia.
 Open Scope R_scope.
-Import Lra.
-Import Lia.
 
 
 Create HintDb null.

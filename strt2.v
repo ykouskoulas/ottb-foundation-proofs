@@ -4,7 +4,6 @@ Require Import Reals.
 Require Import Ranalysis5.
 Require Import FunctionalExtensionality.
 Require Import Coquelicot.Coquelicot.
-Require Import Omega.
 Require Import Lia.
 Require Import Lra.
 Require Import atan2.
@@ -55,7 +54,7 @@ Proof.
   fieldrewrite (θ + IZR (2 * k) * PI + IZR (2 * (n - k) + 1) * PI)
                (θ + (IZR (2 * k) + IZR (2 * (n - k) + 1)) * PI).
   rewrite <- plus_IZR.
-  assert ((2 * k + (2 * (n - k) + 1)) = 2 * n + 1)%Z as id3. omega.
+  assert ((2 * k + (2 * (n - k) + 1)) = 2 * n + 1)%Z as id3. lia.
   rewrite id3. clear id3. reflexivity.
   rewrite id in k2def. clear id.
   change (κ₂ x₁ y₁ r q = q + IZR (2 * (n-k) + 1) * PI) in k2def.
@@ -130,9 +129,9 @@ Proof.
     apply (Rmult_le_reg_r (PI)). assumption. setr (PI).
     assumption.
     
-    assert ((n-k)%Z = 0%Z) as nmkeq0. omega.
+    assert ((n-k)%Z = 0%Z) as nmkeq0. lia.
     rewrite nmkeq0 in k2def. clear nmkeq0.
-    assert ((2 * 0 + 1)%Z = 1%Z) as id. omega.
+    assert ((2 * 0 + 1)%Z = 1%Z) as id. lia.
     rewrite id in k2def. clear id.
     assert (1 * PI = PI) as id. field. rewrite id in k2def. clear id.
     clear Zlb Zub at2ub at2lb y1def x1def.
@@ -196,7 +195,7 @@ Proof.
        apply IZR_le.
        specialize (Zle_0_pos p) as zleZpos.
        assert (Z.pos p <> 0)%Z.
-       discriminate. omega.
+       discriminate. lia.
        apply (Rle_trans _ (2 * 1 + 1)). 
        lra. lra.
        inversion_clear k2rng as [k2lb [k2ub | k2eq]].
@@ -228,7 +227,7 @@ Proof.
        apply IZR_le.
        specialize (Zle_0_pos p) as zleZpos.
        assert (Z.pos p <> 0)%Z.
-       discriminate. omega.
+       discriminate. lia.
        apply (Rle_trans _ (2 * (- 1) + 1)).
        apply (Rplus_le_reg_r (-1)). setr (2 * -1). setl (2 * IZR (Z.neg p)).
        apply (Rmult_le_reg_r (/2)).
@@ -241,7 +240,7 @@ Proof.
                 
                 assert (2 * Z.neg p + 1 < -1)%Z as Zineq. apply lt_IZR. assumption.
                 assert (IZR (2 * Z.neg p + 1) <= -3) as IZRm2.
-                apply IZR_le. omega. clear ltm1 Zineq.
+                apply IZR_le. lia. clear ltm1 Zineq.
                 
                 apply (Rle_lt_trans _ (q + - 3 * PI)). 
                 apply (Rplus_le_reg_r (-q)). setr (- 3 * PI).
@@ -356,7 +355,7 @@ Proof.
                 rewrite k2def2 in at2ub.
                 assert (1 <= IZR (Z.pos p0)) as ord.
                 apply IZR_le.
-                specialize (Zgt_pos_0 p0) as nonz. omega.
+                specialize (Zgt_pos_0 p0) as nonz. lia.
                 apply (Rmult_le_compat_r PI) in ord.
                 apply (Rplus_le_compat_l q') in ord.
                 lra. lra.
@@ -367,12 +366,12 @@ Proof.
                 apply (Rplus_lt_reg_r (IZR (Z.neg p0) * PI)). setl (-PI). assumption.
                 assert (1 <= IZR (Z.pos p0)) as ord2.
                 apply IZR_le.
-                specialize (Zgt_pos_0 p0) as nonz. omega.
+                specialize (Zgt_pos_0 p0) as nonz. lia.
                 inversion_clear ord2 as [oltIZR | oeqIZR].
                 assert (2 <= IZR (Z.pos p0)) as ord3.
                 apply IZR_le.
                 apply lt_IZR in oltIZR.
-                omega.
+                lia.
                 exfalso.
                 apply (Rmult_le_compat_r PI) in ord3.
                 apply (Rplus_le_compat_l q') in ord3.
@@ -522,7 +521,7 @@ Proof.
        specialize (Zle_0_pos p) as zleZpos.
        assert (Z.pos p <> 0)%Z.
        discriminate.
-       assert (1 <= Z.pos p)%Z as zltZpos. omega. clear H zleZpos.
+       assert (1 <= Z.pos p)%Z as zltZpos. lia. clear H zleZpos.
        rewrite opp_IZR in a2lb.
        apply IZR_le in zltZpos.
        
@@ -577,7 +576,7 @@ Proof.
     fieldrewrite (θ + IZR (2 * k) * PI + IZR (2 * (n - k)) * PI)
                  (θ + (IZR (2 * k) + IZR (2 * (n - k))) * PI).
     rewrite <- plus_IZR.
-    assert ((2 * k + (2 * (n - k))) = 2 * n)%Z as id3. omega.
+    assert ((2 * k + (2 * (n - k))) = 2 * n)%Z as id3. lia.
     rewrite id3. clear id3. reflexivity. }
   
   rewrite id in k2def. clear id.
@@ -653,7 +652,7 @@ Proof.
     apply (Rmult_le_reg_r (PI)). assumption. setr (PI).
     assumption.
     
-    assert ((n-k)%Z = 0%Z) as nmkeq0. omega.
+    assert ((n-k)%Z = 0%Z) as nmkeq0. lia.
     rewrite nmkeq0 in k2def. clear nmkeq0.
     rewrite mult_IZR in k2def.
     autorewrite with null in k2def.
@@ -705,7 +704,7 @@ Proof.
        case_eq (n-k)%Z.
        +++ intro nkz.
            rewrite nkz in *.
-           assert (n = k) as neqk. omega.
+           assert (n = k) as neqk. lia.
            rewrite neqk in *.
            clear nkz neqk n.
            autorewrite with null in k2def.
@@ -1028,7 +1027,7 @@ Proof.
   fieldrewrite (θ + IZR (2 * k) * PI + IZR (2 * (n - k) + 1) * PI)
                (θ + (IZR (2 * k) + IZR (2 * (n - k) + 1)) * PI).
   rewrite <- plus_IZR.
-  assert ((2 * k + (2 * (n - k) + 1)) = 2 * n + 1)%Z as id3. omega.
+  assert ((2 * k + (2 * (n - k) + 1)) = 2 * n + 1)%Z as id3. lia.
   rewrite id3. clear id3. reflexivity.
   rewrite id in k2def. clear id.
   change (κ₂ x₁ y₁ r q = q + IZR (2 * (n-k) + 1) * PI) in k2def.
@@ -1097,9 +1096,9 @@ Proof.
     apply (Rmult_le_reg_r PI). assumption. 
     assumption.
     
-    assert ((n-k-j)%Z = 0%Z) as nmkeq0. omega.
+    assert ((n-k-j)%Z = 0%Z) as nmkeq0. lia.
     rewrite nmkeq0 in k3def. clear nmkeq0.
-    assert ((2 * 0 + 1)%Z = 1%Z) as id. omega.
+    assert ((2 * 0 + 1)%Z = 1%Z) as id. lia.
     rewrite id in k3def. clear id.
     assert (1 * PI = PI) as id.
     field.
@@ -1212,7 +1211,7 @@ Proof.
            rewrite k3def in k3rng.
            
            destruct (n-k-j)%Z.
-           ++++ assert ((2 * 0 + 1)%Z = 1%Z) as id. omega.
+           ++++ assert ((2 * 0 + 1)%Z = 1%Z) as id. lia.
                 rewrite id in k3def, k3rng. clear id.
                 assert (1 * PI = PI) as id. field. rewrite id in k3def, k3rng. clear id.
                 inversion_clear k3rng as [k3lb k3ub].
@@ -1224,7 +1223,7 @@ Proof.
                 apply IZR_le.
                 specialize (Zle_0_pos p) as zleZpos.
                 assert (Z.pos p <> 0)%Z.
-                discriminate. omega.
+                discriminate. lia.
                 apply (Rle_trans _ (2 * 1 + 1)). 
                 lra. lra.
                 inversion_clear k3rng as [k2lb k2ub].
@@ -1247,7 +1246,7 @@ Proof.
                 apply IZR_le.
                 specialize (Zle_0_pos p) as zleZpos.
                 assert (Z.pos p <> 0)%Z.
-                discriminate. omega.
+                discriminate. lia.
                 apply (Rle_trans _ (2 * (- 1) + 1)).
                 apply (Rplus_le_reg_r (-1)). setr (2 * -1). setl (2 * IZR (Z.neg p)).
                 apply (Rmult_le_reg_r (/2)).
@@ -1263,7 +1262,7 @@ Proof.
                 apply (Rmult_lt_reg_r 2). lra. apply (Rplus_lt_reg_r 1).
                 setl (2 * IZR (Z.neg p) + 1). setr (-1). assumption.
                 specialize (lt_IZR _ _ ltm12) as ltm12Z.
-                assert (Z.neg p <= -2)%Z. omega.
+                assert (Z.neg p <= -2)%Z. lia.
                 assert (IZR (Z.neg p) <= -2) as negneg2.
                 apply IZR_le. assumption.
                 
@@ -1561,7 +1560,7 @@ Proof.
                   
                   assert (1 <= IZR (Z.pos p0)) as ord.
                   apply IZR_le.
-                  specialize (Zgt_pos_0 p0) as nonz. omega.
+                  specialize (Zgt_pos_0 p0) as nonz. lia.
                   apply (Rmult_le_compat_r PI) in ord.
                   apply (Rplus_le_compat_l q') in ord.
                   lra. lra.
@@ -1574,11 +1573,11 @@ Proof.
                   apply IZR_le.
                   specialize (Zle_0_pos p0) as zleZpos.
                   assert (Z.pos p0 <> 0)%Z.
-                  discriminate. omega.
+                  discriminate. lia.
                   
                   inversion_clear negtm as [ltm1 | eqm1].
                   specialize (lt_IZR _ _ ltm1) as ltm12Z.
-                  assert (Z.neg p0 <= -2)%Z. omega.
+                  assert (Z.neg p0 <= -2)%Z. lia.
                   assert (IZR (Z.neg p0) <= -2) as negneg2.
                   apply IZR_le. assumption.
                   inversion_clear k3rng' as [k3lb' k3ub'].
@@ -1638,7 +1637,7 @@ Proof.
            apply IZR_le.
            specialize (Zle_0_pos p) as zleZpos.
            assert (Z.pos p <> 0)%Z.
-           discriminate. omega.
+           discriminate. lia.
            apply (Rle_trans _ (2 * 1 + 1)). 
            lra. lra.
            
@@ -1656,7 +1655,7 @@ Proof.
            apply IZR_le.
            specialize (Zle_0_pos p) as zleZpos.
            assert (Z.pos p <> 0)%Z.
-           discriminate. omega.
+           discriminate. lia.
            apply (Rle_trans _ (2 * (- 1) + 1)).
            apply (Rplus_le_reg_r (-1)). setr (2 * -1).
            setl (2 * IZR (Z.neg p)).
@@ -1719,7 +1718,7 @@ Proof.
   fieldrewrite (θ + IZR (2 * k) * PI + IZR (2 * (n - k)) * PI)
                (θ + (IZR (2 * k) + IZR (2 * (n - k))) * PI).
   rewrite <- plus_IZR.
-  assert ((2 * k + (2 * (n - k))) = 2 * n)%Z as id3. omega.
+  assert ((2 * k + (2 * (n - k))) = 2 * n)%Z as id3. lia.
   rewrite id3. clear id3. reflexivity.
   rewrite id in k2def. clear id.
   change (κ₂ x₁ y₁ r q = q + IZR (2 * (n-k)) * PI) in k2def.
@@ -2188,7 +2187,7 @@ Proof.
 
                     inversion_clear negtm as [ltm1 | eqm1].
                     specialize (lt_IZR _ _ ltm1) as ltm12Z.
-                    assert (Z.neg p <= -2)%Z. omega.
+                    assert (Z.neg p <= -2)%Z. lia.
                     assert (IZR (Z.neg p) <= -2) as negneg2.
                     apply IZR_le. assumption.
                     inversion_clear k3rng' as [k3lb' k3ub'].
@@ -2240,7 +2239,7 @@ Proof.
                   setl (2 * IZR (Z.neg p)).
                   setr (-2). assumption.  }
                 specialize (lt_IZR _ _ ltm12) as ltm12Z.
-                assert (Z.neg p <= -2)%Z. omega.
+                assert (Z.neg p <= -2)%Z. lia.
                 assert (IZR (Z.neg p) <= -2) as negneg2.
                 apply IZR_le. assumption.
 
@@ -2361,7 +2360,7 @@ Proof.
     fieldrewrite (θ + IZR (2 * k) * PI + IZR (2 * (n - k) + 1) * PI)
                  (θ + (IZR (2 * k) + IZR (2 * (n - k) + 1)) * PI).
     rewrite <- plus_IZR.
-    assert ((2 * k + (2 * (n - k) + 1)) = 2 * n + 1)%Z as id3. omega.
+    assert ((2 * k + (2 * (n - k) + 1)) = 2 * n + 1)%Z as id3. lia.
     rewrite id3. clear id3. reflexivity. }
   
   rewrite id in k2def. clear id.
@@ -2436,9 +2435,9 @@ Proof.
       apply (Rmult_le_reg_r (PI)). assumption. setr (PI).
       assumption.
       
-      assert ((n-k)%Z = 0%Z) as nmkeq0. omega.
+      assert ((n-k)%Z = 0%Z) as nmkeq0. lia.
       rewrite nmkeq0 in k2def. clear nmkeq0.
-      assert ((2 * 0 + 1)%Z = 1%Z) as id. omega.
+      assert ((2 * 0 + 1)%Z = 1%Z) as id. lia.
       rewrite id in k2def. clear id.
       assert (1 * PI = PI) as id. field. rewrite id in k2def. clear id.
       clear Zlb Zub at2ub at2lb y1def x1def.
@@ -2751,9 +2750,9 @@ Proof.
       apply (Rmult_le_reg_r (PI)). assumption. setr (PI).
       assumption.
       
-      assert ((n-k)%Z = 0%Z) as nmkeq0. omega.
+      assert ((n-k)%Z = 0%Z) as nmkeq0. lia.
       rewrite nmkeq0 in k2def. clear nmkeq0.
-      assert ((2 * 0)%Z = 0%Z) as id. omega.
+      assert ((2 * 0)%Z = 0%Z) as id. lia.
       rewrite id in k2def. clear id.
       assert (0 * PI = 0) as id. field.
       rewrite id in k2def. clear id.
@@ -2962,7 +2961,7 @@ Proof.
     fieldrewrite (θ + IZR (2 * k) * PI + IZR (2 * (n - k) + 1) * PI)
                  (θ + (IZR (2 * k) + IZR (2 * (n - k) + 1)) * PI).
     rewrite <- plus_IZR.
-    assert ((2 * k + (2 * (n - k) + 1)) = 2 * n + 1)%Z as id3. omega.
+    assert ((2 * k + (2 * (n - k) + 1)) = 2 * n + 1)%Z as id3. lia.
     rewrite id3. clear id3. reflexivity. }
   rewrite id in k2def. clear id.
   change (κ₂ x₁ y₁ r q = q + IZR (2 * (n-k) + 1) * PI) in k2def.
@@ -3191,7 +3190,7 @@ Proof.
     fieldrewrite (θ + IZR (2 * k) * PI + IZR (2 * (n - k)) * PI)
                  (θ + (IZR (2 * k) + IZR (2 * (n - k))) * PI).
     rewrite <- plus_IZR.
-    assert ((2 * k + (2 * (n - k))) = 2 * n)%Z as id3. omega.
+    assert ((2 * k + (2 * (n - k))) = 2 * n)%Z as id3. lia.
     rewrite id3. clear id3. reflexivity. }
   rewrite id in k2def. clear id.
   change (κ₂ x₁ y₁ r q = q + IZR (2 * (n-k)) * PI) in k2def.
@@ -3263,7 +3262,7 @@ Proof.
       setr PI.
       assumption. }
     
-    assert ((n-k)%Z = 0%Z) as nmkeq0. omega.
+    assert ((n-k)%Z = 0%Z) as nmkeq0. lia.
     rewrite nmkeq0 in k2def. clear nmkeq0.
     rewrite mult_IZR in k2def.
     autorewrite with null in k2def.
@@ -3660,7 +3659,7 @@ Proof.
     rewrite <- k2def. field. auto.
 
     apply eq_IZR in contra.
-    omega.
+    lia.
 Qed.
 
 
@@ -3784,7 +3783,7 @@ Proof.
       setr PI.
       assumption. }
     
-    assert ((n-k)%Z = 0%Z) as nmkeq0. omega.
+    assert ((n-k)%Z = 0%Z) as nmkeq0. lia.
     rewrite nmkeq0 in k2def. clear nmkeq0.
     rewrite mult_IZR in k2def.
     autorewrite with null in k2def.
@@ -4022,9 +4021,9 @@ Proof.
       apply (Rmult_le_reg_r (PI)). assumption. setr (PI).
       assumption. }
     
-    assert ((n-k)%Z = 0%Z) as nmkeq0. omega.
+    assert ((n-k)%Z = 0%Z) as nmkeq0. lia.
     rewrite nmkeq0 in k2def. clear nmkeq0.
-    assert ((2 * 0 + 1)%Z = 1%Z) as id. omega.
+    assert ((2 * 0 + 1)%Z = 1%Z) as id. lia.
     rewrite id in k2def. clear id.
     assert (1 * PI = PI) as id. field. rewrite id in k2def. clear id.
 
@@ -4149,7 +4148,7 @@ Proof.
           rewrite plus_IZR, mult_IZR. field. rewrite id in *. clear id.
           clear - rub pigt0. lra.
           
-          assert (2 * Z.neg p + 1 <= -2)%Z as plen2. omega.
+          assert (2 * Z.neg p + 1 <= -2)%Z as plen2. lia.
           apply IZR_le in plen2. 
           apply (Rmult_le_compat_r PI) in plen2.
           apply (Rplus_le_compat_l PI) in plen2.
@@ -4271,7 +4270,7 @@ Proof.
       setr PI.
       assumption. }
     
-    assert ((n-k)%Z = 0%Z) as nmkeq0. omega.
+    assert ((n-k)%Z = 0%Z) as nmkeq0. lia.
     rewrite nmkeq0 in k2def. clear nmkeq0.
     rewrite mult_IZR in k2def.
     autorewrite with null in k2def.
@@ -4449,7 +4448,7 @@ Proof.
   fieldrewrite (θ + IZR (2 * k) * PI + IZR (2 * (n - k) + 1) * PI)
                (θ + (IZR (2 * k) + IZR (2 * (n - k) + 1)) * PI).
   rewrite <- plus_IZR.
-  assert ((2 * k + (2 * (n - k) + 1)) = 2 * n + 1)%Z as id3. omega.
+  assert ((2 * k + (2 * (n - k) + 1)) = 2 * n + 1)%Z as id3. lia.
   rewrite id3. clear id3. reflexivity. }
   rewrite id in k2def. clear id.
   change (κ₂ x₁ y₁ r q = q + IZR (2 * (n-k) + 1) * PI) in k2def.
@@ -4593,7 +4592,7 @@ Proof.
              rewrite plus_IZR, mult_IZR.
              assert (1 <= IZR (Z.pos p)).
              specialize (Pos2Z.is_pos p) as zltp.
-             apply IZR_le. omega. lra. }
+             apply IZR_le. lia. lra. }
            apply (Rmult_le_compat_r (PI)) in IZRid; lra. 
            
        +++ assert (IZR (2 * Z.neg p + 1) <= -1 ) as negtm. {
@@ -4606,7 +4605,7 @@ Proof.
              apply IZR_le.
              specialize (Zle_0_pos p) as zleZpos.
              assert (Z.pos p <> 0)%Z.
-             discriminate. omega.
+             discriminate. lia.
              apply (Rle_trans _ (2 * (- 1) + 1)).
              apply (Rplus_le_reg_r (-1)). setr (2 * -1). setl (2 * IZR (Z.neg p)).
              apply (Rmult_le_reg_r (/2)).
@@ -4652,7 +4651,7 @@ Proof.
             rewrite plus_IZR, mult_IZR.
             assert (1 <= IZR (Z.pos p)).
             specialize (Pos2Z.is_pos p) as zltp.
-            apply IZR_le. omega. lra. }
+            apply IZR_le. lia. lra. }
           apply (Rmult_le_compat_r (PI)) in IZRid; lra. 
            
        ++ assert (2*Z.neg p + 1 <= -1)%Z as bnd. {
@@ -4902,7 +4901,7 @@ Proof.
             rewrite mult_IZR.
             assert (1 <= IZR (Z.pos p)).
             specialize (Pos2Z.is_pos p) as zltp.
-            apply IZR_le. omega. lra. }
+            apply IZR_le. lia. lra. }
           apply (Rmult_le_compat_r (PI)) in IZRid; lra. 
            
        ++ assert (2*Z.neg p <= -2)%Z as bnd. {
@@ -5072,7 +5071,7 @@ Proof.
          rewrite plus_IZR, mult_IZR.
          assert (1 <= IZR (Z.pos p)).
          specialize (Pos2Z.is_pos p) as zltp.
-         apply IZR_le. omega. lra. }
+         apply IZR_le. lia. lra. }
        apply (Rmult_le_compat_r (PI)) in IZRid.
        lra. lra.
            
@@ -5320,7 +5319,7 @@ Proof.
     fieldrewrite (θ + IZR (2 * k) * PI + IZR (2 * (n - k) + 1) * PI)
                  (θ + (IZR (2 * k) + IZR (2 * (n - k) + 1)) * PI).
     rewrite <- plus_IZR.
-    assert ((2 * k + (2 * (n - k) + 1)) = 2 * n + 1)%Z as id3. omega.
+    assert ((2 * k + (2 * (n - k) + 1)) = 2 * n + 1)%Z as id3. lia.
     rewrite id3. clear id3. reflexivity. }
   rewrite id in k2def. clear id.
   change (κ₂ x₁ y₁ r q = q + IZR (2 * (n-k) + 1) * PI) in k2def.
@@ -6961,6 +6960,30 @@ Ltac cne0 :=
     apply sqrt_lt_R0;
     apply Rplus_lt_le_0_compat;
     [ apply Rsqr_pos_lt; lra|apply Rle_0_sqr]
+  | num : 0 < ?x + ?D,
+    zgta : 2 * ?r - ?y < 0,
+    phase : straight ?r 0 0 0 ?x ?y |-
+    cos (atan ((?x + ?D) / (2 * ?r - ?y))) <> 0 =>
+    fieldrewrite (atan ((x + D) / (2 * r - y)))
+                 ((atan ((x + D) / (2 * r - y)) + PI) - PI);
+    rewrite <- atan2_atan_Q2; try assumption;
+    rewrite <- cos_neg;
+    fieldrewrite (- (atan2 (x + D) (2 * r - y) - PI))
+                 (- atan2 (x + D) (2 * r - y) + PI);
+    rewrite neg_cos;
+    rewrite <- cos_neg, Ropp_involutive;
+    rewrite atan2_cos_id; try assumption;
+    repeat rewrite <- Rsqr_pow2;
+    intro c;
+    rewrite <- Ropp_0 in c;
+    apply Ropp_eq_compat in c;
+    repeat rewrite Ropp_involutive in c;
+    rewrite <- signeq0_eqv in c;
+    rewrite sign_eq_pos_den in c;
+    [ rewrite signeq0_eqv in c;lra|];
+    apply sqrt_lt_R0;
+    apply Rplus_lt_le_0_compat;
+    [ apply Rsqr_pos_lt; lra|apply Rle_0_sqr]
   | num : ?x + ?D < 0,
     zgta : 0 < 2 * ?r - ?y,
     phase : straight ?r 0 0 0 ?x ?y |-
@@ -6978,6 +7001,24 @@ Ltac cne0 :=
       left; apply Rsqr_pos_lt; lra]
   | num : ?x + ?D < 0,
     zgta : 0 > 2 * ?r - ?y,
+    phase : straight ?r 0 0 0 ?x ?y |-
+    cos (atan ((?x + ?D) / (2 * ?r - ?y))) <> 0 =>
+    fieldrewrite (atan ((x + D) / (2 * r - y)))
+                 ((atan ((x + D) / (2 * r - y)) - PI) + PI);
+    rewrite <- atan2_atan_Q3; try assumption;
+    rewrite neg_cos;
+    apply Ropp_neq_0_compat;
+    rewrite atan2_cos_id; try assumption;
+    repeat rewrite <- Rsqr_pow2;
+    intro c;
+    rewrite <- signeq0_eqv in c;
+    rewrite sign_eq_pos_den in c;
+    [ rewrite signeq0_eqv in c;lra|];
+    apply sqrt_lt_R0;
+    apply Rplus_lt_le_0_compat;
+    [ apply Rsqr_pos_lt; lra|apply Rle_0_sqr]
+  | num : ?x + ?D < 0,
+    zgta : 2 * ?r - ?y < 0,
     phase : straight ?r 0 0 0 ?x ?y |-
     cos (atan ((?x + ?D) / (2 * ?r - ?y))) <> 0 =>
     fieldrewrite (atan ((x + D) / (2 * r - y)))
@@ -7094,7 +7135,9 @@ Proof.
                   specialize (sqrt_pos (x² - (2 * r - y) * y)) as xDnn;
                     change (0 <= D) in xDnn;
                     lra. }
+                
                 cne0.
+                
        +++ specialize PI_RGT_0 as pigt0.
            assert (atan (x / r) = 0 + IZR ( -n) * PI)
              as at2d. {

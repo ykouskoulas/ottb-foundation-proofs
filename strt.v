@@ -3,7 +3,6 @@ Require Import Reals.
 Require Import Ranalysis5.
 Require Import FunctionalExtensionality.
 Require Import Coquelicot.Coquelicot.
-Require Import Omega.
 Require Import Lra.
 Require Import Lia.
 Require Import atan2.
@@ -3318,7 +3317,7 @@ Proof.
   fieldrewrite (θ + IZR (2 * l) * PI + IZR (2 * (n - l)) * PI)
                (θ + (IZR (2 * l) + IZR (2 * (n - l))) * PI).
   rewrite <- plus_IZR.
-  assert ((2 * l + (2 * (n - l))) = 2 * n)%Z as id3. omega.
+  assert ((2 * l + (2 * (n - l))) = 2 * n)%Z as id3. lia.
   rewrite id3. clear id3. reflexivity.
   rewrite id in k2def. clear id.
   change (κ₂ x y r p = p + IZR (2 * (n-l)) * PI) in k2def.
@@ -3366,7 +3365,7 @@ Proof.
   fieldrewrite (θ + IZR (2 * l) * PI + IZR (2 * (n - l) + 1) * PI)
                (θ + (IZR (2 * l) + IZR (2 * (n - l) + 1)) * PI).
   rewrite <- plus_IZR.
-  assert ((2 * l + (2 * (n - l) + 1)) = 2 * n + 1)%Z as id3. omega.
+  assert ((2 * l + (2 * (n - l) + 1)) = 2 * n + 1)%Z as id3. lia.
   rewrite id3. clear id3. reflexivity.
   rewrite id in k2def. clear id.
   change (κ₂ x y r p = p + IZR (2 * (n-l) + 1) * PI) in k2def.
@@ -10916,6 +10915,16 @@ Ltac shweq k :=
     fieldrewrite ((x+ - x)/(2*r)) (0);
     [lra|rewrite atan_0];
     arn; shweq k
+  | e : 0 = ?y, e0 : ?x < 0|-
+    context [sqrt (?x² - (2 * ?r - ?y) * ?y) ] =>
+    rewrite <- e;
+    arn;
+    rewrite Rsqr_neg;
+    rewrite sqrt_Rsqr;
+    [|lra];
+    fieldrewrite ((x+ - x)/(2*r)) (0);
+    [lra|rewrite atan_0];
+    arn; shweq k
   end.
 
 Ltac kpt1t2h1 k :=
@@ -10973,10 +10982,9 @@ Proof.
        rewrite tdef;
        rewrite ksg0;
        unfold θ1, θ2.
-
        kpt1t2h1 k.
        kpt1t2h1 k.
-
+       
   + rewrite (k'_periodic _ _ _ k) in ksg0.
     rewrite (Rmult_comm 2) in ksg0.
     rewrite Rmult_assoc in ksg0.
