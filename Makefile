@@ -56,4 +56,4 @@ dtlen.html : dtlen.vo dtlen.v
 	coqdoc -g -utf8 dtlen.v
 
 clean :
-	rm *.vo *.glob
+	rm *.vo *.glob *.aux *.vok *.vos *.html 
