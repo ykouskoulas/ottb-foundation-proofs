@@ -130,6 +130,16 @@ Proof.
   lra.
 Qed.
 
+Lemma condturning : forall x y r,
+    2 * r * y = x² + y² -> turning r 0 0 0 x y.
+Proof.
+  intros * trn.
+  unfold turning, Tcx, Tcy.
+  arn.
+  rewrite Rsqr_minus.
+  lra.
+Qed.
+
 Lemma straightcond : forall r x y,
     straight r 0 0 0 x y -> (2 * r * y < x² + y²).
 Proof.
@@ -142,6 +152,19 @@ Proof.
   apply Rminus_gt_0_lt.
   setl (r² + - r²). setr (x² + (y² + r² - 2 * y * r) + - r²).
   assumption.
+Qed.
+
+Lemma condstraight : forall r x y,
+    (2 * r * y < x² + y²) -> straight r 0 0 0 x y.
+Proof.
+  intros.
+  unfold straight, Tcy, Tcx.
+  rewrite Rplus_0_r, sin_PI2, cos_PI2, Rmult_0_r,
+  Rplus_0_l, Rplus_0_l, Rminus_0_r, Rmult_1_r.
+  rewrite Rsqr_minus.
+  apply (Rplus_lt_reg_r (-r²)).
+  setl 0. setr (x² + y² - 2 * y * r).
+  lra.
 Qed.
 
 Lemma tscond : forall x y r,

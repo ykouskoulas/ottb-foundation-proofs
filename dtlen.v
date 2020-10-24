@@ -2530,6 +2530,128 @@ Proof.
   eapply maxlength_path_straight_std; try eassumption.
 Qed.
 
+Corollary maxlength_path_std_arg1_impl_not_arg2 :
+  forall x y ra rb θc θd Du ru θu tup
+         (lt : 0 < ra)
+         (rur : ra <= ru <= rb)
+         (tur : θc <= θu <= θd),
+    let o := (mkpt 0 0) in
+    let p := (mkpt x y) in
+    let θmax := calcθ₁ 0 0 0 x y in
+    forall (nc : ~ (0 <= x /\ y = 0)),
+      path_segment Du (Hx ru 0 0 θu tup) (Hy ru 0 0 θu tup) o p ->
+      (straight rb 0 0 0 x y /\ θ1 x y rb <= θd) ->
+      ~((θd < θmax /\ 2 * ra * y <= (x² + y²) <= 2 * rb *y)\/
+        (straight rb 0 0 0 x y /\ θd < θ1 x y rb)).
+Proof.
+  intros until 4.
+  intros u [a1c1 a1c2].
+  apply straightcond in a1c1.
+  lra.
+Qed.
+
+Corollary maxlength_path_std_arg2_impl_not_arg1 :
+  forall x y ra rb θc θd Du ru θu tup
+         (lt : 0 < ra)
+         (rur : ra <= ru <= rb)
+         (tur : θc <= θu <= θd),
+    let o := (mkpt 0 0) in
+    let p := (mkpt x y) in
+    let θmax := calcθ₁ 0 0 0 x y in
+    forall (nc : ~ (0 <= x /\ y = 0)),
+      path_segment Du (Hx ru 0 0 θu tup) (Hy ru 0 0 θu tup) o p ->
+      ((θd < θmax /\ 2 * ra * y <= (x² + y²) <= 2 * rb *y)\/
+        (straight rb 0 0 0 x y /\ θd < θ1 x y rb)) ->
+      ~(straight rb 0 0 0 x y /\ θ1 x y rb <= θd).
+Proof.
+  intros until 4.
+  intros u [a2c1 |a2c2].
+  intros [a1c1 a1c2].
+  apply straightcond in a1c1.
+  lra.
+  lra.
+Qed.
+
+
+Corollary maxlength_path_std_arg1_impl_not_arg3 :
+  forall x y ra rb θc θd Du ru θu tup
+         (lt : 0 < ra)
+         (rur : ra <= ru <= rb)
+         (tur : θc <= θu <= θd),
+    let o := (mkpt 0 0) in
+    let p := (mkpt x y) in
+    let θmax := calcθ₁ 0 0 0 x y in
+    forall (nc : ~ (0 <= x /\ y = 0)),
+      path_segment Du (Hx ru 0 0 θu tup) (Hy ru 0 0 θu tup) o p ->
+      (straight rb 0 0 0 x y /\ θ1 x y rb <= θd) ->
+      ~(2 * ra * y <= (x² + y²) <= 2 * rb * y /\ θmax <= θd).
+Proof.
+  intros until 4.
+  intros u [a1c1 a1c2].
+  intros [a3c1 a3c2].
+  apply straightcond in a1c1.
+  lra.
+Qed.
+
+Corollary maxlength_path_std_arg3_impl_not_arg1 :
+  forall x y ra rb θc θd Du ru θu tup
+         (lt : 0 < ra)
+         (rur : ra <= ru <= rb)
+         (tur : θc <= θu <= θd),
+    let o := (mkpt 0 0) in
+    let p := (mkpt x y) in
+    let θmax := calcθ₁ 0 0 0 x y in
+    forall (nc : ~ (0 <= x /\ y = 0)),
+      path_segment Du (Hx ru 0 0 θu tup) (Hy ru 0 0 θu tup) o p ->
+      (2 * ra * y <= (x² + y²) <= 2 * rb * y /\ θmax <= θd) ->
+      ~(straight rb 0 0 0 x y /\ θ1 x y rb <= θd).
+Proof.
+  intros until 4.
+  intros u [a3c1 a3c2].
+  intros [a1c1 a1c2].
+  apply straightcond in a1c1.
+  lra.
+Qed.
+
+Corollary maxlength_path_std_arg2_impl_not_arg3 :
+  forall x y ra rb θc θd Du ru θu tup
+         (lt : 0 < ra)
+         (rur : ra <= ru <= rb)
+         (tur : θc <= θu <= θd),
+    let o := (mkpt 0 0) in
+    let p := (mkpt x y) in
+    let θmax := calcθ₁ 0 0 0 x y in
+    forall (nc : ~ (0 <= x /\ y = 0)),
+      path_segment Du (Hx ru 0 0 θu tup) (Hy ru 0 0 θu tup) o p ->
+      (straight rb 0 0 0 x y /\ θd < θ1 x y rb) ->
+      ~(2 * ra * y <= (x² + y²) <= 2 * rb * y /\ θmax <= θd).
+Proof.
+  intros until 4.
+  intros u [a1c1 a1c2].
+  intros [a3c1 a3c2].
+  apply straightcond in a1c1.
+  lra.
+Qed.
+
+Corollary maxlength_path_std_arg3_impl_not_arg2 :
+  forall x y ra rb θc θd Du ru θu tup
+         (lt : 0 < ra)
+         (rur : ra <= ru <= rb)
+         (tur : θc <= θu <= θd),
+    let o := (mkpt 0 0) in
+    let p := (mkpt x y) in
+    let θmax := calcθ₁ 0 0 0 x y in
+    forall (nc : ~ (0 <= x /\ y = 0)),
+      path_segment Du (Hx ru 0 0 θu tup) (Hy ru 0 0 θu tup) o p ->
+      (2 * ra * y <= (x² + y²) <= 2 * rb * y /\ θmax <= θd) ->
+      ~(straight rb 0 0 0 x y /\ θd < θ1 x y rb).
+Proof.
+  intros until 4.
+  intros u [a3c1 a3c2].
+  intros [a1c1 a1c2].
+  apply straightcond in a1c1.
+  lra.
+Qed.
 
 (* Third term does not exist because minimum theta value would be thetamax/2, 
 disallowed because it would require r=0, ra is the minimum r and 0 < ra *)
@@ -3559,6 +3681,300 @@ Proof.
   left; assumption.
   right; left; assumption.
 Qed.
+
+Corollary minlength_path_std_arg1_impl_not_arg2 :
+  forall x y ra rb θc θd Du ru θu tup
+         (lt : 0 < ra)
+         (rur : ra <= ru <= rb)
+         (tur : θc <= θu <= θd),
+    let o := (mkpt 0 0) in
+    let p := (mkpt x y) in
+    let θmax := calcθ₁ 0 0 0 x y in
+    forall (nc : ~ (0 <= x /\ y = 0)),
+      path_segment Du (Hx ru 0 0 θu tup) (Hy ru 0 0 θu tup) o p ->
+      (straight ra 0 0 0 x y /\ θc <= θ1 x y ra <= θd) ->
+      ~ (θ1 x y ra < θc /\ 
+       (((ra <= (x² + y²)/(2*y) \/ y = 0)/\ θc < θmax) \/
+        (y < 0 /\ θmax < 0))).
+Proof.
+  intros until 4.
+  intros u [sra [tcleta taletd]].
+  intros [talttc [[[raltrm | yeq0] tclttm] | [ylt0 tmlt0]]];
+  apply straightcond in sra;
+  lra.
+Qed.
+
+
+Corollary minlength_path_std_arg2_impl_not_arg1 :
+  forall x y ra rb θc θd Du ru θu tup
+         (lt : 0 < ra)
+         (rur : ra <= ru <= rb)
+         (tur : θc <= θu <= θd),
+    let o := (mkpt 0 0) in
+    let p := (mkpt x y) in
+    let θmax := calcθ₁ 0 0 0 x y in
+    forall (nc : ~ (0 <= x /\ y = 0)),
+      path_segment Du (Hx ru 0 0 θu tup) (Hy ru 0 0 θu tup) o p ->
+      (θ1 x y ra < θc /\ 
+       (((ra <= (x² + y²)/(2*y) \/ y = 0)/\ θc < θmax) \/
+        (y < 0 /\ θmax < 0))) ->
+      ~ (straight ra 0 0 0 x y /\ θc <= θ1 x y ra <= θd).
+Proof.
+  intros until 4.
+  intros u [talttc [[[raltrm | yeq0] tclttm] | [ylt0 tmlt0]]];
+  intros [sra [tcleta taletd]];
+  apply straightcond in sra; try lra.
+Qed.
+
+Corollary minlength_path_std_arg2_impl_not_arg3 :
+  forall x y ra rb θc θd Du ru θu tup
+         (lt : 0 < ra)
+         (rur : ra <= ru <= rb)
+         (tur : θc <= θu <= θd),
+    let o := (mkpt 0 0) in
+    let p := (mkpt x y) in
+    let θmax := calcθ₁ 0 0 0 x y in
+    forall (nc : ~ (0 <= x /\ y = 0)),
+      path_segment Du (Hx ru 0 0 θu tup) (Hy ru 0 0 θu tup) o p ->
+      (θ1 x y ra < θc /\ 
+       (((ra <= (x² + y²)/(2*y) \/ y = 0)/\ θc < θmax) \/
+        (y < 0 /\ θmax < 0))) ->
+      ~ (ra <= (x² + y²)/(2*y) <= rb /\ θmax <= Rmax θc (θ1 x y ra)).
+Proof.
+  intros until 4.
+  intros u [talttc [[[raltrm | yeq0] tclttm] | [ylt0 tmlt0]]];
+  intros [[ralerm rmlerb] tmltrm];
+  unfold Rmax in *; destruct Rle_dec; try lra.
+  specialize (posss x y ltac:(lra)) as ps.
+  assert ((x² + y²) / (2 * y) < 0) as rmlt0. {
+    setl (-((x² + y²) / (2 * (-y)))); try lra.
+    apply (Rmult_lt_reg_r (2 * - y)); try zltab.
+    setl (- (x² + y²)); try lra. }
+  lra.
+Qed.
+
+Corollary minlength_path_std_arg3_impl_not_arg2 :
+  forall x y ra rb θc θd Du ru θu tup
+         (lt : 0 < ra)
+         (rur : ra <= ru <= rb)
+         (tur : θc <= θu <= θd),
+    let o := (mkpt 0 0) in
+    let p := (mkpt x y) in
+    let θmax := calcθ₁ 0 0 0 x y in
+    forall (nc : ~ (0 <= x /\ y = 0)),
+      path_segment Du (Hx ru 0 0 θu tup) (Hy ru 0 0 θu tup) o p ->
+      (ra <= (x² + y²)/(2*y) <= rb /\ θmax <= Rmax θc (θ1 x y ra)) ->
+      ~ (θ1 x y ra < θc /\ 
+         (((ra <= (x² + y²)/(2*y) \/ y = 0)/\ θc < θmax) \/
+          (y < 0 /\ θmax < 0))).
+Proof.
+  intros until 4.
+  intros u [[raltrm1 rmltrb] tmletcta].
+  intros [talttc [[[raltrm | yeq0] tclttm] | [ylt0 tmlt0]]];
+    unfold Rmax in tmletcta;
+    destruct Rle_dec; try lra.
+  specialize (posss x y ltac:(lra)) as ps.
+  assert ((x² + y²) / (2 * y) < 0) as rmlt0. {
+    setl (-((x² + y²) / (2 * (-y)))); try lra.
+    apply (Rmult_lt_reg_r (2 * - y)); try zltab.
+    setl (- (x² + y²)); try lra. }
+  lra.
+Qed.
+
+Corollary minlength_path_std_arg1_impl_not_arg3 :
+  forall x y ra rb θc θd Du ru θu tup
+         (lt : 0 < ra)
+         (rur : ra <= ru <= rb)
+         (tur : θc <= θu <= θd),
+    let o := (mkpt 0 0) in
+    let p := (mkpt x y) in
+    let θmax := calcθ₁ 0 0 0 x y in
+    forall (nc : ~ (0 <= x /\ y = 0)),
+      path_segment Du (Hx ru 0 0 θu tup) (Hy ru 0 0 θu tup) o p ->
+      (straight ra 0 0 0 x y /\ θc <= θ1 x y ra <= θd) ->
+      ~ (ra <= (x² + y²)/(2*y) <= rb /\ θmax <= Rmax θc (θ1 x y ra)).
+Proof.
+  intros until 4.
+  intros u [sra [tcleta taletd]].
+  apply straightcond in sra.
+  intros [[ralerm rmlerb] tmltrm];
+    unfold Rmax in *; destruct Rle_dec; try lra.
+
+  apply condstraight in sra.
+  assert (ra <> 0) as rane0; try lra.
+  specialize (theta1_rsgn_bnd _ _ _ rane0 sra) as [L R].
+  specialize (L lt); clear R.
+  destruct L as [zleta talt2pi].
+
+  destruct (total_order_T y 0); [destruct s|].
+
+  + specialize (posss x y ltac:(lra)) as ps.
+    assert ((x² + y²) / (2 * y) < 0) as rmlt0. {
+      setl (-((x² + y²) / (2 * (-y)))); try lra.
+      apply (Rmult_lt_reg_r (2 * - y)); try zltab.
+      setl (- (x² + y²)); try lra. }
+    lra.
+
+  + clear - tmltrm talt2pi e nc.
+    unfold θmax in *.
+    rewrite calcth1_atan2_s in tmltrm.
+    rewrite e in *; clear e.
+    assert (x < 0) as xlt0; try lra.
+    rewrite atan2_PI in tmltrm; try assumption.
+    lra.
+
+  + assert (~ (x = 0 /\ y = 0)  ) as no by lra.
+    specialize (t1eqtm _ _ no ltac:(lra)) as tmid.
+    change (θ1 x y ((y² + x²) / (2 * y)) = θmax) in tmid.
+    rewrite Rplus_comm in tmid.
+    rewrite <- tmid in tmltrm.
+    set (rm := (x² + y²) / (2 * y)) in *.
+    apply straightcond in sra.
+    assert (ra < rm) as raltrm. {
+      unfold rm.
+      apply (Rmult_lt_reg_r (2 * y)).
+      zltab.
+      lrag sra. }
+    clear ralerm.
+
+(*
+    assert (turning rm 0 0 0 x y) as trm. {
+      apply condturning.
+      unfold rm.
+      setl (x² + y²); lra. }
+    specialize (intro_max_turning_path_std _ _ _ trm no) as [rtp m].
+    set (Dm := {| nonneg := rm * calcθ₁ 0 0 0 x y;
+                  cond_nonneg := nna rm (calcθ₁ 0 0 0 x y) rtp |}) in *.
+    change (path_segment Dm (Hx rm 0 0 θmax rtp) (Hy rm 0 0 θmax rtp) o p) in m.
+
+    specialize (tmax_radius x y ltac:(lra)) as rmdef.
+    simpl in rmdef.
+    change (rm = (x * sin θmax - y * cos θmax) / (1 - cos θmax)) in rmdef.
+
+*)
+    apply condstraight in sra.
+    specialize (intro_r_path_std _ _ _ sra) as [rta [Dagt0 a]].
+    apply thmaxne0; lra.
+    lra.
+    lra.
+    set (Da := {| nonneg := ra * θ1 x y ra +
+                            calcL ra 0 0 0 x y (θ1 x y ra); cond_nonneg := Dagt0 |}) in a.
+    change (path_segment Da (Hx ra 0 0 (θ1 x y ra) rta) (Hy ra 0 0 (θ1 x y ra) rta) o p) in a.
+
+    specialize (ottb_compute_straight_r_s _ _ _ _ rta Da sra a) as radef.
+
+    assert (0 < θmax) as zlttm. {
+      unfold θmax.
+      rewrite thms.
+      setl (2 * 0).
+      apply Rmult_lt_compat_l; try lra.
+      destruct (total_order_T 0 x) as [[zltx|zeqx] |xlt0].
+      apply atan2Q1; assumption.
+      rewrite <- zeqx, atan2_PI2; lra.
+      specialize (atan2Q2 _ _ xlt0 r0) as [q2rl q2ru].
+      lra. }
+      
+    specialize (ottb_tinrng _ _ _ _ _ _ _ rta Da sra a)
+      as [quad | poof] ;  try (unfold θmax in *; lra).
+Qed.
+
+Corollary minlength_path_std_arg3_impl_not_arg1 :
+  forall x y ra rb θc θd Du ru θu tup
+         (lt : 0 < ra)
+         (rur : ra <= ru <= rb)
+         (tur : θc <= θu <= θd),
+    let o := (mkpt 0 0) in
+    let p := (mkpt x y) in
+    let θmax := calcθ₁ 0 0 0 x y in
+    forall (nc : ~ (0 <= x /\ y = 0)),
+      path_segment Du (Hx ru 0 0 θu tup) (Hy ru 0 0 θu tup) o p ->
+      (ra <= (x² + y²)/(2*y) <= rb /\ θmax <= Rmax θc (θ1 x y ra)) ->
+      ~(straight ra 0 0 0 x y /\ θc <= θ1 x y ra <= θd).
+Proof.
+  intros until 4.
+  intros u [[ralerm rmlerb] tmltrm].
+  intros [sra [tcleta taletd]];
+    apply straightcond in sra;
+    unfold Rmax in *; destruct Rle_dec; try lra.
+
+  apply condstraight in sra.
+  assert (ra <> 0) as rane0; try lra.
+  specialize (theta1_rsgn_bnd _ _ _ rane0 sra) as [L R].
+  specialize (L lt); clear R.
+  destruct L as [zleta talt2pi].
+
+  destruct (total_order_T y 0); [destruct s|].
+
+  + specialize (posss x y ltac:(lra)) as ps.
+    assert ((x² + y²) / (2 * y) < 0) as rmlt0. {
+      setl (-((x² + y²) / (2 * (-y)))); try lra.
+      apply (Rmult_lt_reg_r (2 * - y)); try zltab.
+      setl (- (x² + y²)); try lra. }
+    lra.
+
+  + clear - tmltrm talt2pi e nc.
+    unfold θmax in *.
+    rewrite calcth1_atan2_s in tmltrm.
+    rewrite e in *; clear e.
+    assert (x < 0) as xlt0; try lra.
+    rewrite atan2_PI in tmltrm; try assumption.
+    lra.
+
+  + assert (~ (x = 0 /\ y = 0)  ) as no by lra.
+    specialize (t1eqtm _ _ no ltac:(lra)) as tmid.
+    change (θ1 x y ((y² + x²) / (2 * y)) = θmax) in tmid.
+    rewrite Rplus_comm in tmid.
+    rewrite <- tmid in tmltrm.
+    set (rm := (x² + y²) / (2 * y)) in *.
+    apply straightcond in sra.
+
+    assert (ra < rm) as raltrm. {
+      unfold rm.
+      apply (Rmult_lt_reg_r (2 * y)).
+      zltab.
+      lrag sra. }
+    clear ralerm.
+
+(*
+    assert (turning rm 0 0 0 x y) as trm. {
+      apply condturning.
+      unfold rm.
+      setl (x² + y²); lra. }
+    specialize (intro_max_turning_path_std _ _ _ trm no) as [rtp m].
+    set (Dm := {| nonneg := rm * calcθ₁ 0 0 0 x y;
+                  cond_nonneg := nna rm (calcθ₁ 0 0 0 x y) rtp |}) in *.
+    change (path_segment Dm (Hx rm 0 0 θmax rtp) (Hy rm 0 0 θmax rtp) o p) in m.
+
+    specialize (tmax_radius x y ltac:(lra)) as rmdef.
+    simpl in rmdef.
+    change (rm = (x * sin θmax - y * cos θmax) / (1 - cos θmax)) in rmdef.
+
+*)
+    apply condstraight in sra.
+    specialize (intro_r_path_std _ _ _ sra) as [rta [Dagt0 a]].
+    apply thmaxne0; lra.
+    lra.
+    lra.
+    set (Da := {| nonneg := ra * θ1 x y ra +
+                            calcL ra 0 0 0 x y (θ1 x y ra); cond_nonneg := Dagt0 |}) in a.
+    change (path_segment Da (Hx ra 0 0 (θ1 x y ra) rta) (Hy ra 0 0 (θ1 x y ra) rta) o p) in a.
+
+    specialize (ottb_compute_straight_r_s _ _ _ _ rta Da sra a) as radef.
+
+    assert (0 < θmax) as zlttm. {
+      unfold θmax.
+      rewrite thms.
+      setl (2 * 0).
+      apply Rmult_lt_compat_l; try lra.
+      destruct (total_order_T 0 x) as [[zltx|zeqx] |xlt0].
+      apply atan2Q1; assumption.
+      rewrite <- zeqx, atan2_PI2; lra.
+      specialize (atan2Q2 _ _ xlt0 r0) as [q2rl q2ru].
+      lra. }
+      
+    specialize (ottb_tinrng _ _ _ _ _ _ _ rta Da sra a)
+      as [quad | poof] ;  try (unfold θmax in *; lra).
+Qed.  
 
 (* end hide *)
 

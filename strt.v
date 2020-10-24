@@ -10563,20 +10563,6 @@ Proof.
 Qed.
 
 
-Lemma condstraight : forall r x y,
-    (2 * r * y < x² + y²) -> straight r 0 0 0 x y.
-Proof.
-  intros.
-  unfold straight, Tcy, Tcx.
-  rewrite Rplus_0_r, sin_PI2, cos_PI2, Rmult_0_r,
-  Rplus_0_l, Rplus_0_l, Rminus_0_r, Rmult_1_r.
-  rewrite Rsqr_minus.
-  apply (Rplus_lt_reg_r (-r²)).
-  setl 0. setr (x² + y² - 2 * y * r).
-  lra.
-Qed.
-  
-
 Ltac qmL :=
   match goal with
   | zd : ?z = 2 * atan ((?x - sqrt ((?x)² - ?arm * ?y)) / ?arm) +
