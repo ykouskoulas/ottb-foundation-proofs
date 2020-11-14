@@ -3007,8 +3007,6 @@ Proof.
     rewrite qeq0 in *.
     unfold κ₂ in k2def.
     autorewrite with null in k2def.
-    rewrite Rminus_eq_0 in k2def.
-    autorewrite with null in k2def.
   
     assert (~ (x₁ = 0 /\ y₁ = 0)) as notO. {
       intro. inversion_clear H as [xO yO].
@@ -3235,8 +3233,6 @@ Proof.
     intro qeq0.
     rewrite qeq0 in *.
     unfold κ₂ in k2def.
-    autorewrite with null in k2def.
-    rewrite Rminus_eq_0 in k2def.
     autorewrite with null in k2def.
   
     assert (~ (x₁ = 0 /\ y₁ = 0)) as notO. {
@@ -4000,8 +3996,6 @@ Proof.
     intro qeq0. rewrite qeq0 in *.
     unfold κ₂ in k2def.
     autorewrite with null in k2def.
-    rewrite Rminus_eq_0 in k2def.
-    autorewrite with null in k2def.
     
     assert (~ (x₁ = 0 /\ y₁ = 0)) as notO. {
       intro. inversion_clear H as [xO yO].
@@ -4243,8 +4237,6 @@ Proof.
   assert (q <> 0) as qne0. {
     intro qeq0. rewrite qeq0 in *.
     unfold κ₂ in k2def.
-    autorewrite with null in k2def.
-    rewrite Rminus_eq_0 in k2def.
     autorewrite with null in k2def.
     
     assert (~ (x₁ = 0 /\ y₁ = 0)) as notO. {
@@ -4496,8 +4488,6 @@ Proof.
   assert (q <> 0) as qne0. {
     intro qeq0. rewrite qeq0 in *.
     unfold κ₂ in k2def.
-    autorewrite with null in k2def.
-    rewrite Rminus_eq_0 in k2def.
     autorewrite with null in k2def.
     
     assert (~ (x₁ = 0 /\ y₁ = 0)) as notO. {
@@ -4757,8 +4747,6 @@ Proof.
   assert (q <> 0) as qne0. {
     intro qeq0. rewrite qeq0 in *.
     unfold κ₂ in k2def.
-    autorewrite with null in k2def.
-    rewrite Rminus_eq_0 in k2def.
     autorewrite with null in k2def.
     
     assert (~ (x₁ = 0 /\ y₁ = 0)) as notO. {
@@ -5561,8 +5549,6 @@ Proof.
   + exfalso.
     rewrite qeq0 in *.
     unfold κ₂ in k2def.
-    autorewrite with null in k2def.
-    rewrite Rminus_eq_0 in k2def.
     autorewrite with null in k2def.
     rewrite y1def in k2def.
     destruct x1quad as [x1lt0 | x1eq0].

@@ -9,7 +9,8 @@ Create HintDb null.
 
 Hint Rewrite sin_0 cos_0 Rmult_1_l Rmult_1_r Ropp_0 Rsqr_0 sqrt_0
      cos_PI2 sin_PI2 Rplus_opp_r Rplus_opp_l Rmult_0_l  Rmult_0_r
-     Rplus_0_l Rplus_0_r cos_PI sin_PI Rminus_0_l Rminus_0_r sin2_cos2: null.
+     Rplus_0_l Rplus_0_r cos_PI sin_PI Rminus_0_l Rminus_0_r sin2_cos2
+     Rminus_eq_0 : null.
 
 
 Ltac arn := autorewrite with null.

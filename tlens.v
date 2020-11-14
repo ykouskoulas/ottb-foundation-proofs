@@ -11002,8 +11002,6 @@ Proof.
                   exfalso.
                   apply no.
                   split; try auto.
-                  rewrite <- Hyd.
-                  field.
                 }
                 assert (Dr / r < 2 * PI) as Drrlt2pi. {
                   apply (Rmult_lt_reg_r (Rabs r));
@@ -11035,8 +11033,6 @@ Proof.
                   exfalso.
                   apply no.
                   split; try auto.
-                  rewrite <- Hyd.
-                  field.
                   lra. }
                 
                 assert (- 2 * PI < Dr / r) as Drrlt2pi. {
