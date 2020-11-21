@@ -382,39 +382,6 @@ Proof.
     destruct Rbar_le_dec; simpl in *; try lra.
 Qed.
 
-
-
-
-Lemma shrinking_triangle_derivative :
-  forall h b1 b2 h' b1' b2'
-         (zlth : 0 < h)
-         (zltb1 : 0 < b1)
-         (zltb2 : 0 < b2)
-         (zlth' : 0 < h')
-         (zltb1': 0 < b1')
-         (zltb2' : 0 < b2')
-         (hrat : h' = b1' * h / b1)
-         (sumb : b2' = b1 + b2 - b1'),
-    is_derive (fun b1' =>
-                 sqrt(b1'² + h'²) + sqrt(b2'² + h'²)) b1'
-              (b1' / (b1'² * (1 + h²/b1² ))).
-Proof.
-Admitted.
-
-Lemma shrinking_triangle_derivative_positive :
-  forall h b1 b2 h' b1' b2'
-         (zlth : 0 < h)
-         (zltb1 : 0 < b1)
-         (zltb2 : 0 < b2)
-         (zlth' : 0 < h')
-         (zltb1': 0 < b1')
-         (zltb2' : 0 < b2')
-         (hrat : h' = b1' * h / b1)
-         (sumb : b2' = b1 + b2 - b1'),
-    0 < (b1' / (b1'² * (1 + h²/b1² ))).
-Proof.
-Admitted.
-
 Lemma sliding_triangle :
   forall h b1 b2 h' b1' b2'
          (zlth : 0 < h)
@@ -423,12 +390,56 @@ Lemma sliding_triangle :
          (zlth' : 0 < h')
          (zltb1': 0 < b1')
          (zltb2' : 0 < b2')
-         (hrat : h' = b1' * h / b1)
-         (sumb : b2' = b1 + b2 - b1'),
+         (bp1ltb1 : b1' < b1)
+         (hrat : h' = h * b1' * / b1)
+         (sumb : b1' + b2' = b1 + b2),
     sqrt(b1'² + h'²) + sqrt(b2'² + h'²) <=
     sqrt(b1² + h²) + sqrt(b2² + h²).
 Proof.
-Admitted.
+  intros.
+  Check triangle.
+  specialize (triangle (b1+b2) 0 b1' h' b1 h) as tri.
+  unfold dist_euc in tri.
+  autorewrite with null in tri.
+  rewrite <- sumb in tri at 1.
+  replace (b1' + b2' - b1') with b2' in tri by field.
+  replace (b1 + b2 - b1) with b2 in tri by field.
+  repeat rewrite <- Rsqr_neg in tri.
+  set (p1 := sqrt (b1'² + h'²)) in *.
+  set (q1 := sqrt (b2² + h²)) in *.
+  set (q2 := sqrt (b2'² + h'²)) in *.
+  set (p1p2 := sqrt (b1² + h²)) in *.
+  set (p2 := sqrt ((b1 - b1')² + (h - h')²)) in *.
+  assert (p1p2 = p1 + p2) as id. {
+    unfold p1p2, p1, p2.
+    replace (b1'² + h'²) with ((b1' * / b1)² * (b1² + h²)). {
+      rewrite hrat.
+      replace b1' with (b1 * (b1' * / b1)) at 2 by (field; try lra).
+      assert ((b1² + h²) * (1 - (b1' * / b1))² =
+              (b1 - b1 * (b1' * / b1))² + (h - h * b1' * / b1)²) as id. {
+        unfold Rsqr.
+        field.
+        lra. }
+      rewrite <- id; clear id.
+      repeat rewrite sqrt_mult_alt.
+      rewrite Rmult_comm at 1.
+      rewrite <- Rmult_plus_distr_l.
+      repeat rewrite sqrt_Rsqr.
+      field.
+      lra.
+      apply (Rmult_le_reg_r b1); try lra;
+        arn;
+        setr (b1 - b1'); lra.
+      apply (Rmult_le_reg_r b1); try lra;
+        arn;
+        setr (b1'); lra.
+      left. apply posss; lra.
+      apply Rle_0_sqr. }
+    rewrite hrat.
+    unfold Rsqr; field; lra. }
+  rewrite id.
+  lra.
+Qed.
 
 Lemma squatting_triangle :
   forall h b1 b2 h' 
@@ -439,8 +450,15 @@ Lemma squatting_triangle :
     sqrt(b1² + h'²) + sqrt(b2² + h'²) <=
     sqrt(b1² + h²) + sqrt(b2² + h²).
 Proof.
-Admitted.
-
+  intros.
+  apply Rplus_le_compat.
+  apply sqrt_le_1_alt.
+  apply Rplus_le_compat; try lra.
+  apply Rsqr_incr_1; lra.
+  apply sqrt_le_1_alt.
+  apply Rplus_le_compat; try lra.
+  apply Rsqr_incr_1; lra.
+Qed.
 
 Lemma smaller_interior_path_triangle :
   forall h b1 b2 h' b1' b2'
