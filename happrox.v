@@ -35,11 +35,283 @@ Axiom path_length_straight_line : forall pathx pathy s0 s1,
 
 (* infinite hat *)
 
+Lemma straight_neg1 x y r :
+  r < 0 ->
+  y > 0 ->
+  straight r 0 0 0 x y. 
+Proof.
+  intros.
+  apply condstraight.
+  eapply Rlt_trans with (r2 := 0).
+  - replace 0 with (2 * 0 * y) by ring.
+    apply Rmult_lt_compat_r; lra.
+  - apply posss; intro Q; destruct Q; subst; lra.
+Qed.
+
+Lemma straight_neg2 x y r :
+  r > 0 ->
+  y < 0 ->
+  straight r 0 0 0 x y. 
+Proof.
+  intros.
+  apply condstraight.
+  eapply Rlt_trans with (r2 := 0).
+  - replace 0 with (2 * r * 0) by ring.
+    apply Rmult_lt_compat_l; lra.
+  - apply posss; intro Q; destruct Q; subst; lra.
+Qed.
+
+Lemma full_path_dist_increasing_req0_s :
+  forall (x y s : R)
+         (not_forward : (~ (0 <= x /\ y = 0)))
+         (phase : straight s 0 0 0 x y)
+         (sgtr : 0 < s),
+    let d := (fun t : R =>
+                (if Rbar_le_dec 0 t
+                 then t * θ1 x y t
+                 else 0) +
+                (sqrt (x² - (2 * t - y) * y))) in
+    d 0 < d s.
+Proof.
+  intros.
+  set (r := 1).
+  assert (forall z,
+             continuous (fun t => (sqrt (x² - (2 * t - y) * y))) z)
+    as Q.
+  { intros.
+    apply continuous_sqrt_comp.
+    apply (continuous_minus
+             (fun t => x²)
+             (fun t => (2 * t - y) * y)).
+    - apply continuous_const.
+    - apply (continuous_scal_l (fun t => (2 * t - y)) y).
+      apply (continuous_minus
+               (fun t => 2 * t)
+               (fun t => y)).
+      + apply (continuous_scal_r 2 (fun t => t) z).
+        apply continuous_id.
+      + apply continuous_const.
+  }
+
+  assert (continuous (fun t: R =>
+                        if Rbar_le_dec 0 t
+                        then t * (θ1 x y) t
+                        else 0
+                     ) 0).
+  { rewrite reasonable_continuity; intros.
+    assert (0 < Rmin (eps * /(2 * PI)) s).
+    { apply Rmin_glb_lt; auto.
+      apply Rmult_lt_0_compat; try lra.
+      - apply cond_pos.
+      - apply Rinv_0_lt_compat.
+        apply Rgt_2PI_0.
+    }
+    exists (mkposreal _ H); intros; cbn in *.
+    repeat destruct Rbar_le_dec; cbn in *.
+    - replace (y0 * θ1 x y y0 - 0 * θ1 x y 0) with
+          (y0 * θ1 x y y0) by lra.
+      replace (y0 - 0) with y0 in H0 by lra.
+      destruct r0.
+      + apply Rmin_def in H0; destruct H0.
+        apply Rabs_def2 in H0; destruct H0.
+        apply Rabs_def2 in H2; destruct H2.
+        assert (straight y0 0 0 0 x y) as Q0.
+        { destruct (total_order_T 0 y) as [[P|EQ]|N].
+          - eapply straight_r_dom1_std; eauto.
+          - eapply straight_r_dom3_std; eauto.
+          - apply straight_neg2; auto.
+        }
+        assert (Rabs (θ1 x y y0) < 2 * PI).
+        { specialize (theta1_rng x y y0 ltac:(lra) Q0) as Q1.
+          apply Rabs_def1; lra.
+        }
+        rewrite Rabs_mult.
+        destruct eps; cbn in *.
+        replace pos with ((pos * / (2 * PI)) * (2 * PI)).
+        * eapply Rlt_trans with
+              (r2 := (pos * / (2 * PI)) * Rabs (θ1 x y y0)).
+          -- apply Rmult_lt_compat_r.
+             ++ apply Rabs_pos_lt.
+                apply nposx_t1ne0; auto; try lra.
+                apply straightcond; assumption.
+             ++ apply Rabs_def1; auto.
+          -- apply Rmult_lt_compat_l; lra.
+        * rewrite Rmult_assoc, Rinv_l; try ring.
+          specialize Rgt_2PI_0 as TMP; lra.
+      + subst.
+        replace (0 * θ1 x y 0) with 0 by ring.
+        rewrite Rabs_R0; apply cond_pos.
+    - exfalso; apply n; lra.
+    - replace (0 - 0 * θ1 x y 0) with 0 by ring.
+      rewrite Rabs_R0.
+      apply cond_pos.
+    - replace (0 - 0) with 0 by ring.
+      rewrite Rabs_R0.
+      apply cond_pos.
+  }
+  
+  assert (continuous d 0).
+  { unfold d.
+    apply (continuous_plus
+             (fun t : R =>
+                (if Rbar_le_dec 0 t
+                 then t * θ1 x y t
+                 else 0))); eauto.
+  }
+  assert (forall x0 : R,
+             Rbar_le 0 x0 ->
+             Rbar_le x0 s ->
+             continuous d x0) as Q0.
+  { cbn; intros.
+    destruct H1, H2.
+    - unfold d.
+      apply (continuous_ext_loc
+               _ (fun t => t * (θ1 x y) t +
+                           (sqrt ((x - t * sin (θ1 x y t))² +
+                                  (y - t * (1 - cos (θ1 x y t)))²)))).
+      + unfold locally.
+        assert (0 < Rmin x0 (s - x0)) as Q0.
+        { apply Rmin_glb_lt; lra. }
+        exists (mkposreal _ Q0); intros.
+        destruct Rbar_le_dec; cbn in *.
+        * destruct r0.
+          -- rewrite <- (Darm_Q x y y0); try lra.
+             unfold AbsRing_ball, abs, minus, plus, opp in H3;
+               cbn in H3.
+             destruct (total_order_T 0 y) as [[P|EQ]|N].
+             ++ eapply straight_r_dom1_std; eauto.
+                apply Rmin_def in H3; destruct H3.
+                apply Rabs_def2 in H5; destruct H5.
+                lra.
+             ++ eapply straight_r_dom3_std; eauto.
+             ++ apply straight_neg2; auto.
+          -- subst.
+             replace (x - 0 * sin (θ1 x y 0)) with x by ring.
+             replace (y - 0 * (1 - cos (θ1 x y 0))) with y by ring.
+             unfold Rsqr.
+             replace (x * x - (2 * 0 - y) * y)
+               with (x * x + y * y) by ring.
+             reflexivity.
+        * exfalso.
+          unfold AbsRing_ball, abs, minus, plus, opp in H3;
+            cbn in H3.
+          apply Rmin_def in H3; destruct H3.
+          apply Rabs_def2 in H3; destruct H3.
+          lra.
+      + assert (straight x0 0 0 0 x y).
+        { destruct (total_order_T 0 y) as [[P|EQ]|N].
+          - eapply straight_r_dom1_std; eauto.
+          - eapply straight_r_dom3_std; eauto.
+          - apply straight_neg2; auto.
+        }
+        specialize (full_path_dist_ex_derive_s x y x0 H3 H1) as Q0.
+        apply ex_derive_continuous in Q0.
+        apply Q0.
+    - subst.
+      unfold d.
+      apply (continuous_plus
+               (fun t : R =>
+                  (if Rbar_le_dec 0 t
+                   then t * θ1 x y t
+                   else 0))).
+      + apply (continuous_ext_loc
+                 _ (fun t => t * θ1 x y t)).
+        * exists (mkposreal _ H1); intros.
+          destruct Rbar_le_dec; cbn in *; auto.
+          exfalso.
+          unfold AbsRing_ball, abs, minus, plus, opp in H2;
+            cbn in H2.
+          apply Rabs_def2 in H2; destruct H2.
+          lra.
+        * apply (continuous_mult
+                   (fun t => t) (fun t => θ1 x y t)).
+          -- apply continuous_id.
+          -- specialize (theta1_ex_derive_posr s x y phase H1) as Q0.
+             apply ex_derive_continuous in Q0; auto.
+      + apply Q.
+    - subst; auto.
+    - exfalso; lra.
+  }
+  assert (forall x0 : R,
+             Rbar_lt 0 x0 ->
+             Rbar_lt x0 s ->
+             is_derive d x0
+            ((fun t : R => θ1 x y t - sin (θ1 x y t)) x0)) as Q1.
+  { intros.
+    specialize (full_path_dist_is_derive_s x y s phase sgtr) as Q1.
+    apply (is_derive_ext_loc
+             (fun z : R_AbsRing =>
+                z * θ1 x y z +
+                sqrt
+                  ((x - z * sin (θ1 x y z))² +
+                   (y - z * (1 - cos (θ1 x y z)))²))
+             d x0).
+    - assert (0 < Rmin x0 (s - x0)).
+      apply def_Rmin; split; cbn in *; lra.
+      exists (mkposreal _ H3); intros; cbn in *.
+      unfold d.
+      destruct Rbar_le_dec; cbn in *.
+      + destruct r0.
+        * unfold AbsRing_ball, abs, minus, plus, opp in H4;
+            cbn in H4.
+          apply Rmin_def in H4; destruct H4.
+          apply Rabs_def2 in H6; destruct H6.
+          rewrite <- (Darm_Q x y y0); try lra.
+          destruct (total_order_T 0 y) as [[P|EQ]|N].
+          -- eapply straight_r_dom1_std; eauto.
+             lra.
+          -- eapply straight_r_dom3_std; eauto.
+          -- apply straight_neg2; auto.
+        * exfalso; subst.
+          unfold AbsRing_ball, abs, minus, plus, opp in H4;
+            cbn in H4.
+          apply Rmin_def in H4; destruct H4.
+          apply Rabs_def2 in H4; destruct H4.
+          lra.
+      +  unfold AbsRing_ball, abs, minus, plus, opp in H4;
+           cbn in H4.
+         apply Rmin_def in H4; destruct H4.
+         apply Rabs_def2 in H4; destruct H4.
+         lra.
+    - apply full_path_dist_is_derive_s; auto.
+      destruct (total_order_T 0 y) as [[P|EQ]|N].
+      + eapply straight_r_dom1_std; eauto.
+      + eapply straight_r_dom3_std; eauto.
+      + apply straight_neg2; auto.
+  }
+
+  assert (forall x0 : R,
+             Rbar_lt 0 x0 ->
+             Rbar_lt x0 s ->
+             (fun t : R => θ1 x y t - sin (θ1 x y t)) x0 > 0).
+  { intros.
+    apply Rgt_lt.
+    apply x_minus_sin_x_pos.
+    cbn in *.
+    specialize (theta1_rsgn_lim x y x0 ltac:(lra)) as [A B].
+    destruct (total_order_T 0 y) as [[P|EQ]|N].
+    - eapply straight_r_dom1_std; eauto.
+    - eapply straight_r_dom3_std; eauto.
+    - apply straight_neg2; auto.
+    - destruct (A H1); auto.
+      exfalso.
+      apply (nposx_t1ne0 x y x0); auto; try lra.
+      apply straightcond.
+      destruct (total_order_T 0 y) as [[P|EQ]|N].
+      + eapply straight_r_dom1_std; eauto.
+      + eapply straight_r_dom3_std; eauto.
+      + apply straight_neg2; auto.
+  }
+  apply (@incr_function_le_cont_ep
+                d 0 s
+                (fun t => (((θ1 x y t) - sin (θ1 x y t))))
+                Q0 Q1 H1 0 s); cbn; try lra.
+Qed.
+
+
 Definition L x y θ r := r*θ + sqrt ((x-r*sin θ)² + (y-r*(1-cos θ))²).
 
-
-
-Theorem underapprox_minlength_path_outer_tangent_infinite_hat_tile_std :
+Lemma underapprox_minlength_path_outer_tangent_infinite_hat_tile_std :
   forall r x y φ₂
          (p1p2 : 0 < φ₂)
          (p2ub : φ₂ <= 2 * PI)
@@ -54,18 +326,218 @@ Proof.
   intros * [rb lb].
   
   destruct (total_order_T 0 x) as [[zltx|zeq0]|zgtx].
-  + unfold L.
+  + destruct rb as [ygt0 |yeq0].
+    unfold L.
     arn.
-    
-
     apply condstraight in oc.
     specialize (Darm_Q_gen 0 0 0 x y r oc ltac:(lra)) as daqg.
     simpl in daqg.
     autorewrite with null in daqg.
     rewrite daqg.
-    
-  SearchPattern (_ - _ = 0).
+    fieldrewrite (x² + y²) (x² - (2 * 0 - y) * y).
+    setl (0 + sqrt (x² - (2 * 0 - y) * y)).
+    left.
+    specialize (full_path_dist_increasing_req0_s x y r ltac:(lra) oc lt) as zr.
+    simpl in zr.
+    destruct Rbar_le_dec; simpl in *; try lra.
+    destruct Rbar_le_dec; simpl in *; try lra.
+    (* y=0 case *)
+    unfold L, θ1.
+    destruct total_order_T as [[zltr|zeqr] | zgtr];
+    try destruct total_order_T as [[zltx2|zeqx] | zgtx];
+    try destruct total_order_T as [[zlty|zeqy] | zgty];
+    try destruct total_order_T as [[zltA|zeqA] | zgtA]; try lra.
+  + destruct rb as [ygt0|yeq0];
+      [|rewrite <- zeq0, yeq0 in oc;
+        autorewrite with null in oc;
+        lra].
+    unfold L.
+    arn.
+    apply condstraight in oc.
+    specialize (Darm_Q_gen 0 0 0 x y r oc ltac:(lra)) as daqg.
+    simpl in daqg.
+    autorewrite with null in daqg.
+    rewrite daqg.
+    fieldrewrite (x² + y²) (x² - (2 * 0 - y) * y).
+    setl (0 + sqrt (x² - (2 * 0 - y) * y)).
+    left.
+    specialize (full_path_dist_increasing_req0_s x y r ltac:(lra) oc lt) as zr.
+    simpl in zr.
+    destruct Rbar_le_dec; simpl in *; try lra.
+    destruct Rbar_le_dec; simpl in *; try lra.
 
+  + unfold L.
+    arn.
+    apply condstraight in oc.
+    specialize (Darm_Q_gen 0 0 0 x y r oc ltac:(lra)) as daqg.
+    simpl in daqg.
+    autorewrite with null in daqg.
+    rewrite daqg.
+    fieldrewrite (x² + y²) (x² - (2 * 0 - y) * y).
+    setl (0 + sqrt (x² - (2 * 0 - y) * y)).
+    left.
+    specialize (full_path_dist_increasing_req0_s x y r ltac:(lra) oc lt) as zr.
+    simpl in zr.
+    destruct Rbar_le_dec; simpl in *; try lra.
+    destruct Rbar_le_dec; simpl in *; try lra.
+Qed.
+
+
+
+
+Lemma shrinking_triangle_derivative :
+  forall h b1 b2 h' b1' b2'
+         (zlth : 0 < h)
+         (zltb1 : 0 < b1)
+         (zltb2 : 0 < b2)
+         (zlth' : 0 < h')
+         (zltb1': 0 < b1')
+         (zltb2' : 0 < b2')
+         (hrat : h' = b1' * h / b1)
+         (sumb : b2' = b1 + b2 - b1'),
+    is_derive (fun b1' =>
+                 sqrt(b1'² + h'²) + sqrt(b2'² + h'²)) b1'
+              (b1' / (b1'² * (1 + h²/b1² ))).
+Proof.
+Admitted.
+
+Lemma shrinking_triangle_derivative_positive :
+  forall h b1 b2 h' b1' b2'
+         (zlth : 0 < h)
+         (zltb1 : 0 < b1)
+         (zltb2 : 0 < b2)
+         (zlth' : 0 < h')
+         (zltb1': 0 < b1')
+         (zltb2' : 0 < b2')
+         (hrat : h' = b1' * h / b1)
+         (sumb : b2' = b1 + b2 - b1'),
+    0 < (b1' / (b1'² * (1 + h²/b1² ))).
+Proof.
+Admitted.
+
+Lemma sliding_triangle :
+  forall h b1 b2 h' b1' b2'
+         (zlth : 0 < h)
+         (zltb1 : 0 < b1)
+         (zltb2 : 0 < b2)
+         (zlth' : 0 < h')
+         (zltb1': 0 < b1')
+         (zltb2' : 0 < b2')
+         (hrat : h' = b1' * h / b1)
+         (sumb : b2' = b1 + b2 - b1'),
+    sqrt(b1'² + h'²) + sqrt(b2'² + h'²) <=
+    sqrt(b1² + h²) + sqrt(b2² + h²).
+Proof.
+Admitted.
+
+Lemma squatting_triangle :
+  forall h b1 b2 h' 
+         (zlth : 0 < h)
+         (zltb1 : 0 < b1)
+         (zltb2 : 0 < b2)
+         (zlth' : 0 < h' < h),
+    sqrt(b1² + h'²) + sqrt(b2² + h'²) <=
+    sqrt(b1² + h²) + sqrt(b2² + h²).
+Proof.
+Admitted.
+
+
+Lemma smaller_interior_path_triangle :
+  forall h b1 b2 h' b1' b2'
+         (zlth : 0 < h)
+         (zltb1 : 0 < b1)
+         (zltb2 : 0 < b2)
+         (zlth' : 0 < h')
+         (zltb1': 0 < b1')
+         (zltb2' : 0 < b2')
+         (hrat : h' = b1' * h / b1)
+         (sumb : b2' = b1 + b2 - b1'),
+    1=1.
+(*    interior triangle smaller *)
+Proof.
+Admitted.
+
+
+forall h b1 b2 h' 
+         (zlth : 0 < h)
+         (zltb1 : 0 < b1)
+         (zltb2 : 0 < b2)
+         (zlth' : 0 < h' < h),
+    sqrt(b1² + h'²) + sqrt(b2² + h'²) <=
+    sqrt(b1² + h²) + sqrt(b2² + h²).
+Proof.
+Admitted.
+
+
+Definition colinear (a b c: pt) : Prop :=
+  let ax := ptx a in
+  let ay := pty a in
+  let bx := ptx b in
+  let bY := pty b in
+  let cx := ptx c in
+  let cy := pty c in
+  let mx := bx - ax in
+  let my := bY - ay in
+  (my * (cx - ax) = mx * (cy - ay)).
+
+Inductive tri (a b c : pt) : Set :=
+  | mktri : ~ colinear a b c -> tri a b c.
+
+Definition edglen (a b : pt) : R := sqrt (((ptx a) - (ptx b))² + ((pty a) - (pty b))²).
+
+Definition angle (a b c : pt) : R :=
+  let θ₀ := atan2 ((pty a) - (pty b)) ((ptx a) - (ptx b)) in
+  let x := ((ptx c - ptx b) * cos (- θ₀) + (pty c - pty b) * sin (- θ₀)) in
+  let y := (- (ptx c - ptx b) * sin (- θ₀) + (pty c - pty b) * cos (- θ₀)) in
+  Rabs (atan2  y x).
+
+
+(* forall x₁ y₁ x₂ y₂ x₃ y₃ *)
+Axiom lawofcos : forall A B C (T : tri A B C),
+    let α := angle C A B in
+    let β := angle A B C in
+    let γ := angle B C A in
+    let ab := edglen A B in
+    let bc := edglen B C in
+    let ac := edglen A C in
+    ab² = ac² + bc² - 2 * ac * bc * cos γ.
+
+Axiom lawofsin : forall A B C (T : tri A B C),
+    let α := angle C A B in
+    let β := angle A B C in
+    let γ := angle B C A in
+    let ab := edglen A B in
+    let bc := edglen B C in
+    let ac := edglen A C in
+    ab / sin γ  = ac / sin β.
+
+
+Axiom trisum180 : forall A B C (T : tri A B C),
+    let α := angle C A B in
+    let β := angle A B C in
+    let γ := angle B C A in
+    α + β + γ = PI.
+
+
+
+Lemma underapprox_minlength_path_inner_tangent_infinite_hat_tile_std :
+  forall r x y φ₂
+         (p1p2 : 0 < φ₂)
+         (p2ub : φ₂ <= 2 * PI)
+         (lt : 0 < r)
+         (oc : 2 * r * y < x² + y²),
+    let nx := cos φ₂ in
+    let ny := sin φ₂ in
+    let wx := r*sin φ₂ in
+    let wy := r*(1 - cos φ₂) in
+    (nx * (y - wy) <= ny * (x - wx) /\ wx * y >= wy * x) -> 
+    sqrt (wx² + wy²) + sqrt ((x - wx)² + (y - wy)²) <= L x y (θ1 x y r) r.
+Proof.
+  intros until 4.
+  intros * [rb lb].
+  unfold L, wx, wy.
+  
+   
 
 
 Theorem underapprox_minlength_path_outer_tangent_infinite_hat_tile :
