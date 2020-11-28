@@ -6,6 +6,8 @@ Require Import Coquelicot.Coquelicot.
 Require Import Omega.
 Require Import Lia.
 Require Import Lra.
+(*Require Import Field.  do we need this?*)
+(* Require Import Ring.  do we need this?*)
 Require Import atan2.
 Require Import ttyp.
 Require Import tdyn.
@@ -397,7 +399,9 @@ Lemma sliding_triangle :
     sqrt(b1² + h²) + sqrt(b2² + h²).
 Proof.
   intros.
-  Check triangle.
+  (* can try to fix this later, if desired to make goal < 
+  assert (sqrt (b1'² + h'²) + sqrt (b2'² + h'²) = sqrt (b1² + h²) + sqrt (b2² + h²)) as ctr. admit.
+  exfalso. *)
   specialize (triangle (b1+b2) 0 b1' h' b1 h) as tri.
   unfold dist_euc in tri.
   autorewrite with null in tri.
@@ -447,17 +451,21 @@ Lemma squatting_triangle :
          (zltb1 : 0 < b1)
          (zltb2 : 0 < b2)
          (zlth' : 0 < h' < h),
-    sqrt(b1² + h'²) + sqrt(b2² + h'²) <=
+    sqrt(b1² + h'²) + sqrt(b2² + h'²) <
     sqrt(b1² + h²) + sqrt(b2² + h²).
 Proof.
   intros.
-  apply Rplus_le_compat.
-  apply sqrt_le_1_alt.
-  apply Rplus_le_compat; try lra.
-  apply Rsqr_incr_1; lra.
-  apply sqrt_le_1_alt.
-  apply Rplus_le_compat; try lra.
-  apply Rsqr_incr_1; lra.
+  apply Rplus_lt_compat.
+  apply sqrt_lt_1_alt.
+  split.
+  left; apply posss; lra.
+  apply Rplus_le_lt_compat; try lra.
+  apply Rsqr_incrst_1; lra.
+  apply sqrt_lt_1_alt.
+  split.
+  left; apply posss; lra.
+  apply Rplus_le_lt_compat; try lra.
+  apply Rsqr_incrst_1; lra.
 Qed.
 
 Lemma smaller_interior_path_triangle :
@@ -468,73 +476,72 @@ Lemma smaller_interior_path_triangle :
          (zlth' : 0 < h')
          (zltb1': 0 < b1')
          (zltb2' : 0 < b2')
-         (hrat : h' = b1' * h / b1)
-         (sumb : b2' = b1 + b2 - b1'),
-    1=1.
-(*    interior triangle smaller *)
+         (sumb : b1 + b2 = b1' + b2')
+         (lb : h' * b1 < h * b1')
+         (rb : h' * b2 < h * b2'),
+    sqrt(b1'² + h'²) + sqrt(b2'² + h'²) <
+    sqrt(b1² + h²) + sqrt(b2² + h²). (* interior triangle smaller *)
 Proof.
-Admitted.
+  intros.
+  assert (h' < h) as hplth. {
+    apply (Rmult_lt_reg_r (b1 + b2)); try lra.
+    rewrite sumb at 2.
+    repeat rewrite Rmult_plus_distr_l.
+    lra. }
 
+  (* h,b1,b2 is outer triangle, h',b1',b2' is a triangle that is sliding down one arm, 
+     h'',b1',b2' is a triangle construced from the slid triangle that is also squatting *)
+  rename h' into h''.
+  destruct (total_order_T b1' b1); [destruct s|].
+  + set (h' :=  h * b1' * / b1).
+    apply (Rlt_le_trans _ (sqrt (b1'² + h'²) + sqrt (b2'² + h'²))).
+    apply squatting_triangle; try lra.
+    unfold h'.
+    zltab.
+    split.
+    lra.
+    unfold h'.
+    apply (Rmult_lt_reg_r b1); try lra.
+    lrag lb.
 
-forall h b1 b2 h' 
-         (zlth : 0 < h)
-         (zltb1 : 0 < b1)
-         (zltb2 : 0 < b2)
-         (zlth' : 0 < h' < h),
-    sqrt(b1² + h'²) + sqrt(b2² + h'²) <=
-    sqrt(b1² + h²) + sqrt(b2² + h²).
-Proof.
-Admitted.
+    apply sliding_triangle; try lra.
+    unfold h'.
+    apply (Rmult_lt_reg_r b1); try lra.
+    setl 0.
+    setr (h * b1').
+    lra.
+    zltab.
+    unfold h'.
+    reflexivity.
+  + apply (Rlt_le_trans _ (sqrt (b1'² + h²) + sqrt (b2'² + h²))).
+    apply squatting_triangle; try lra.
+    assert (b2' = b2) as f; try lra.
+    rewrite e, f.
+    right; reflexivity.
+  + set (h' :=  h * b2' * / b2).
+    apply (Rlt_le_trans _ (sqrt (b2'² + h'²) + sqrt (b1'² + h'²))).
+    rewrite Rplus_comm.
 
+    apply squatting_triangle; try lra.
+    unfold h'.
+    zltab.
+    split.
+    lra.
+    unfold h'.
+    apply (Rmult_lt_reg_r b2); try lra.
+    lrag rb.
 
-Definition colinear (a b c: pt) : Prop :=
-  let ax := ptx a in
-  let ay := pty a in
-  let bx := ptx b in
-  let bY := pty b in
-  let cx := ptx c in
-  let cy := pty c in
-  let mx := bx - ax in
-  let my := bY - ay in
-  (my * (cx - ax) = mx * (cy - ay)).
-
-Inductive tri (a b c : pt) : Set :=
-  | mktri : ~ colinear a b c -> tri a b c.
-
-Definition edglen (a b : pt) : R := sqrt (((ptx a) - (ptx b))² + ((pty a) - (pty b))²).
-
-Definition angle (a b c : pt) : R :=
-  let θ₀ := atan2 ((pty a) - (pty b)) ((ptx a) - (ptx b)) in
-  let x := ((ptx c - ptx b) * cos (- θ₀) + (pty c - pty b) * sin (- θ₀)) in
-  let y := (- (ptx c - ptx b) * sin (- θ₀) + (pty c - pty b) * cos (- θ₀)) in
-  Rabs (atan2  y x).
-
-
-(* forall x₁ y₁ x₂ y₂ x₃ y₃ *)
-Axiom lawofcos : forall A B C (T : tri A B C),
-    let α := angle C A B in
-    let β := angle A B C in
-    let γ := angle B C A in
-    let ab := edglen A B in
-    let bc := edglen B C in
-    let ac := edglen A C in
-    ab² = ac² + bc² - 2 * ac * bc * cos γ.
-
-Axiom lawofsin : forall A B C (T : tri A B C),
-    let α := angle C A B in
-    let β := angle A B C in
-    let γ := angle B C A in
-    let ab := edglen A B in
-    let bc := edglen B C in
-    let ac := edglen A C in
-    ab / sin γ  = ac / sin β.
-
-
-Axiom trisum180 : forall A B C (T : tri A B C),
-    let α := angle C A B in
-    let β := angle A B C in
-    let γ := angle B C A in
-    α + β + γ = PI.
+    rewrite (Rplus_comm (sqrt (b1² + h²))).
+    apply sliding_triangle; try lra.
+    unfold h'.
+    apply (Rmult_lt_reg_r b2); try lra.
+    setl 0.
+    setr (h * b2').
+    lra.
+    zltab.
+    unfold h'.
+    reflexivity.
+Qed.
 
 
 
@@ -604,53 +611,6 @@ Proof.
     phi1 <= k(x,y,phi1) <= (phi1+phi2)/2
     
     assert (φ₁ < θ1 x y r) as p1ltt1. {
-(*
-      k(phi1) = atan (y - vy) / (x - vx) = atan Yv/Xv
-      k(phi2) = atan (y - wy) / (x - wx) = atan Yw/Xw
-
-    (wx - vx) * (y - vy) <= (wy - vy) * (x - vx)
------------------------------------
-    (y - vy)/ (x - vx) ?<?>? (wy - vy)/(wx - vx)
-                       ?<?>? (cos φ₁ -cos φ₂)/(sin φ₂ -sin φ₁)
-                       ?<?>? tan ((φ₁ + φ₂)/2)
-        k(φ₁)          ?<?>? (φ₁ + φ₂)/2
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
------------------------------------
-    (y - vy)/ (x - vx) <= ((y - wy) - (y - vy))/ ((x - wx) - (x - vx))
-    
-    Yv/Xv <= (Yw - Yv)/(Xw - Xv)
-
-    Yv/Xv <= 1/((Xw - Xv)/Yw) - 1/((Xw - Xv)/Yv)
-
-    Yv/Xv <= 1/(Xw/Yw - Xv/Yw) - 1/(Xw/Yv - Xv/Yv)
-
-    Yv/Xv <= 1/(1/(Yw/Xw) - Xv/Yw) - 1/(Xw/Yv - 1/(Yv/Xv))
-
-*)
-                                               clear lb.
-      
-Admitted.
 
 Theorem underapprox_minlength_path_inner_tangent_infinite_hat_tile :
   forall r x y φ₁ φ₂ (p1p2 : φ₁ < φ₂ ) (lt : 0 < r),
@@ -666,4 +626,58 @@ Proof.
   intros until 2.
   intros * [lb rb].
 Admitted.
+
+
+
+
+
+Definition colinear (a b c: pt) : Prop :=
+  let ax := ptx a in
+  let ay := pty a in
+  let bx := ptx b in
+  let bY := pty b in
+  let cx := ptx c in
+  let cy := pty c in
+  let mx := bx - ax in
+  let my := bY - ay in
+  (my * (cx - ax) = mx * (cy - ay)).
+
+Inductive tri (a b c : pt) : Set :=
+  | mktri : ~ colinear a b c -> tri a b c.
+
+Definition edglen (a b : pt) : R := sqrt (((ptx a) - (ptx b))² + ((pty a) - (pty b))²).
+
+Definition angle (a b c : pt) : R :=
+  let θ₀ := atan2 ((pty a) - (pty b)) ((ptx a) - (ptx b)) in
+  let x := ((ptx c - ptx b) * cos (- θ₀) + (pty c - pty b) * sin (- θ₀)) in
+  let y := (- (ptx c - ptx b) * sin (- θ₀) + (pty c - pty b) * cos (- θ₀)) in
+  Rabs (atan2  y x).
+
+
+(* forall x₁ y₁ x₂ y₂ x₃ y₃ *)
+Axiom lawofcos : forall A B C (T : tri A B C),
+    let α := angle C A B in
+    let β := angle A B C in
+    let γ := angle B C A in
+    let ab := edglen A B in
+    let bc := edglen B C in
+    let ac := edglen A C in
+    ab² = ac² + bc² - 2 * ac * bc * cos γ.
+
+Axiom lawofsin : forall A B C (T : tri A B C),
+    let α := angle C A B in
+    let β := angle A B C in
+    let γ := angle B C A in
+    let ab := edglen A B in
+    let bc := edglen B C in
+    let ac := edglen A C in
+    ab / sin γ  = ac / sin β.
+
+
+Axiom trisum180 : forall A B C (T : tri A B C),
+    let α := angle C A B in
+    let β := angle A B C in
+    let γ := angle B C A in
+    α + β + γ = PI.
+
 
