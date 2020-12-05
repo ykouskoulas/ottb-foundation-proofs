@@ -311,9 +311,74 @@ Proof.
 Qed.
 
 
+
+Lemma full_path_dist_increasing_turn_s :
+    forall (x y r s : R)
+           (nO : ~ (x = 0 /\ y = 0))
+           (phase : turning s 0 0 0 x y \/ straight s 0 0 0 x y)
+           (rgt0 : 0 <= r)
+           (sgtr : r < s),
+      let arclen := (fun r => if Rbar_le_dec 0 r (* for the epsilor ball *)
+                              then r * θ1 x y r
+                              else 0) in
+      let armlen := (fun r => sqrt (x² - (2 * r - y) * y)) in
+      let d := (fun r => arclen r + armlen r) in
+      d r < d s.
+Proof.
+  intros.
+
+  destruct phase as [trn|str].
+  + destruct rgt0 as [zltr | zeqr].
+    specialize full_path_dist_increasing_turn_s.
+    specialize full_path_dist_increasing.
+    specialize full_path_dist_increasing_req0_s.
+
+
+
 Definition L x y θ r := r*θ + sqrt ((x-r*sin θ)² + (y-r*(1-cos θ))²).
 
-Lemma underapprox_minlength_path_outer_tangent_infinite_hat_tile_std :
+Lemma underapprox_minlength_path_outer_tangent_infinite_hat_tile_turning_std :
+  forall r x y φ₂
+         (p1p2 : 0 < φ₂)
+         (p2ub : φ₂ <= 2 * PI)
+         (lt : 0 < r)
+         (oc : 2 * r * y = x² + y²),
+    let θmax := calcθ₁ 0 0 0 x y in
+    let wx := r*sin φ₂ in
+    let wy := r*(1 - cos φ₂) in
+    (y >= 0 /\ wx * y <= wy * x) -> 
+    sqrt (x² + y²) <= r * θmax.
+Proof.
+  intros until 4.
+  intros * [rb lb].
+  unfold L.
+  arn.
+
+  apply le_epsilon.
+  intros.
+
+  apply (Rle_trans
+  specialize (full_path_dist_increasing_turn_s x y _ r) as foo.
+
+  assert ()
+  assert (forall e, e > 0 -> sqrt (x² + y²) <= r * θmax + e) as ng.
+  
+  admit.
+  apply (Rle_trans _ r * θmax + 
+(* 
+
+|- sqrt (x^2 + y^2) <= r * tm
+
+|- forall e>0, sqrt (x^2 + y^2) <= r * tm + e
+
+exists d>0, |rm-r|<d -> sqrt ((x- r * sin th)^2 + (y - r*(1-cos th))^2) < e |- 
+sqrt (x^2 + y^2) <= r * th + sqrt ((x- r * sin th)^2 + (y - r*(1-cos th))^2) |- 
+
+*)  
+  
+Admitted.
+
+Lemma underapprox_minlength_path_outer_tangent_infinite_hat_tile_straight_std :
   forall r x y φ₂
          (p1p2 : 0 < φ₂)
          (p2ub : φ₂ <= 2 * PI)
@@ -322,11 +387,18 @@ Lemma underapprox_minlength_path_outer_tangent_infinite_hat_tile_std :
     let wx := r*sin φ₂ in
     let wy := r*(1 - cos φ₂) in
     (y >= 0 /\ wx * y <= wy * x) -> 
-    L x y 0 r  <= L x y (θ1 x y r) r.
+    sqrt (x² + y²) <= L x y (θ1 x y r) r.
 Proof.
   intros until 4.
   intros * [rb lb].
-  
+
+  unfold L.
+  assert (sqrt (x² + y²) = L x y 0 r) as id. {
+    unfold L.
+    arn.
+    reflexivity. }
+  rewrite id; clear id.
+
   destruct (total_order_T 0 x) as [[zltx|zeq0]|zgtx].
   + destruct rb as [ygt0 |yeq0].
     unfold L.
