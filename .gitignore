@@ -1,0 +1,9 @@
+*.vos
+*.vok
+*.vo
+*.glob
+*.html
+*.aux
+*.cache
+*.log
+*.css
