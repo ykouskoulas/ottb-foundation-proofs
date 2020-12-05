@@ -616,6 +616,8 @@ Proof.
     left; assumption. }
 Qed.
 
+(* end hide *)
+
 Lemma full_path_dist_increasing_turn_s :
     forall (x y r s : R)
            (nO : ~ (x = 0 /\ y = 0))
@@ -894,8 +896,6 @@ Proof.
 
   apply (incr_function_le_cont_ep d3c dder3 pder); try (simpl; lra).
 Qed.
-
-(* end hide *)
 
 Lemma full_path_dist_increasing :
   forall θ₀ x₀ y₀ x₁ y₁ r s (phase : straight s θ₀ x₀ y₀ x₁ y₁)

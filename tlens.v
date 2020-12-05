@@ -4688,7 +4688,7 @@ Proof.
   field.
 Qed.
 
-Lemma Darm_Q :
+Lemma Darm_Q_straight_std :
   forall x y r (phase : straight r 0 0 0 x y) (rne0 : r <> 0),
     (x - r * sin (θ1 x y r))² + (y - r * (1 - cos (θ1 x y r)))² =
     (x² - (2 * r - y) * y).
@@ -4710,6 +4710,144 @@ Proof.
     ((y - r * (1 - cos t)) * cos t - (x - r * sin t) * sin t = 0) in id.
   rewrite id.
   field.
+Qed.
+
+
+
+Lemma Darm_Q_turning_std :
+  forall x y r (phase : turning r 0 0 0 x y) (rne0 : r <> 0),
+    (x - r * sin (θ1 x y r))² + (y - r * (1 - cos (θ1 x y r)))² =
+    (x² - (2 * r - y) * y).
+Proof.
+  intros.
+  apply turningcond in phase.
+  assert (x² - (2 * r - y) * y = 0) as arm0. {
+    fieldrewrite (x² - (2 * r - y) * y) (x² + y² - 2 * r * y).
+    rewrite phase.
+    fieldrewrite (x² + y² - (x² + y²)) 0.
+    reflexivity. }
+  
+  unfold θ1.
+  assert (forall a, a - 2 * 1 * PI = a + 2 * IZR (-1) * PI) as id; [intros; try lra|].
+  
+  Ltac doubleangleid :=
+    match goal with
+    | arm0 : (?x)² - (2 * ?r - ?y) * ?y = 0 |- _ =>
+      rewrite arm0; arn; rewrite sin_2a, cos_2a_cos; rewrite sin_atan, cos_atan
+    end.
+  
+  Ltac solvebranch :=
+    match goal with
+    | ph : 2 * ?r * ?y = ?x² + ?y², nza : 2 * ?r - ?y <> 0, nzy : ?y <> 0,
+      nzx : ?x <> 0, arm0 : (?x)² - (2 * ?r - ?y) * ?y = 0 |- _ =>
+        assert (x / (2 * r - y) = y / x) as xad;
+        [field_simplify_eq; unfold pow; try lra;
+         rewrite ph; unfold Rsqr; lra |];
+        rewrite xad; repeat rewrite <- RmultRinv;
+        assert (y * / x <> 0) as zltyx;
+        [apply Rmult_integral_contrapositive_currified;
+         [lra | apply Rinv_neq_0_compat; lra]|];
+        specialize (Rsqr_pos_lt _ zltyx) as zltyx2;
+        assert (0 < 1 + (y * / x)²) as zlt1y2; [ lra|];
+        assert (0 < sqrt (1 + (y * / x)²)) as zlts1y2; [apply sqrt_lt_R0; assumption|];
+        assert (0 < x² + y²) as pos; [apply posss; lra|];
+        fieldrewrite (2 * (y * / x * / sqrt (1 + (y * / x)²)) * (1 * / sqrt (1 + (y * / x)²)))
+                     (2 * y * / x * (/ sqrt (1 + (y * / x)²))²);
+        [unfold Rsqr in zlts1y2; lra|];
+        rewrite Rsqr_inv; try lra;
+        rewrite Rsqr_sqrt; try lra;
+        fieldrewrite (2 * y * / x * / (1 + (y * / x)²)) (2 * y * x / (x² + y²));
+        try (unfold Rsqr in *; split; lra);
+        fieldrewrite (x - r * (2 * y * x / (x² + y²)))
+                     ((x² - (2 * r - y) * y) * x * / (x² + y²));
+        try (unfold Rsqr in *; lra);
+        rewrite arm0;
+        arn;
+        fieldrewrite (1 - (2 * / sqrt (1 + (y * / x)²) * / sqrt (1 + (y * / x)²) - 1))
+                     (2*(1 - (/ sqrt (1 + (y * / x)²))²)); [unfold Rsqr in zlts1y2; lra|];
+        rewrite Rsqr_inv; try lra;
+        rewrite Rsqr_sqrt; try lra;
+      fieldrewrite (1 - / (1 + (y * / x)²)) (y² * / (x² + y²));
+        try (unfold Rsqr in *; split; lra);
+        fieldrewrite (y - r * (2 * (y² * / (x² + y²))))
+                     ((x² - (2 * r - y) * y) * (y * / (x² + y²)));
+        try (unfold Rsqr in *; lra);
+        rewrite arm0;
+        arn; reflexivity
+    | ph : 2 * ?r * ?y = ?x² + ?y², nza : 2 * ?r - ?y <> 0, e : 0 = ?y,
+      nzx : ?x <> 0, arm0 : (?x)² - (2 * ?r - ?y) * ?y = 0 |- _ =>
+      rewrite <- e in *;
+      autorewrite with null in *;
+      apply Rsqr_eq_0 in arm0;
+      lra
+    | ph : 2 * ?r * ?y = ?x² + ?y², nza : 2 * ?r - ?y <> 0, e : 0 = ?x,
+      nzy : ?y <> 0, arm0 : (?x)² - (2 * ?r - ?y) * ?y = 0 |- _ =>
+      exfalso;
+      rewrite <- e in *;
+      autorewrite with null in *;
+      apply (Rmult_eq_compat_r (-1)) in arm0;
+      replace (0 * -1) with 0 in arm0 by lra;
+      replace (- ((2 * r - y) * y) * -1) with ((2 * r - y) * y) in arm0 by lra;
+      apply Rmult_integral in arm0;
+      destruct arm0; lra
+    end.
+
+  repeat (destruct total_order_T; [destruct s|]; try lra);
+    try (assert (2 * r - y <> 0) as nza by lra);
+    try (assert (x <> 0) as nzx by lra);
+    try (assert (y <> 0) as nzy by lra);
+    try (rewrite id);
+    try (rewrite sin_period1, cos_period1);
+    try doubleangleid; try solvebranch.
+  + exfalso.
+    rewrite <- e in arm0.
+    autorewrite with null in *.
+    symmetry in arm0.
+    rewrite <- Rsqr_0 in arm0.
+    apply Rsqr_inj in arm0; lra.
+  + rewrite <- e0.
+    arn.
+    replace (y - r * (1 - -1)) with (2 * r - y) by lra.
+    rewrite <- e0.
+    unfold Rsqr; field.
+  + rewrite <- e, <- e0 in *; arn.
+    reflexivity.
+  + arn.
+    replace (y - r * (1 - -1)) with (2 * r - y) by lra.
+    rewrite <- e.
+    unfold Rsqr.
+    arn.
+    reflexivity.
+  + exfalso.
+    rewrite <- e in arm0.
+    autorewrite with null in *.
+    symmetry in arm0.
+    rewrite <- Rsqr_0 in arm0.
+    apply Rsqr_inj in arm0; lra.
+  + rewrite <- e, <- e0; arn; reflexivity.
+  + rewrite sin_neg, cos_neg.
+    arn.
+    replace (y - r * (1 - -1)) with (2 * r - y) by lra.
+    rewrite <- e0.
+    unfold Rsqr.
+    arn.
+    reflexivity.
+  + exfalso.
+    rewrite <- e in arm0.
+    autorewrite with null in *.
+    apply Rsqr_eq_0 in arm0.
+    lra.
+Qed.
+
+Lemma Darm_Q_std :
+  forall x y r (phase : turning r 0 0 0 x y \/ straight r 0 0 0 x y) (rne0 : r <> 0),
+    (x - r * sin (θ1 x y r))² + (y - r * (1 - cos (θ1 x y r)))² =
+    (x² - (2 * r - y) * y).
+Proof.
+  intros.
+  destruct phase as [phase|phase].
+  apply Darm_Q_turning_std; assumption.
+  apply Darm_Q_straight_std; assumption.
 Qed.
 
 Lemma Darm_cos :
