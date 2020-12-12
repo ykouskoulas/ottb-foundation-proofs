@@ -343,20 +343,15 @@ by le_epsilon.
 
  *)
 
-Lemma underapprox_minlength_path_outer_tangent_infinite_hat_tile_turning_std :
-  forall r x y φ₂
-         (p1p2 : 0 < φ₂)
-         (p2ub : φ₂ <= 2 * PI)
+Lemma underapprox_turning_std :
+  forall r x y
          (lt : 0 < r)
          (oc : 2 * r * y = x² + y²),
     let θmax := calcθ₁ 0 0 0 x y in
-    let wx := r*sin φ₂ in
-    let wy := r*(1 - cos φ₂) in
-    (y > 0 /\ wx * y <= wy * x) -> 
+    forall (rb : y > 0),
     sqrt (x² + y²) <= r * θmax.
 Proof.
-  intros until 4.
-  intros * [rb lb].
+  intros.
   unfold L.
   arn.
 
