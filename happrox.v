@@ -177,7 +177,7 @@ Proof.
         exists (mkposreal _ Q0); intros.
         destruct Rbar_le_dec; cbn in *.
         * destruct r0.
-          -- rewrite <- (Darm_Q x y y0); try lra.
+          -- rewrite <- (Darm_Q_straight_std x y y0); try lra.
              unfold AbsRing_ball, abs, minus, plus, opp in H3;
                cbn in H3.
              destruct (total_order_T 0 y) as [[P|EQ]|N].
@@ -258,7 +258,7 @@ Proof.
             cbn in H4.
           apply Rmin_def in H4; destruct H4.
           apply Rabs_def2 in H6; destruct H6.
-          rewrite <- (Darm_Q x y y0); try lra.
+          rewrite <- (Darm_Q_straight_std x y y0); try lra.
           destruct (total_order_T 0 y) as [[P|EQ]|N].
           -- eapply straight_r_dom1_std; eauto.
              lra.
@@ -311,32 +311,32 @@ Proof.
 Qed.
 
 
+(* Lemma full_path_dist_increasing_turn_s : *)
+(*     forall (x y r s : R) *)
+(*            (nO : ~ (x = 0 /\ y = 0)) *)
+(*            (phase : turning s 0 0 0 x y \/ straight s 0 0 0 x y) *)
+(*            (rgt0 : 0 <= r) *)
+(*            (sgtr : r < s), *)
+(*       let arclen := (fun r => if Rbar_le_dec 0 r (* for the epsilor ball *) *)
+(*                               then r * θ1 x y r *)
+(*                               else 0) in *)
+(*       let armlen := (fun r => sqrt (x² - (2 * r - y) * y)) in *)
+(*       let d := (fun r => arclen r + armlen r) in *)
+(*       d r < d s. *)
+(* Proof. *)
+(*   intros. *)
 
-Lemma full_path_dist_increasing_turn_s :
-    forall (x y r s : R)
-           (nO : ~ (x = 0 /\ y = 0))
-           (phase : turning s 0 0 0 x y \/ straight s 0 0 0 x y)
-           (rgt0 : 0 <= r)
-           (sgtr : r < s),
-      let arclen := (fun r => if Rbar_le_dec 0 r (* for the epsilor ball *)
-                              then r * θ1 x y r
-                              else 0) in
-      let armlen := (fun r => sqrt (x² - (2 * r - y) * y)) in
-      let d := (fun r => arclen r + armlen r) in
-      d r < d s.
-Proof.
-  intros.
-
-  destruct phase as [trn|str].
-  + destruct rgt0 as [zltr | zeqr].
-    specialize full_path_dist_increasing_turn_s.
-    specialize full_path_dist_increasing.
-    specialize full_path_dist_increasing_req0_s.
+(*   destruct phase as [trn|str]. *)
+(*   + destruct rgt0 as [zltr | zeqr]. *)
+(*     specialize full_path_dist_increasing_turn_s. *)
+(*     specialize full_path_dist_increasing. *)
+(*     specialize full_path_dist_increasing_req0_s. *)
 
 
 
 Definition L x y θ r := r*θ + sqrt ((x-r*sin θ)² + (y-r*(1-cos θ))²).
 
+(* in progress *)
 Lemma underapprox_minlength_path_outer_tangent_infinite_hat_tile_turning_std :
   forall r x y φ₂
          (p1p2 : 0 < φ₂)

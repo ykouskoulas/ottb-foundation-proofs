@@ -740,7 +740,7 @@ Proof.
         destruct Rle_dec;
         destruct Rcase_abs; lra. }
     assert (r0 <> 0) as r0ne0; try lra.
-    rewrite (Darm_Q _ _ _ rstr r0ne0).
+    rewrite (Darm_Q_straight_std _ _ _ rstr r0ne0).
     reflexivity.
     apply dderv; try assumption. }
   
@@ -811,7 +811,7 @@ Proof.
   rewrite <- zarm.
   rewrite <- tmd.
   arn.
-  rewrite Darm_Q; try (lra||assumption).
+  rewrite Darm_Q_straight_std; try (lra||assumption).
   assert (0 = sqrt (x² - (2 * rz - y) * y)) as zdef. {
     rewrite rzd.
     rewrite <- sqrt_0.
@@ -2059,7 +2059,7 @@ Proof.
                  destruct Rle_dec;
                  destruct Rcase_abs; lra. }
              assert (r0 <> 0) as r0ne0; try lra.
-             rewrite (Darm_Q _ _ _ rstr r0ne0).
+             rewrite (Darm_Q_straight_std _ _ _ rstr r0ne0).
              reflexivity.
              apply dderv; try assumption. }
 
@@ -2083,7 +2083,7 @@ Proof.
                try (apply (Rmult_lt_reg_r r); lra).
 
              apply x_minus_sin_x_pos; assumption. }
-           rewrite Darm_Q; try (lra||assumption).
+           rewrite Darm_Q_straight_std; try (lra||assumption).
            assert (0 = sqrt (x² - (2 * rz - y) * y)) as zdef. {
              unfold rz.
              rewrite <- sqrt_0.

@@ -4943,7 +4943,7 @@ Proof.
   intros.
   apply straight_rot in phase.
   change (straight r 0 0 0 x y) in phase.
-  apply Darm_Q; assumption.
+  apply Darm_Q_straight_std; assumption.
 Qed.
 
 Lemma Darm_cos_gen :
