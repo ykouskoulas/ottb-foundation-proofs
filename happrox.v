@@ -63,6 +63,27 @@ Proof.
   - apply posss; intro Q; destruct Q; subst; lra.
 Qed.
 
+
+Lemma Darm_continuous : 
+  forall x y z, continuous (fun t => (sqrt (x² - (2 * t - y) * y))) z.
+Proof.
+  intros.
+  apply continuous_sqrt_comp.
+  apply (continuous_minus
+           (fun t => x²)
+           (fun t => (2 * t - y) * y)).
+  - apply continuous_const.
+  - apply (continuous_scal_l (fun t => (2 * t - y)) y).
+    apply (continuous_minus
+             (fun t => 2 * t)
+             (fun t => y)).
+    + apply (continuous_scal_r 2 (fun t => t) z).
+      apply continuous_id.
+    + apply continuous_const.
+Qed.
+
+
+
 Lemma full_path_dist_increasing_req0_s :
   forall (x y s : R)
          (not_forward : (~ (0 <= x /\ y = 0)))
@@ -77,23 +98,7 @@ Lemma full_path_dist_increasing_req0_s :
 Proof.
   intros.
   set (r := 1).
-  assert (forall z,
-             continuous (fun t => (sqrt (x² - (2 * t - y) * y))) z)
-    as Q.
-  { intros.
-    apply continuous_sqrt_comp.
-    apply (continuous_minus
-             (fun t => x²)
-             (fun t => (2 * t - y) * y)).
-    - apply continuous_const.
-    - apply (continuous_scal_l (fun t => (2 * t - y)) y).
-      apply (continuous_minus
-               (fun t => 2 * t)
-               (fun t => y)).
-      + apply (continuous_scal_r 2 (fun t => t) z).
-        apply continuous_id.
-      + apply continuous_const.
-  }
+  specialize (Darm_continuous x y) as Q.
 
   assert (continuous (fun t: R =>
                         if Rbar_le_dec 0 t
@@ -311,32 +316,33 @@ Proof.
 Qed.
 
 
-(* Lemma full_path_dist_increasing_turn_s : *)
-(*     forall (x y r s : R) *)
-(*            (nO : ~ (x = 0 /\ y = 0)) *)
-(*            (phase : turning s 0 0 0 x y \/ straight s 0 0 0 x y) *)
-(*            (rgt0 : 0 <= r) *)
-(*            (sgtr : r < s), *)
-(*       let arclen := (fun r => if Rbar_le_dec 0 r (* for the epsilor ball *) *)
-(*                               then r * θ1 x y r *)
-(*                               else 0) in *)
-(*       let armlen := (fun r => sqrt (x² - (2 * r - y) * y)) in *)
-(*       let d := (fun r => arclen r + armlen r) in *)
-(*       d r < d s. *)
-(* Proof. *)
-(*   intros. *)
-
-(*   destruct phase as [trn|str]. *)
-(*   + destruct rgt0 as [zltr | zeqr]. *)
-(*     specialize full_path_dist_increasing_turn_s. *)
-(*     specialize full_path_dist_increasing. *)
-(*     specialize full_path_dist_increasing_req0_s. *)
-
-
-
 Definition L x y θ r := r*θ + sqrt ((x-r*sin θ)² + (y-r*(1-cos θ))²).
 
-(* in progress *)
+
+(*
+
+Let 0 < s < rmax
+we know that d 0 < d s from above
+that means sqrt (x² + y²) < s * θ1 x y s + sqrt (x² - (2 * s - y) * y)
+
+since sqrt (x² - (2 * s - y) * y) is continuous in s, and
+
+sqrt (x² - (2 * rmax - y) * y) = 0 then
+
+for all 0 < epsilon we may choose an 0 < s'< rmax s.t. 
+sqrt (x² - (2 * s' - y) * y) < epsilon.
+
+Then 
+sqrt (x² + y²) < s' * θ1 x y s + sqrt (x² - (2 * s' - y) * y)
+               < s' * θ1 x y s + epsilon
+               < rmax * θmax + epsilon
+
+This implies 
+sqrt (x² + y²) <= rmax * θmax
+by le_epsilon.
+
+ *)
+
 Lemma underapprox_minlength_path_outer_tangent_infinite_hat_tile_turning_std :
   forall r x y φ₂
          (p1p2 : 0 < φ₂)
@@ -346,7 +352,7 @@ Lemma underapprox_minlength_path_outer_tangent_infinite_hat_tile_turning_std :
     let θmax := calcθ₁ 0 0 0 x y in
     let wx := r*sin φ₂ in
     let wy := r*(1 - cos φ₂) in
-    (y >= 0 /\ wx * y <= wy * x) -> 
+    (y > 0 /\ wx * y <= wy * x) -> 
     sqrt (x² + y²) <= r * θmax.
 Proof.
   intros until 4.
@@ -355,16 +361,117 @@ Proof.
   arn.
 
   apply le_epsilon.
-  intros.
+  intros eps zlte.
 
-  apply (Rle_trans
-  specialize (full_path_dist_increasing_turn_s x y _ r) as foo.
+  specialize (Darm_continuous x y) as cnt.
+  simpl in *.
 
-  assert ()
-  assert (forall e, e > 0 -> sqrt (x² + y²) <= r * θmax + e) as ng.
+  assert (sqrt (x² - (2 * r - y) * y) = 0) as noarm. {
+    (* destruct rb as [ygt0 |yeq0]. *)
+    assert (r = (x² + y²) / (2 * y)) as rd. {
+      apply (Rmult_eq_reg_r (2 * y)).
+      lrag oc.
+      lra. }
+    rewrite rd.
+    fieldrewrite (x² - (2 * ((x² + y²) / (2 * y)) - y) * y) 0; try lra.
+    apply sqrt_0.
+    (* rewrite yeq0 in *.
+    autorewrite with null in *.
+    symmetry in oc.
+    rewrite oc.
+    apply sqrt_0. *) }
+
+  set (f := (fun t : R => sqrt (x² - (2 * t - y) * y))) in *.
+  setoid_rewrite reasonable_continuity in cnt.
+  specialize (cnt r (mkposreal _ zlte)).
+  simpl in *.
+  destruct cnt as [del ba].
+
+  set (s := Rmax (r - del * / 2) (r * / 2)) in *.
+  specialize (ba s).
+
+  assert (0 < s) as zlts. {
+    unfold s, Rmax.
+    destruct Rle_dec ; try lra. }
+  assert (s < r) as sltr. {
+    unfold s, Rmax.
+    destruct Rle_dec ; try lra.
+    destruct del.
+    simpl in *.
+    lra. }
+
+  assert (straight s 0 0 0 x y) as sstr. {
+    apply condstraight.
+    rewrite <- oc.
+    apply Rmult_lt_compat_r; try lra. }
+
+  assert (s - r < 0) as srlt0. {
+    unfold s.
+    unfold s, Rmax.
+    destruct Rle_dec ; try lra.
+    destruct del.
+    simpl in *.
+    lra. }
   
-  admit.
-  apply (Rle_trans _ r * θmax + 
+  assert (Rabs (s - r) < del) as cnd. {
+    rewrite Rabs_left; try assumption.
+    setl (r - s).
+    unfold s.
+    specialize (Rmax_l (r - del * / 2) (r * / 2)) as foo.
+    destruct del; simpl in *.
+    apply (Rle_lt_trans _ (r - (r - pos * / 2))); try lra. }
+
+  specialize (ba cnd).
+  change (f r = 0) in noarm.
+  rewrite noarm in ba.
+  autorewrite with null in ba.
+  assert (forall z, 0 <= f z) as nns. {
+    intros.
+    unfold f.
+    apply sqrt_pos. }
+  
+  specialize (nns s).
+  apply Rle_ge in nns.
+  rewrite Rabs_right in ba; try assumption.
+
+  set (d := (fun t : R =>
+               (if Rbar_le_dec 0 t
+                then t * θ1 x y t
+                else 0) +
+               (sqrt (x² - (2 * t - y) * y)))).
+
+  apply (Rle_trans _ (r * θmax + f s)); try lra.
+  apply (Rle_trans _ ((if Rbar_le_dec 0 s then s * θ1 x y s else 0) + f s)).
+  unfold f.
+  change (sqrt (x² + y²) <= d s).
+  + replace (sqrt (x² + y²)) with (d 0).
+    left.
+    apply full_path_dist_increasing_req0_s; [lra | auto | lra].
+    unfold d.
+    destruct Rbar_le_dec; try lra.
+    arn.
+    replace (x² - - y * y) with (x² + y²) by (unfold Rsqr; lra).
+    reflexivity.
+
+    exfalso.
+    apply n.
+    simpl.
+    lra.
+
+  + destruct Rbar_le_dec; simpl in *; try lra.
+    clear r0.
+    apply (Rplus_le_reg_r (- f s)).
+    setl (s * θ1 x y s).
+    setr (r * θmax).
+    apply Rmult_le_compat; try lra.
+    apply theta1_rsgn_lim; try lra.
+    assumption.
+    specialize (root_ordering_rpos_left x y s zlts ltac:(lra) sstr) as [tlb tub].
+    unfold θmax.
+    left.
+    apply tlb.
+Qed.
+
 (* 
 
 |- sqrt (x^2 + y^2) <= r * tm
