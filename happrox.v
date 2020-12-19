@@ -477,10 +477,8 @@ exists d>0, |rm-r|<d -> sqrt ((x- r * sin th)^2 + (y - r*(1-cos th))^2) < e |-
 sqrt (x^2 + y^2) <= r * th + sqrt ((x- r * sin th)^2 + (y - r*(1-cos th))^2) |- 
 
 *)  
-  
-Admitted.
 
-Lemma underapprox_minlength_path_outer_tangent_infinite_hat_tile_straight_std :
+Lemma minlength_outer_infinite_hat_straight_std :
   forall r x y φ₂
          (p1p2 : 0 < φ₂)
          (p2ub : φ₂ <= 2 * PI)
@@ -717,12 +715,118 @@ Proof.
     reflexivity.
 Qed.
 
+Print dist_euc.
+Definition dist_R2 a b := dist_euc (ptx a) (pty a) (ptx b) (pty b).
 
+Lemma dist_R2_pos : forall a b : pt, dist_R2 a b >= 0.
+Proof.
+  intros;
+  destruct a, b; unfold dist_R2; simpl.
+  apply Rle_ge; apply sqrt_pos.
+Qed.
 
-Lemma underapprox_minlength_path_inner_tangent_infinite_hat_tile_std :
+Lemma dist_R2_sym : forall a b : pt, dist_R2 a b = dist_R2 b a.
+Proof.
+  intros;
+    destruct a, b; unfold dist_R2, dist_euc; simpl.
+  rewrite Rsqr_neg_minus.
+  rewrite (Rsqr_neg_minus pty pty0).
+  reflexivity.
+Qed.
+
+Lemma dist_R2_refl : forall a b : pt, dist_R2 a b = 0 <-> a = b.
+Proof.
+  intros;
+    destruct a, b; unfold dist_R2, dist_euc; simpl.
+  split.
+  intros.
+  specialize (Rle_0_sqr (ptx - ptx0)) as xdnn.
+  specialize (Rle_0_sqr (pty - pty0)) as ydnn.
+  apply sqrt_eq_0 in H; try lra.
+  destruct xdnn as [xdlt | xdeq].
+  exfalso.
+  generalize H.
+  change ((ptx - ptx0)² + (pty - pty0)² <> 0).
+  clear H.
+  lra.
+  destruct ydnn as [ydlt | ydeq].
+  exfalso.
+  generalize H.
+  change ((ptx - ptx0)² + (pty - pty0)² <> 0).
+  clear H.
+  lra.
+  clear H.
+  assert (ptx = ptx0) as xeq. {
+    symmetry in xdeq.
+    unfold Rsqr in xdeq.
+    apply Rmult_integral in xdeq.
+    lra. }
+  assert (pty = pty0) as yeq. {
+    symmetry in ydeq.
+    unfold Rsqr in ydeq.
+    apply Rmult_integral in ydeq.
+    lra. }
+  subst.
+  reflexivity.
+
+  intros.
+  inversion H.
+  subst.
+  arn.
+  reflexivity.
+Qed.
+  
+Print Build_Metric_Space.
+
+Check triangle.
+Print dist_euc.
+
+Lemma dist_R2_tri : forall a b c : pt, dist_R2 a b <= dist_R2 a c + dist_R2 c b.
+Proof.
+  intros.
+  intros;
+    destruct a, b, c; unfold dist_R2; simpl.
+  apply triangle.
+Qed.
+
+Definition R2_met := (Build_Metric_Space pt dist_R2 dist_R2_pos dist_R2_sym dist_R2_refl dist_R2_tri).
+
+Lemma eqv_R2_dist_expr : forall a b,
+    dist R2_met a b = dist_R2 a b.
+Proof.
+  intros.
+  unfold dist; simpl; reflexivity.
+Qed.
+
+(*
+  analysis of alternatives:
+  a1: keeping design in-house
+  a2: selling kansas plant
+*)                                        
+
+Search Metric_Space.
+Print Metric_Space.
+
+Lemma rot_pt_eq_len : forall x y η, 
+    let x' := x * cos η + y * sin η in
+    let y' := - x * sin η + y * cos η in
+    sqrt (x² + y²) = sqrt (x'² + y'²).
+Proof.
+  intros.
+  unfold x', y'.
+  repeat rewrite Rsqr_plus.
+  fieldrewrite ((x * cos η)² + (y * sin η)² + 2 * (x * cos η) * (y * sin η) +
+                ((- x * sin η)² + (y * cos η)² + 2 * (- x * sin η) * (y * cos η)))
+               (x² * ((sin η)² + (cos η)²) + y² * ((sin η)² + (cos η)²)).
+  rewrite sin2_cos2.
+  arn.
+  reflexivity.
+Qed.
+
+Lemma minlength_inner_infinite_hat_straight_std :
   forall r x y φ₂
          (p1p2 : 0 < φ₂)
-         (p2ub : φ₂ <= 2 * PI)
+         (p2ub : φ₂ < 2 * PI)
          (lt : 0 < r)
          (oc : 2 * r * y < x² + y²),
     let nx := cos φ₂ in
@@ -735,8 +839,137 @@ Proof.
   intros until 4.
   intros * [rb lb].
   unfold L, wx, wy.
+
+  set (xi := r * sin (θ1 x y r)).
+  set (yi := r * (1 - cos (θ1 x y r))).
+  assert (2 * r * yi = xi² + yi²) as rturn. {
+    unfold xi, yi.
+    fieldrewrite ((r * sin (θ1 x y r))² + (r * (1 - cos (θ1 x y r)))²)
+                 (r² * (((sin (θ1 x y r))²  + (cos (θ1 x y r))²)
+                  + (1 - 2 * cos (θ1 x y r)))).
+    rewrite sin2_cos2.
+    unfold Rsqr.
+    field. }
+  set (θmaxi := calcθ₁ 0 0 0 xi yi).
+
+  apply condstraight in oc.
+  specialize (theta1_rsgn_bnd x y r ltac:(lra) oc) as [rgt rlt].
+  clear rlt.
+  specialize (rgt lt).
+  destruct rgt as [[t1lb | t1eq] t1ub].
   
-   
+  + assert (θmaxi = θ1 x y r) as tmidef. {
+      unfold θmaxi.
+      rewrite thms.
+      unfold yi, xi.
+      rewrite chord_property; try assumption.
+      reflexivity.
+      lra. }
+
+    assert (yi > 0) as yigt0. {
+      unfold yi.
+      apply Rlt_gt.
+      zltab.
+      specialize (COS_bound (θ1 x y r)) as [cl [cu |ce]].
+      lra.
+      exfalso.
+      apply cosθeq1 in ce; lra. }
+
+    
+    specialize (underapprox_turning_std _ _ _ lt rturn yigt0) as li.
+    unfold θmaxi in tmidef.
+    rewrite tmidef in li.
+    apply (Rle_trans _ (sqrt (xi² + yi²) + sqrt ((x - xi)² + (y - yi)²)));
+      [| apply (Rplus_le_reg_r (- sqrt ((x - xi)² + (y - yi)²))); lrag li].
+
+    (* From wikipedia: R = [cosθ -sinθ ; 
+                            sinθ cosθ] is for active
+       rotations of vectors counterclockwise in a right-handed
+       coordinate system (y counterclockwise from x) by
+       pre-multiplication (R on the left). If any one of these is
+       changed (such as rotating axes instead of vectors, a passive
+       transformation), then the inverse of the example matrix should
+       be used, which coincides with its transpose. *)
+    set (η := atan2 y x).
+    set (ax' := xi * cos η + yi * sin η).
+    set (ay' := - xi * sin η + yi * cos η).
+    set (aix' := wx * cos η + wy * sin η).
+    set (aiy' := - wx * sin η + wy * cos η).
+    set (x' := x * cos η + y * sin η).
+    set (y' := - x * sin η + y * cos η).
+    change (sqrt (wx² + wy²) + sqrt ((x - wx)² + (y - wy)²) <=
+            sqrt (xi² + yi²) + sqrt ((x - xi)² + (y - yi)²)).
+
+    rewrite (rot_pt_eq_len _ _ η).
+    rewrite (rot_pt_eq_len (x-wx) _ η).
+
+    fieldrewrite (((x - wx) * cos η + (y - wy) * sin η)² + (- (x - wx) * sin η + (y - wy) * cos η)²)
+                 (((x * cos η + y * sin η) - (wx * cos η + wy * sin η))² +
+                  ((- x * sin η + y * cos η) - (- wx * sin η + wy * cos η))²).
+
+    change (sqrt (aix'² + aiy'²) +
+            sqrt ((x' - aix')² + (y' - aiy')²) <=
+            sqrt (xi² + yi²) + sqrt ((x - xi)² + (y - yi)²)).
+
+    rewrite (rot_pt_eq_len (xi) _ η).
+    rewrite (rot_pt_eq_len (x-xi) _ η).
+
+    change (sqrt (aix'² + aiy'²) + sqrt ((x' - aix')² + (y' - aiy')²) <=
+            sqrt (ax'² + ay'²) +
+            sqrt (((x - xi) * cos η + (y - yi) * sin η)² + (- (x - xi) * sin η + (y - yi) * cos η)²)).
+
+    fieldrewrite (((x - xi) * cos η + (y - yi) * sin η)² + (- (x - xi) * sin η + (y - yi) * cos η)²)
+                 (((x * cos η + y * sin η) - (xi * cos η + yi * sin η))² +
+                  ((- x * sin η + y * cos η) - (- xi * sin η + yi * cos η))²).
+
+    change (sqrt (aix'² + aiy'²) + sqrt ((x' - aix')² + (y' - aiy')²) <=
+            sqrt (ax'² + ay'²) + sqrt ((x' - ax')² + (y' - ay')²)).
+
+    assert (~ (x = 0 /\ y = 0)) as no. {
+      apply straight_not_stationary2 in oc.
+      lra. }
+
+    assert (0 <= x² + y²) as x2y2 by zltab.
+
+    assert (y' = 0) as y'eq0. {
+      unfold y', η.
+      rewrite atan2_sin_id, atan2_cos_id; try assumption.
+      repeat rewrite <- Rsqr_pow2.
+      field.
+      intro seq0.
+      apply sqrt_eq_0 in seq0; try assumption.
+      apply posss in no.
+      lra. }
+
+    rewrite y'eq0 in *.
+    arn.
+
+    rewrite (Rsqr_neg aiy'), (Rsqr_neg ay').
+
+    set (h := -ay') in *.
+    set (h' := -aiy') in *.
+    set (b1' := aix') in *.
+    set (b2' := x' - b1') in *.
+    set (b1 := ax') in *.
+    set (b2 := x' - b1) in *.
+    left.
+    apply smaller_interior_path_triangle.
+    7 : {
+      unfold b2, b2', b1, b1'.
+      field. }
+
+    
+    Search θ1.
+    Search atan2.
+    Search calcθ₁.
+  Check t1eqtm.
+  Search turning.
+    split; try lra.
+    exfalso.
+    apply straightcond in oc.
+    assert (~ (0 <= x /\ y = 0)) as npos. admit.
+    specialize (nposx_t1ne0 _ _ r npos ltac:(lra) oc) as t1ne0.
+    lra. }
 
 
 Theorem underapprox_minlength_path_outer_tangent_infinite_hat_tile :
