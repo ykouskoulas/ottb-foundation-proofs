@@ -957,8 +957,135 @@ Proof.
     7 : {
       unfold b2, b2', b1, b1'.
       field. }
+    unfold h, ay'.
+    setr (xi * sin η - yi * cos η).
 
-    
+    destruct (total_order_T (cos η) 0) as [[celt | ceeq]|cegt].
+    ++ apply (Rplus_lt_reg_r (yi * cos η)).
+       arn.
+       setr (xi * sin η).
+       destruct (total_order_T xi 0) as [[xlt|xeq]|xgt].
+       apply (Rmult_lt_reg_r (/ - xi * / - cos η)).
+       zltab; lra.
+       setl (yi * / xi); try lra.
+       setr (sin η/ cos η); try lra.
+       change (yi * / xi < tan η).
+       unfold η.
+       assert (tan (atan2 y x) = tan (atan (y/x))) as tanid. {
+         destruct (Rlt_dec y 0);
+           destruct (Rlt_dec x 0).
+         +++ rewrite atan2_atan_Q3; try assumption.
+             fieldrewrite (atan (y / x) - PI) (atan (y / x) + IZR (- 1) * PI).
+             rewrite tan_period; try lra.
+             rewrite cos_atan.
+
+             assert (0 < 1 + (y / x)²) as arggt0. {
+               fieldrewrite (y / x) (- y / - x); try lra.
+               setl (0 + 0).
+               apply Rplus_lt_compat; try lra.
+               unfold Rsqr.
+               zltab; lra. }
+             
+             assert (sqrt (1 + (y / x)²) <> 0) as id. {
+               intro sne0.
+               apply sqrt_eq_0 in sne0; lra. }
+             
+             fieldrewrite (1 / sqrt (1 + (y / x)²)) (/ sqrt (1 + (y / x)²)).
+             unfold Rsqr in id.
+             assumption.
+             apply Rinv_neq_0_compat.
+             assumption.
+         +++ apply Rnot_lt_le in n.
+             destruct n as [zltx |zeqx].
+             rewrite atan2_atan_Q4; try assumption.
+             reflexivity.
+             unfold η in celt.
+             rewrite <- zeqx in celt.
+             rewrite atan2_mPI2 in celt; try assumption.
+             assert (- PI / 2 = - (PI/ 2)) as id; try lra.
+             rewrite id in celt; clear id.
+             rewrite cos_neg, cos_PI2 in celt.
+             lra.
+         +++ apply Rnot_lt_le in n.
+             destruct n as [zltx |zeqx].
+             rewrite atan2_atan_Q2; try assumption.
+             fieldrewrite (atan (y / x) + PI) (atan (y / x) + IZR (1) * PI).
+             rewrite tan_period; try lra.
+             rewrite cos_atan.
+
+             assert (0 < 1 + (y / x)²) as arggt0. {
+               fieldrewrite ((y / x)²) ((y / - x)²); try lra.
+               setl (0 + 0).
+               apply Rplus_lt_compat; try lra.
+               unfold Rsqr.
+               zltab; lra. }
+             
+             assert (sqrt (1 + (y / x)²) <> 0) as id. {
+               intro sne0.
+               apply sqrt_eq_0 in sne0; lra. }
+             
+             fieldrewrite (1 / sqrt (1 + (y / x)²)) (/ sqrt (1 + (y / x)²)).
+             unfold Rsqr in id.
+             assumption.
+             apply Rinv_neq_0_compat.
+             assumption.
+
+             rewrite <- zeqx.
+             rewrite <- RmultRinv.
+             arn.
+             rewrite atan2_PI, atan_0, tan_PI, tan_0.
+             reflexivity.
+             assumption.
+         +++ apply Rnot_lt_le in n.
+             apply Rnot_lt_le in n0.
+             destruct n as [zlty|zeqy];
+             destruct n0 as [zltx|zeqx].
+             rewrite atan2_atan_Q1; try assumption.
+             reflexivity.
+
+             unfold η in celt.
+             rewrite <- zeqx in celt.
+             rewrite atan2_PI2, cos_PI2 in celt; try assumption.
+             lra.
+
+             rewrite <- zeqy.
+             rewrite <- RmultRinv.
+             arn.
+             rewrite atan2_0, atan_0.
+             reflexivity.
+             assumption.
+             lra. }
+       rewrite tanid.
+
+       
+       (*
+
+  xi := r * sin (θ1 x y r) : R
+  yi := r * (1 - cos (θ1 x y r)) : R
+
+  yi * cos η < xi * sin η
+
+  yi / xi < tan η
+
+atan2 yi xi < η
+
+θ1 x y r < 2 * η
+
+θ1 x y r < θmax
+
+
+2 * atan2 yi xi = θ1 x y r
+cos η < sin (θ1 x y r) * sin η + cos (θ1 x y r) * cos η
+
+cos η < cos ((θ1 x y r) - η)
+
+cos η < cos ((θ1 x y r) - η)
+
+unfold 
+*)
+       
+       apply (Rmult_lt_reg_r (/ - cos η * / xi)).
+       zltab.
     Search θ1.
     Search atan2.
     Search calcθ₁.
