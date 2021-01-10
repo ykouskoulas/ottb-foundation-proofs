@@ -3851,7 +3851,7 @@ Lemma root_ordering_Q4top_rneg:
     let Q := sqrt (x₁² - (2 * r - y₁) * y₁) in
     let θ1 := 2 * atan ((x₁ - Q)/(2 * r - y₁)) in
     let θ2 := 2 * atan ((x₁ + Q)/(2 * r - y₁)) - 2 * IZR 1 * PI in
-    θ2 < θmax < θ1 /\ -PI < θ1 < 0  /\ -2*PI < θ2 < -PI.
+    θ2 < θmax < θ1 /\ -PI < θ1 < 0  /\ -2*PI < θ2 < -PI. (* todo? *)
 Proof.
   intros.
   
@@ -3896,7 +3896,7 @@ Proof.
   rewrite atan_opp. field.
 
   rewrite t2rel, t1rel.
-  enough (θ1' < θmax' < θ2' /\ 0 < θ1' < PI /\ PI < θ2' < 2* PI)
+  enough (θ1' < θmax' < θ2' /\ 0 < θ1' < PI /\ PI < θ2' < 3 * PI / 2)
     as [[tmordlb tmordub] [[t1ordlb t1ordub] [t2ordlb t2ordub]]].
   lra.
   apply root_ordering_Q1top; assumption.
@@ -4618,7 +4618,7 @@ Lemma root_ordering_Q2top:
     let Q := sqrt (x₁² - (2 * r - y₁) * y₁) in
     let θ1 := 2 * atan ((x₁ - Q)/(2 * r - y₁)) in
     let θ2 := 2 * atan ((x₁ + Q)/(2 * r - y₁)) + 2 * IZR 1 * PI in
-    θ1 < θmax < θ2 /\ (* PI/2 *) 0 < θ1 < PI /\ PI < θ2 < 2*PI. 
+    θ1 < θmax < θ2 /\ PI / 2 < θ1 < PI /\ PI < θ2 < 2 * PI. 
 Proof.
   intros.
   specialize PI_RGT_0 as pirgt0.
@@ -4627,7 +4627,7 @@ Proof.
   assert (0 < y₁) as y1gt0. lra.
 
 
-  assert (0 < θ1 < PI) as [t1lb t1ub]. {
+  assert (PI / 2 < θ1 < PI) as [t1lb t1ub]. {
 
     assert (x₁² < x₁² - (2 * r - y₁) * y₁) as inq.
     apply (Rplus_lt_reg_r (-x₁²)).
@@ -4644,16 +4644,36 @@ Proof.
       assumption.
     }
 
-    clear inq.
-    assert (0 < ((x₁ - Q) / (2 * r - y₁))) as argpos.
+    assert (1 < ((x₁ - Q) / (2 * r - y₁))) as argpos.
     fieldrewrite ((x₁ - Q) / (2 * r - y₁)) (- (x₁ - Q) * / - (2 * r - y₁)).
     intro; lra.
-    apply Rmult_lt_0_compat. lra.
-    apply Rinv_0_lt_compat. lra.
+    apply (Rmult_lt_reg_r (- (2 * r - y₁))); try lra.
+    arn.
+    setr (- (x₁ - Q)); try lra.
+    unfold Q.
+    apply (Rplus_lt_reg_r x₁).
+    setr (sqrt (x₁² - (2 * r - y₁) * y₁)).
+    destruct (Rlt_dec (- (2 * r - y₁) + x₁) 0) as [lt |ge].
+    apply (Rlt_le_trans _ 0). assumption. apply sqrt_pos.
+    apply Rnot_lt_le in ge.
+    apply Rsqr_incrst_0; [| assumption | apply sqrt_pos].
+    assert (0 < x₁² - (2 * r - y₁) * y₁) as inq2. {
+      apply (Rle_lt_trans _ (x₁²)).
+      apply Rle_0_sqr.
+      assumption. }
+    rewrite Rsqr_sqrt; [|left; assumption].
+    rewrite Rsqr_plus.
+    apply (Rplus_lt_reg_r (- x₁²)).
+    apply (Rmult_lt_reg_r (/ (- (2 * r - y₁)))).
+    zltab. lra.
+    apply (Rplus_lt_reg_r (- y₁)).
+    setl (2 * (x₁ - r)). lra.
+    setr 0. lra.
+    lra.
     apply atan_increasing in argpos.
-    rewrite atan_0 in argpos.
+    rewrite atan_1 in argpos.
     apply (Rmult_lt_compat_l 2) in argpos; [|lra].
-    rewrite Rmult_0_r in argpos.
+    assert (2 * (PI / 4) = PI / 2) as id; try lra; rewrite id in argpos; clear id.
 
     specialize (atan_bound ((x₁ - Q) / (2 * r - y₁))) as [atlb atub].
     apply (Rmult_lt_compat_l 2) in atub; [|lra].
@@ -4825,7 +4845,7 @@ Proof.
       ++ apply (Rmult_lt_reg_l 2); [lra|]. setl t.
          destruct H.
          change (t < θ1).
-         apply (Rlt_trans _ 0); assumption. 
+         apply (Rlt_trans _ 0); lra.
 
          Unshelve.
          unfold derivable. intros.
