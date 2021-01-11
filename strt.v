@@ -3510,141 +3510,8 @@ Proof.
     clear - faltfa. lra.
 Qed.
 
-(** We define functions θ1 and θ2 that compute an angular location on
-a circle of radius r, such that the line connecting that point with a
-point (x₁, y₁) is tangent to the circle. Without loss of generality,
-we consider a circle centered at (0,r). *)
-
-Definition θ1 x₁ y₁ r : R :=
-  let Q := sqrt (x₁² - (2 * r - y₁) * y₁) in
-  match (total_order_T 0 r) with
-  | inleft (left _) => (* 0 < r *)
-    match (total_order_T 0 x₁, total_order_T 0 y₁) with
-
-    | (inleft (left _), inleft (left _))   => (* 0 < x₁, 0 < y₁, Q1 *)
-      match (total_order_T 0 (2 * r - y₁)) with
-      | inleft (left _) => 2 * atan ((x₁ - Q)/(2 * r - y₁))
-      | inleft (right _) => 2 * atan (y₁/(2 * x₁))
-      | inright _ => 2 * atan ((x₁ - Q)/(2 * r - y₁))
-      end
-    | (inleft (right _), inleft (left _))   => (* 0 = x₁, 0 < y₁, Q1 *)
-      match (total_order_T 0 (2 * r - y₁)) with
-      | inleft (left _) => 2 * atan ((x₁ - Q)/(2 * r - y₁))
-      | inleft (right _) => PI
-      | inright _ => 2 * atan ((x₁ - Q)/(2 * r - y₁))
-      end
-
-    | (inleft (left _), inleft (right _))  => (* 0 < x₁, 0 = y₁ *)
-      0
-    | (inleft _, inright _)         => (* 0 <= x₁, 0 > y₁, Q4 *)
-      2 * atan ((x₁ - Q)/(2 * r - y₁)) + 2 * IZR 1 * PI
-    | (inleft (right _), inleft (right _)) => (* 0 = x₁, 0 = y₁ *)
-      0
-    | (inright _, inleft (left _))         => (* 0 > x₁, 0 < y₁, Q2 *)
-      match (total_order_T 0 (2 * r - y₁)) with
-      | inleft (left _) =>
-        2 * atan ((x₁ - Q)/(2 * r - y₁)) + 2 * IZR 1 * PI (* 2 * r - y₁ > 0 *)
-      | inleft (right _) => PI (* 2 * r - y₁ = 0 *)
-      | inright _ => 2 * atan ((x₁ - Q)/(2 * r - y₁)) (* 2 * r - y₁ < 0 *)
-      end
-    | (inright _, inleft (right _))        => (* 0 > x₁, 0 = y₁ *)
-      2 * atan ((x₁ - Q)/(2 * r - y₁)) + 2 * IZR 1 * PI
-    | (inright _, inright _)               => (* 0 > x₁, 0 > y₁, Q3 *)
-      2 * atan ((x₁ - Q)/(2 * r - y₁)) + 2 * IZR 1 * PI
-    end
-  | inleft (right _) => (* 0 = r *) 0 (* atan2 y x *)
-  | inright _ => (* 0 > r *)
-    match (total_order_T 0 x₁, total_order_T 0 y₁) with
-    | (inleft _, inleft (left _) )  => (* 0 <= x₁, 0 < y₁, Q1 *)
-      2 * atan ((x₁ - Q)/(2 * r - y₁)) - 2 * IZR 1 * PI
-    | (inleft (left _), inleft (right _))  => (* 0 < x₁, 0 = y₁ *)
-      0
-    | (inleft (left _), inright _)         => (* 0 < x₁, 0 > y₁, Q4 *)
-      match (total_order_T 0 (2 * r - y₁)) with
-      | inleft (left _) => 2 * atan ((x₁ - Q)/(2 * r - y₁)) (* 0 < 2 * r - y₁ *)
-      | inleft (right _) => 2 * atan (y₁/(2 * x₁)) (* 0 = 2 * r - y₁ *)
-      | inright _ => 2 * atan ((x₁ - Q)/(2 * r - y₁)) (* 0 > 2 * r - y₁ *)
-      end
-    | (inleft (right _), inright _)         => (* 0 = x₁, 0 > y₁, Q4 *)
-      match (total_order_T 0 (2 * r - y₁)) with
-      | inleft (left _) => 2 * atan ((x₁ - Q)/(2 * r - y₁)) (* 0 < 2 * r - y₁ *)
-      | inleft (right _) => - PI (* 0 = 2 * r - y₁ *)
-      | inright _ => 2 * atan ((x₁ - Q)/(2 * r - y₁)) (* 0 > 2 * r - y₁ *)
-      end
-    | (inleft (right _), inleft (right _)) => (* 0 = x₁, 0 = y₁ *)
-      0
-    | (inright _, inleft (left _))         => (* 0 > x₁, 0 < y₁, Q2 *)
-      2 * atan ((x₁ - Q)/(2 * r - y₁)) - 2 * IZR 1 * PI
-    | (inright _, inleft (right _))        => (* 0 > x₁, 0 = y₁ *)
-      2 * atan ((x₁ - Q)/(2 * r - y₁)) - 2 * IZR 1 * PI
-    | (inright _, inright _)               => (* 0 > x₁, 0 > y₁, Q3 *)
-      match (total_order_T 0 (2 * r - y₁)) with 
-      | inleft (left _) => 2 * atan ((x₁ - Q)/(2 * r - y₁)) (* 2 * r - y₁ > 0 *)
-      | inleft (right _) => -PI (* 2 * r - y₁ = 0 *)
-      | inright _ => 2 * atan ((x₁ - Q)/(2 * r - y₁)) - 2 * IZR 1 * PI (* 2 * r - y₁ < 0 *)
-      end
-    end
-  end.
-
-Definition θ2 x₁ y₁ r : R :=
-  let Q := sqrt (x₁² - (2 * r - y₁) * y₁) in
-  match (total_order_T 0 r) with
-  | inleft (left _) => (* 0 < r *)
-    match (total_order_T 0 x₁, total_order_T 0 y₁) with
-    | (inleft _, inleft (left _))   => (* 0 <= x₁, 0 < y₁, Q1 *)
-      match (total_order_T 0 (2 * r - y₁)) with
-      | inleft (left _) => 2 * atan ((x₁ + Q)/(2 * r - y₁))
-      | inleft (right _) => PI
-      | inright _ => 2 * atan ((x₁ + Q)/(2 * r - y₁)) + 2 * IZR 1 * PI
-      end
-    | (inleft (left _), inleft (right _))  => (* 0 < x₁, 0 = y₁ *)
-      2 * atan (x₁ / r)
-    | (inleft _, inright _)         => (* 0 <= x₁, 0 > y₁, Q4 *)
-      2 * atan ((x₁ + Q)/(2 * r - y₁))
-    | (inleft (right _), inleft (right _)) => (* 0 = x₁, 0 = y₁ *)
-      0 (* invalid position *)
-    | (inright _, inleft (left _))         => (* 0 > x₁, 0 < y₁, Q2 *)
-      match (total_order_T 0 (2 * r - y₁)) with
-      | inleft (left _) =>
-        2 * atan ((x₁ + Q)/(2 * r - y₁)) + 2 * IZR 1 * PI (* 2 * r - y₁ > 0 *)
-      | inleft (right _) => 2*atan (y₁ / (2 * x₁)) + 2 * IZR 1 * PI (* 2 * r - y₁ = 0 *)
-      | inright _ => 2 * atan ((x₁ + Q)/(2 * r - y₁)) + 2 * IZR 1 * PI (* 2 * r - y₁ < 0 *)
-      end
-    | (inright _, inleft (right _))        => (* 0 > x₁, 0 = y₁ *)
-      2 * PI
-    | (inright _, inright _)               => (* 0 > x₁, 0 > y₁, Q3 *)
-      2 * atan ((x₁ + Q)/(2 * r - y₁))
-    end
-  | inleft (right _) => (* 0 = r *) 0
-  | inright _ => (* 0 > r *)
-    match (total_order_T 0 x₁, total_order_T 0 y₁) with
-    | (inleft _, inleft (left _) )  => (* 0 <= x₁, 0 < y₁, Q1 *)
-      2 * atan ((x₁ + Q)/(2 * r - y₁))
-    | (inleft (left _), inleft (right _))  => (* 0 < x₁, 0 = y₁ *)
-      2 * atan (x₁ / r)
-    | (inleft _, inright _)         => (* 0 <= x₁, 0 > y₁, Q4 *)
-      match (total_order_T 0 (2 * r - y₁)) with
-      | inleft (left _) => 2 * atan ((x₁ + Q)/(2 * r - y₁)) - 2 * IZR 1 * PI (* 0 < 2 * r - y₁ *)
-      | inleft (right _) => -PI (* 0 = 2 * r - y₁ *)
-      | inright _ => 2 * atan ((x₁ + Q)/(2 * r - y₁)) (* 0 > 2 * r - y₁ *)
-      end
-    | (inleft (right _), inleft (right _)) => (* 0 = x₁, 0 = y₁ *)
-      0 (* invalid position *)
-    | (inright _, inleft (left _))         => (* 0 > x₁, 0 < y₁, Q2 *)
-      2 * atan ((x₁ + Q)/(2 * r - y₁))
-    | (inright _, inleft (right _))        => (* 0 > x₁, 0 = y₁ *)
-      - 2 * PI
-    | (inright _, inright _)               => (* 0 > x₁, 0 > y₁, Q3 *)
-      match (total_order_T 0 (2 * r - y₁)) with 
-      | inleft (left _) => 2 * atan ((x₁ + Q)/(2 * r - y₁)) - 2 * IZR 1 * PI (* 2 * r - y₁ > 0 *)
-      | inleft (right _) => 2*atan (y₁ / (2 * x₁)) - 2 * IZR 1 * PI (* 2 * r - y₁ = 0 *)
-      | inright _ => 2 * atan ((x₁ + Q)/(2 * r - y₁)) - 2 * IZR 1 * PI (* 2 * r - y₁ < 0 *)
-      end
-    end
-  end.
-
-
-Lemma root_ordering_Q1top:
+(* begin hide *)
+Lemma root_ordering_Q1top':
   forall x₁ y₁ r
          (rgt0 : 0 < r)
          (top : 2 * r - y₁ < 0 )
@@ -3975,7 +3842,7 @@ PI < θ2 < 2*PI maybe could be PI < θ2 < 3*PI/2
 todo?
 *)
 
-Lemma root_ordering_Q4top_rneg:
+Lemma root_ordering_Q4top_rneg':
   forall x₁ y₁ r
          (rgt0 : r < 0)
          (top : 0 < 2 * r - y₁)
@@ -4033,11 +3900,11 @@ Proof.
   enough (θ1' < θmax' < θ2' /\ 0 < θ1' < PI /\ PI < θ2' < 3 * PI / 2)
     as [[tmordlb tmordub] [[t1ordlb t1ordub] [t2ordlb t2ordub]]].
   lra.
-  apply root_ordering_Q1top; assumption.
+  apply root_ordering_Q1top'; assumption.
 Qed.
 
 
-Lemma root_ordering_Q1arm:
+Lemma root_ordering_Q1arm':
   forall x₁ y₁ r
          (rgt0 : 0 < r)
          (bot : 0 = 2 * r - y₁)
@@ -4301,7 +4168,7 @@ Proof.
 Qed.
 
 
-Lemma root_ordering_Q4arm_rneg:
+Lemma root_ordering_Q4arm_rneg':
   forall x₁ y₁ r
          (rgt0 : r < 0)
          (bot : 0 = 2 * r - y₁)
@@ -4348,12 +4215,12 @@ Proof.
   enough (θ1' < θmax' < θ2' /\ 0 < θ1' < θ2')
     as [[tmordlb tmordub] [t1ordlb t1ordub]].
   lra.
-  eapply root_ordering_Q1arm; try eassumption.
+  eapply root_ordering_Q1arm'; try eassumption.
   lra.
 Qed.
 
 
-Lemma root_ordering_Q1bot:
+Lemma root_ordering_Q1bot':
   forall x₁ y₁ r
          (rgt0 : 0 < r)
          (bot : 0 < 2 * r - y₁)
@@ -4679,7 +4546,7 @@ Proof.
 Qed.
 
 
-Lemma root_ordering_Q4bot_rneg:
+Lemma root_ordering_Q4bot_rneg':
   forall x₁ y₁ r
          (rgt0 : r < 0)
          (bot : 2 * r - y₁ < 0)
@@ -4738,11 +4605,11 @@ Proof.
   enough (θ1' < θmax' < θ2' /\ 0 < θ1' < PI /\ 0 < θ2' < PI)
     as [[tmordlb tmordub] [[t1ordlb t1ordub] [t2ordlb t2ordub]]].
   lra.
-  apply root_ordering_Q1bot; try assumption.
+  apply root_ordering_Q1bot'; try assumption.
   lra.
 Qed.
 
-Lemma root_ordering_Q2top:
+Lemma root_ordering_Q2top':
   forall x₁ y₁ r 
          (rgt0 : 0 < r)
          (top : 2 * r - y₁ < 0)
@@ -5057,7 +4924,7 @@ Proof.
     assumption.
 Qed.
 
-Lemma root_ordering_Q3top_rneg:
+Lemma root_ordering_Q3top_rneg':
   forall x₁ y₁ r 
          (rgt0 : r < 0)
          (top : 0 < 2 * r - y₁)
@@ -5115,11 +4982,11 @@ Proof.
   enough (θ1' < θmax' < θ2' /\ PI / 2 < θ1' < PI /\ PI < θ2' < 2* PI)
     as [[tmordlb tmordub] [[t1ordlb t1ordub] [t2ordlb t2ordub]]].
   lra.
-  apply root_ordering_Q2top; assumption.
+  apply root_ordering_Q2top'; assumption.
 Qed.
 
 
-Lemma root_ordering_Q2arm:
+Lemma root_ordering_Q2arm':
   forall x₁ y₁ r 
          (rgt0 : 0 < r)
          (top : 2 * r - y₁ = 0)
@@ -5440,7 +5307,7 @@ Proof.
     lra.
 Qed.
 
-Lemma root_ordering_Q3arm_rneg:
+Lemma root_ordering_Q3arm_rneg':
   forall x₁ y₁ r 
          (rgt0 : r < 0)
          (top : 2 * r - y₁ = 0)
@@ -5491,7 +5358,7 @@ Proof.
   unfold θ1' at 2.
   unfold θ1' at 2.
   lra.
-  eapply root_ordering_Q2arm; try eassumption.
+  eapply root_ordering_Q2arm'; try eassumption.
   lra.
   left. assumption.
 
@@ -5504,7 +5371,7 @@ Proof.
     lra.
 Qed.
 
-Lemma root_ordering_Q2bot:
+Lemma root_ordering_Q2bot':
   forall x₁ y₁ r 
          (rgt0 : 0 < r)
          (bot : 0 < 2 * r - y₁)
@@ -5904,7 +5771,7 @@ Proof.
 Qed.
 
 
-Lemma root_ordering_Q3bot_rneg:
+Lemma root_ordering_Q3bot_rneg':
   forall x₁ y₁ r 
          (rgt0 : r < 0)
          (bot : 2 * r - y₁ < 0)
@@ -5963,11 +5830,11 @@ Proof.
   enough (θ1' < θmax' < θ2' /\ PI < θ1' < 2*PI /\ PI < θ2' < 2*PI)
     as [[tmordlb tmordub] [[t1ordlb t1ordub] [t2ordlb t2ordub]]].
   lra.
-  apply root_ordering_Q2bot; try assumption.
+  apply root_ordering_Q2bot'; try assumption.
   lra.
 Qed.
 
-Lemma root_ordering_nxarm:
+Lemma root_ordering_nxarm':
   forall x₁ y₁ r 
          (rgt0 : 0 < r)
          (top : y₁ = 0)
@@ -6038,7 +5905,7 @@ Proof.
   repeat split; try assumption.
 Qed.
 
-Lemma root_ordering_nxarm_rneg:
+Lemma root_ordering_nxarm_rneg':
   forall x₁ y₁ r 
          (rgt0 : r < 0)
          (top : y₁ = 0)
@@ -6084,12 +5951,12 @@ Proof.
   enough (θ1' < θmax' /\ θmax' = θ2' /\ PI < θ1' < 2*PI )
     as [tmord [t1ord [t2ordlb t2ordub]]].
   lra.
-  apply root_ordering_nxarm; try assumption.
+  apply root_ordering_nxarm'; try assumption.
   lra.
 Qed.
 
 
-Lemma root_ordering_Q3 :
+Lemma root_ordering_Q3':
   forall x₁ y₁ r 
          (rgt0 : 0 < r)
          (Q3 : y₁ < 0)
@@ -6475,7 +6342,7 @@ Proof.
   lra.
 Qed.
 
-Lemma root_ordering_Q2_rneg :
+Lemma root_ordering_Q2_rneg':
   forall x₁ y₁ r 
          (rgt0 : r < 0)
          (Q3 : 0 < y₁)
@@ -6532,12 +6399,12 @@ Proof.
   enough (θ2' < θmax'/2 + 2*PI < θ1' /\ 0 < θ2' < PI/2 /\ PI < θ1' < 2* PI)
     as [[tmordlb tmordub] [[t1ordlb t1ordub] [t2ordlb t2ordub]]].
   lra.
-  apply root_ordering_Q3; try assumption.
+  apply root_ordering_Q3'; try assumption.
   lra.
 Qed.
 
 
-Lemma root_ordering_Q4:
+Lemma root_ordering_Q4':
   forall x₁ y₁ r 
          (rgt0 : 0 < r)
          (Q4 : y₁ < 0)
@@ -6926,7 +6793,7 @@ Qed.
 
 
 
-Lemma root_ordering_Q1_rneg:
+Lemma root_ordering_Q1_rneg':
   forall x₁ y₁ r 
          (rgt0 : r < 0)
          (Q4 : 0 < y₁)
@@ -6983,11 +6850,578 @@ Proof.
   enough (θ2' < θmax'/2 + 2*PI < θ1' /\ 0 < θ2' < PI /\ 3*PI/2 < θ1' < 2* PI)
     as [[tmordlb tmordub] [[t1ordlb t1ordub] [t2ordlb t2ordub]]].
   lra.
-  apply root_ordering_Q4; try assumption.
+  apply root_ordering_Q4'; try assumption.
   lra.
 Qed.
+(* end hide *)
 
-Lemma root_ordering_rpos_left :
+(** We define functions θ1 and θ2 that compute an angular location on
+a circle of radius r, such that the line connecting that point with a
+point (x₁, y₁) is tangent to the circle. Without loss of generality,
+we consider a circle centered at (0,r). *)
+
+Definition θ1 x₁ y₁ r : R :=
+  let Q := sqrt (x₁² - (2 * r - y₁) * y₁) in
+  match (total_order_T 0 r) with
+  | inleft (left _) => (* 0 < r *)
+    match (total_order_T 0 x₁, total_order_T 0 y₁) with
+
+    | (inleft (left _), inleft (left _))   => (* 0 < x₁, 0 < y₁, Q1 *)
+      match (total_order_T 0 (2 * r - y₁)) with
+      | inleft (left _) => 2 * atan ((x₁ - Q)/(2 * r - y₁))
+      | inleft (right _) => 2 * atan (y₁/(2 * x₁))
+      | inright _ => 2 * atan ((x₁ - Q)/(2 * r - y₁))
+      end
+    | (inleft (right _), inleft (left _))   => (* 0 = x₁, 0 < y₁, Q1 *)
+      match (total_order_T 0 (2 * r - y₁)) with
+      | inleft (left _) => 2 * atan ((x₁ - Q)/(2 * r - y₁))
+      | inleft (right _) => PI
+      | inright _ => 2 * atan ((x₁ - Q)/(2 * r - y₁))
+      end
+
+    | (inleft (left _), inleft (right _))  => (* 0 < x₁, 0 = y₁ *)
+      0
+    | (inleft _, inright _)         => (* 0 <= x₁, 0 > y₁, Q4 *)
+      2 * atan ((x₁ - Q)/(2 * r - y₁)) + 2 * IZR 1 * PI
+    | (inleft (right _), inleft (right _)) => (* 0 = x₁, 0 = y₁ *)
+      0
+    | (inright _, inleft (left _))         => (* 0 > x₁, 0 < y₁, Q2 *)
+      match (total_order_T 0 (2 * r - y₁)) with
+      | inleft (left _) =>
+        2 * atan ((x₁ - Q)/(2 * r - y₁)) + 2 * IZR 1 * PI (* 2 * r - y₁ > 0 *)
+      | inleft (right _) => PI (* 2 * r - y₁ = 0 *)
+      | inright _ => 2 * atan ((x₁ - Q)/(2 * r - y₁)) (* 2 * r - y₁ < 0 *)
+      end
+    | (inright _, inleft (right _))        => (* 0 > x₁, 0 = y₁ *)
+      2 * atan ((x₁ - Q)/(2 * r - y₁)) + 2 * IZR 1 * PI
+    | (inright _, inright _)               => (* 0 > x₁, 0 > y₁, Q3 *)
+      2 * atan ((x₁ - Q)/(2 * r - y₁)) + 2 * IZR 1 * PI
+    end
+  | inleft (right _) => (* 0 = r *) 0 (* atan2 y x *)
+  | inright _ => (* 0 > r *)
+    match (total_order_T 0 x₁, total_order_T 0 y₁) with
+    | (inleft _, inleft (left _) )  => (* 0 <= x₁, 0 < y₁, Q1 *)
+      2 * atan ((x₁ - Q)/(2 * r - y₁)) - 2 * IZR 1 * PI
+    | (inleft (left _), inleft (right _))  => (* 0 < x₁, 0 = y₁ *)
+      0
+    | (inleft (left _), inright _)         => (* 0 < x₁, 0 > y₁, Q4 *)
+      match (total_order_T 0 (2 * r - y₁)) with
+      | inleft (left _) => 2 * atan ((x₁ - Q)/(2 * r - y₁)) (* 0 < 2 * r - y₁ *)
+      | inleft (right _) => 2 * atan (y₁/(2 * x₁)) (* 0 = 2 * r - y₁ *)
+      | inright _ => 2 * atan ((x₁ - Q)/(2 * r - y₁)) (* 0 > 2 * r - y₁ *)
+      end
+    | (inleft (right _), inright _)         => (* 0 = x₁, 0 > y₁, Q4 *)
+      match (total_order_T 0 (2 * r - y₁)) with
+      | inleft (left _) => 2 * atan ((x₁ - Q)/(2 * r - y₁)) (* 0 < 2 * r - y₁ *)
+      | inleft (right _) => - PI (* 0 = 2 * r - y₁ *)
+      | inright _ => 2 * atan ((x₁ - Q)/(2 * r - y₁)) (* 0 > 2 * r - y₁ *)
+      end
+    | (inleft (right _), inleft (right _)) => (* 0 = x₁, 0 = y₁ *)
+      0
+    | (inright _, inleft (left _))         => (* 0 > x₁, 0 < y₁, Q2 *)
+      2 * atan ((x₁ - Q)/(2 * r - y₁)) - 2 * IZR 1 * PI
+    | (inright _, inleft (right _))        => (* 0 > x₁, 0 = y₁ *)
+      2 * atan ((x₁ - Q)/(2 * r - y₁)) - 2 * IZR 1 * PI
+    | (inright _, inright _)               => (* 0 > x₁, 0 > y₁, Q3 *)
+      match (total_order_T 0 (2 * r - y₁)) with 
+      | inleft (left _) => 2 * atan ((x₁ - Q)/(2 * r - y₁)) (* 2 * r - y₁ > 0 *)
+      | inleft (right _) => -PI (* 2 * r - y₁ = 0 *)
+      | inright _ => 2 * atan ((x₁ - Q)/(2 * r - y₁)) - 2 * IZR 1 * PI (* 2 * r - y₁ < 0 *)
+      end
+    end
+  end.
+
+Definition θ2 x₁ y₁ r : R :=
+  let Q := sqrt (x₁² - (2 * r - y₁) * y₁) in
+  match (total_order_T 0 r) with
+  | inleft (left _) => (* 0 < r *)
+    match (total_order_T 0 x₁, total_order_T 0 y₁) with
+    | (inleft _, inleft (left _))   => (* 0 <= x₁, 0 < y₁, Q1 *)
+      match (total_order_T 0 (2 * r - y₁)) with
+      | inleft (left _) => 2 * atan ((x₁ + Q)/(2 * r - y₁))
+      | inleft (right _) => PI
+      | inright _ => 2 * atan ((x₁ + Q)/(2 * r - y₁)) + 2 * IZR 1 * PI
+      end
+    | (inleft (left _), inleft (right _))  => (* 0 < x₁, 0 = y₁ *)
+      2 * atan (x₁ / r)
+    | (inleft _, inright _)         => (* 0 <= x₁, 0 > y₁, Q4 *)
+      2 * atan ((x₁ + Q)/(2 * r - y₁))
+    | (inleft (right _), inleft (right _)) => (* 0 = x₁, 0 = y₁ *)
+      0 (* invalid position *)
+    | (inright _, inleft (left _))         => (* 0 > x₁, 0 < y₁, Q2 *)
+      match (total_order_T 0 (2 * r - y₁)) with
+      | inleft (left _) =>
+        2 * atan ((x₁ + Q)/(2 * r - y₁)) + 2 * IZR 1 * PI (* 2 * r - y₁ > 0 *)
+      | inleft (right _) => 2*atan (y₁ / (2 * x₁)) + 2 * IZR 1 * PI (* 2 * r - y₁ = 0 *)
+      | inright _ => 2 * atan ((x₁ + Q)/(2 * r - y₁)) + 2 * IZR 1 * PI (* 2 * r - y₁ < 0 *)
+      end
+    | (inright _, inleft (right _))        => (* 0 > x₁, 0 = y₁ *)
+      2 * PI
+    | (inright _, inright _)               => (* 0 > x₁, 0 > y₁, Q3 *)
+      2 * atan ((x₁ + Q)/(2 * r - y₁))
+    end
+  | inleft (right _) => (* 0 = r *) 0
+  | inright _ => (* 0 > r *)
+    match (total_order_T 0 x₁, total_order_T 0 y₁) with
+    | (inleft _, inleft (left _) )  => (* 0 <= x₁, 0 < y₁, Q1 *)
+      2 * atan ((x₁ + Q)/(2 * r - y₁))
+    | (inleft (left _), inleft (right _))  => (* 0 < x₁, 0 = y₁ *)
+      2 * atan (x₁ / r)
+    | (inleft _, inright _)         => (* 0 <= x₁, 0 > y₁, Q4 *)
+      match (total_order_T 0 (2 * r - y₁)) with
+      | inleft (left _) => 2 * atan ((x₁ + Q)/(2 * r - y₁)) - 2 * IZR 1 * PI (* 0 < 2 * r - y₁ *)
+      | inleft (right _) => -PI (* 0 = 2 * r - y₁ *)
+      | inright _ => 2 * atan ((x₁ + Q)/(2 * r - y₁)) (* 0 > 2 * r - y₁ *)
+      end
+    | (inleft (right _), inleft (right _)) => (* 0 = x₁, 0 = y₁ *)
+      0 (* invalid position *)
+    | (inright _, inleft (left _))         => (* 0 > x₁, 0 < y₁, Q2 *)
+      2 * atan ((x₁ + Q)/(2 * r - y₁))
+    | (inright _, inleft (right _))        => (* 0 > x₁, 0 = y₁ *)
+      - 2 * PI
+    | (inright _, inright _)               => (* 0 > x₁, 0 > y₁, Q3 *)
+      match (total_order_T 0 (2 * r - y₁)) with 
+      | inleft (left _) => 2 * atan ((x₁ + Q)/(2 * r - y₁)) - 2 * IZR 1 * PI (* 2 * r - y₁ > 0 *)
+      | inleft (right _) => 2*atan (y₁ / (2 * x₁)) - 2 * IZR 1 * PI (* 2 * r - y₁ = 0 *)
+      | inright _ => 2 * atan ((x₁ + Q)/(2 * r - y₁)) - 2 * IZR 1 * PI (* 2 * r - y₁ < 0 *)
+      end
+    end
+  end.
+
+Lemma root_ordering_Q1top:
+  forall x₁ y₁ r
+         (rgt0 : 0 < r)
+         (top : 2 * r - y₁ < 0 )
+         (rt : 0 <= x₁)
+         (phase : straight r 0 0 0 x₁ y₁),
+    let θmax := calcθ₁ 0 0 0 x₁ y₁ in 
+    θ1 x₁ y₁ r < θmax < θ2 x₁ y₁ r /\ 0 < θ1 x₁ y₁ r < PI  /\ PI < θ2 x₁ y₁ r < 3 * PI / 2.
+Proof.
+  intros.
+  unfold θ1, θ2.
+  destruct total_order_T as [[rgt |req] |rlt]; try lra.
+  destruct total_order_T as [xge |xlt]; try lra.
+  destruct total_order_T as [[ygt |yeq] |ylt]; try lra.
+  destruct total_order_T as [[agt |aeq] |alt]; try lra.
+
+  set (Q := sqrt (x₁² - (2 * r - y₁) * y₁)).
+  set (θ1 := 2 * atan ((x₁ - Q)/(2 * r - y₁))).
+  set (θ2 := 2 * atan ((x₁ + Q)/(2 * r - y₁)) + 2 * IZR 1 * PI).
+  assert (θ1 < θmax < θ2 /\ 0 < θ1 < PI /\ PI < θ2 < 3 * PI / 2).
+  + apply root_ordering_Q1top'; auto.
+  + destruct xge; auto.
+Qed.
+
+Lemma root_ordering_Q4top_rneg:
+  forall x₁ y₁ r
+         (rgt0 : r < 0)
+         (top : 0 < 2 * r - y₁)
+         (rt : 0 <= x₁)
+         (phase : straight r 0 0 0 x₁ y₁),
+    let θmax := calcθ₁ 0 0 0 x₁ y₁ in 
+    θ2 x₁ y₁ r < θmax < θ1 x₁ y₁ r /\ -PI < θ1 x₁ y₁ r < 0  /\ -2*PI < θ2 x₁ y₁ r < -PI.
+Proof.
+  intros.
+  unfold θ1, θ2.
+  destruct total_order_T as [[rgt |req] |rlt]; try lra.
+  destruct total_order_T as [xge |xlt]; try lra.
+  destruct total_order_T as [[ygt |yeq] |ylt]; try lra.
+  destruct total_order_T as [[agt |aeq] |alt]; try lra.
+
+  set (Q := sqrt (x₁² - (2 * r - y₁) * y₁)).
+  set (θ1 := 2 * atan ((x₁ - Q)/(2 * r - y₁))).
+  set (θ2 := 2 * atan ((x₁ + Q)/(2 * r - y₁)) - 2 * IZR 1 * PI).
+  assert (θ2 < θmax < θ1 /\ - PI < θ1 < 0 /\ -2 * PI < θ2 < - PI).
+  + apply root_ordering_Q4top_rneg'; auto.
+  + destruct xge; auto.
+Qed.
+
+Lemma root_ordering_Q1arm:
+  forall x₁ y₁ r
+         (rgt0 : 0 < r)
+         (bot : 0 = 2 * r - y₁)
+         (Q1 : 0 < y₁)
+         (rt : 0 < x₁)
+         (phase : straight r 0 0 0 x₁ y₁),
+    let θmax := calcθ₁ 0 0 0 x₁ y₁ in
+    θ1 x₁ y₁ r < θmax < θ2 x₁ y₁ r /\ 0 < θ1 x₁ y₁ r < PI.
+Proof.
+  intros.
+  unfold θ1, θ2.
+  destruct total_order_T as [[rgt |req] |rlt]; try lra.
+  destruct total_order_T as [[xgt |xeq] |xlt]; try lra.
+  destruct total_order_T as [[ygt |yeq] |ylt]; try lra.
+  destruct total_order_T as [[agt |aeq] |alt]; try lra.
+
+  set (Q := sqrt (x₁² - (2 * r - y₁) * y₁)).
+  set (θ1 := 2 * atan (y₁/(2 * x₁))).
+  set (θ2 := PI).
+  unfold θ2 at 2.
+  assert (θ1 < θmax < θ2 /\ 0 < θ1 < PI).
+  + eapply (root_ordering_Q1arm' _ _ _ rgt bot ygt); auto.
+  + assumption.
+Qed.
+
+
+Lemma root_ordering_Q4arm_rneg:
+  forall x₁ y₁ r
+         (rgt0 : r < 0)
+         (bot : 0 = 2 * r - y₁)
+         (Q1 : y₁ < 0)
+         (rt : 0 < x₁)
+         (phase : straight r 0 0 0 x₁ y₁),
+    let θmax := calcθ₁ 0 0 0 x₁ y₁ in
+    θ2 x₁ y₁ r < θmax < θ1 x₁ y₁ r /\ -PI < θ1 x₁ y₁ r < 0.
+Proof.
+  intros.
+  unfold θ1, θ2.
+  destruct total_order_T as [[rgt |req] |rlt]; try lra.
+  destruct total_order_T as [[xgt |xeq] |xlt]; try lra.
+  destruct total_order_T as [[ygt |yeq] |ylt]; try lra.
+  destruct total_order_T as [[agt |aeq] |alt]; try lra.
+
+  set (θ1 := 2 * atan (y₁/(2 * x₁))).
+  set (θ2 := - PI).
+  unfold θ2 at 2.
+  assert (θ2 < θmax < θ1 /\ - PI < θ1 < 0).
+  + apply (root_ordering_Q4arm_rneg' _ _ _ rlt bot ylt xgt); auto.
+  + assumption.
+Qed.
+
+Lemma root_ordering_Q1bot:
+  forall x₁ y₁ r
+         (rgt0 : 0 < r)
+         (bot : 0 < 2 * r - y₁)
+         (Q1 : 0 < y₁)
+         (rt : 0 < x₁)
+         (phase : straight r 0 0 0 x₁ y₁),
+    let θmax := calcθ₁ 0 0 0 x₁ y₁ in
+    θ1 x₁ y₁ r < θmax < θ2 x₁ y₁ r /\ 0 < θ1 x₁ y₁ r < PI /\ 0 < θ2 x₁ y₁ r < PI.
+Proof.
+  intros.
+  unfold θ1, θ2.
+  destruct total_order_T as [[rgt |req] |rlt]; try lra.
+  destruct total_order_T as [[xgt |xeq] |xlt]; try lra.
+  destruct total_order_T as [[ygt |yeq] |ylt]; try lra.
+  destruct total_order_T as [[agt |aeq] |alt]; try lra.
+
+  set (Q := sqrt (x₁² - (2 * r - y₁) * y₁)).
+  set (θ1 := 2 * atan ((x₁ - Q)/(2 * r - y₁))).
+  set (θ2 := 2 * atan ((x₁ + Q)/(2 * r - y₁))).
+
+  assert (θ1 < θmax < θ2 /\ 0 < θ1 < PI /\ 0 < θ2 < PI).
+  + apply (root_ordering_Q1bot' _ _ _ rgt agt); auto.
+  + assumption.
+Qed.
+
+Lemma root_ordering_Q4bot_rneg:
+  forall x₁ y₁ r
+         (rgt0 : r < 0)
+         (bot : 2 * r - y₁ < 0)
+         (Q1 : y₁ < 0)
+         (rt : 0 < x₁)
+         (phase : straight r 0 0 0 x₁ y₁),
+    let θmax := calcθ₁ 0 0 0 x₁ y₁ in
+    θ2 x₁ y₁ r < θmax < θ1 x₁ y₁ r /\ -PI < θ1 x₁ y₁ r < 0 /\ -PI < θ2 x₁ y₁ r < 0.
+Proof.
+  intros.
+  unfold θ1, θ2.
+  destruct total_order_T as [[rgt |req] |rlt]; try lra.
+  destruct total_order_T as [[xgt |xeq] |xlt]; try lra.
+  destruct total_order_T as [[ygt |yeq] |ylt]; try lra.
+  destruct total_order_T as [[agt |aeq] |alt]; try lra.
+
+  set (Q := sqrt (x₁² - (2 * r - y₁) * y₁)).
+  set (θ1 := 2 * atan ((x₁ - Q)/(2 * r - y₁))).
+  set (θ2 := 2 * atan ((x₁ + Q)/(2 * r - y₁))).
+
+  assert (θ2 < θmax < θ1 /\ - PI < θ1 < 0 /\ - PI < θ2 < 0).
+  + apply (root_ordering_Q4bot_rneg'); auto.
+  + assumption.
+Qed.
+
+Lemma root_ordering_Q2top:
+  forall x₁ y₁ r 
+         (rgt0 : 0 < r)
+         (top : 2 * r - y₁ < 0)
+         (lf : x₁ <= 0)
+         (phase : straight r 0 0 0 x₁ y₁),
+    let θmax := calcθ₁ 0 0 0 x₁ y₁ in
+    θ1 x₁ y₁ r < θmax < θ2 x₁ y₁ r /\ PI / 2 < θ1 x₁ y₁ r < PI /\ PI < θ2 x₁ y₁ r < 2 * PI. 
+Proof.
+  intros.
+  unfold θ1, θ2.
+  destruct total_order_T as [[rgt |req] |rlt]; try lra.
+  destruct (total_order_T 0 y₁) as [[ygt |yeq] |ylt]; try lra.
+  destruct (total_order_T 0 (2 * r - y₁)) as [[agt |aeq] |alt]; try lra.
+
+  set (Q := sqrt (x₁² - (2 * r - y₁) * y₁)).
+  set (θ1 := 2 * atan ((x₁ - Q)/(2 * r - y₁))).
+  set (θ2 := 2 * atan ((x₁ + Q)/(2 * r - y₁)) + 2 * IZR 1 * PI).
+
+  assert (θ1 < θmax < θ2 /\ PI / 2 < θ1 < PI /\ PI < θ2 < 2 * PI).
+  + apply (root_ordering_Q2top'); auto.
+  + destruct total_order_T as [[xgt |xeq] |xlt]; try assumption.
+Qed.
+
+Lemma root_ordering_Q3top_rneg:
+  forall x₁ y₁ r 
+         (rgt0 : r < 0)
+         (top : 0 < 2 * r - y₁)
+         (lf : x₁ <= 0)
+         (phase : straight r 0 0 0 x₁ y₁),
+    let θmax := calcθ₁ 0 0 0 x₁ y₁ in
+    θ2 x₁ y₁ r < θmax < θ1 x₁ y₁ r /\ -PI < θ1 x₁ y₁ r < 0 /\ - 2 * PI < θ2 x₁ y₁ r < - PI.
+Proof.
+  intros.
+  unfold θ1, θ2.
+  destruct total_order_T as [[rgt |req] |rlt]; try lra.
+  destruct (total_order_T 0 y₁) as [[ygt |yeq] |ylt]; try lra.
+  destruct (total_order_T 0 (2 * r - y₁)) as [[agt |aeq] |alt]; try lra.
+
+  set (Q := sqrt (x₁² - (2 * r - y₁) * y₁)).
+  set (θ1 := 2 * atan ((x₁ - Q)/(2 * r - y₁))).
+  set (θ2 := 2 * atan ((x₁ + Q)/(2 * r - y₁)) - 2 * IZR 1 * PI).
+
+  assert (θ2 < θmax < θ1 /\ - PI < θ1 < 0 /\ -2 * PI < θ2 < - PI).
+  + apply (root_ordering_Q3top_rneg'); auto.
+  + destruct total_order_T as [[xgt |xeq] |xlt]; try assumption.
+Qed.
+
+Lemma root_ordering_Q2arm:
+  forall x₁ y₁ r 
+         (rgt0 : 0 < r)
+         (top : 2 * r - y₁ = 0)
+         (lf : x₁ < 0)
+         (phase : straight r 0 0 0 x₁ y₁),
+    let θmax := calcθ₁ 0 0 0 x₁ y₁ in
+    θ1 x₁ y₁ r < θmax < θ2 x₁ y₁ r /\ PI < θ2 x₁ y₁ r < 2*PI.
+Proof.
+  intros.
+  unfold θ1, θ2.
+  destruct total_order_T as [[rgt |req] |rlt]; try lra.
+  destruct total_order_T as [[xgt |xeq] |xlt]; try lra.
+  destruct (total_order_T 0 y₁) as [[ygt |yeq] |ylt]; try lra.
+  destruct (total_order_T 0 (2 * r - y₁)) as [[agt |aeq] |alt]; try lra.
+
+  set (θ2 := 2*atan (y₁ / (2 * x₁)) + 2 * IZR 1 * PI).
+  set (θ1 := PI).
+  unfold θ1 at 2 3.
+  assert (x₁ <= 0) as xle0; try lra.
+  apply (root_ordering_Q2arm' _ _ _ rgt top xle0); auto.
+Qed.
+
+Lemma root_ordering_Q3arm_rneg:
+  forall x₁ y₁ r 
+         (rgt0 : r < 0)
+         (top : 2 * r - y₁ = 0)
+         (lf : x₁ < 0)
+         (phase : straight r 0 0 0 x₁ y₁),
+    let θmax := calcθ₁ 0 0 0 x₁ y₁ in
+    θ2 x₁ y₁ r < θmax < θ1 x₁ y₁ r /\ -2 * PI < θ2 x₁ y₁ r < - PI.
+Proof.
+  intros.
+  unfold θ1, θ2.
+  destruct total_order_T as [[rgt |req] |rlt]; try lra.
+  destruct total_order_T as [[xgt |xeq] |xlt]; try lra.
+  destruct (total_order_T 0 y₁) as [[ygt |yeq] |ylt]; try lra.
+  destruct (total_order_T 0 (2 * r - y₁)) as [[agt |aeq] |alt]; try lra.
+
+  set (θ2 := 2*atan (y₁ / (2 * x₁)) - 2 * IZR 1 * PI).
+  set (θ1 := - PI).
+  unfold θ1 at 2.
+  assert (x₁ <= 0) as xle0; try lra.
+  
+  apply (root_ordering_Q3arm_rneg' _ _ _ rlt top xle0); auto.
+Qed.
+
+Lemma root_ordering_Q2bot:
+  forall x₁ y₁ r 
+         (rgt0 : 0 < r)
+         (bot : 0 < 2 * r - y₁)
+         (Q2 : 0 < y₁)
+         (lf : x₁ < 0)
+         (phase : straight r 0 0 0 x₁ y₁),
+    let θmax := calcθ₁ 0 0 0 x₁ y₁ in
+    θ1 x₁ y₁ r < θmax < θ2 x₁ y₁ r /\ PI < θ1 x₁ y₁ r < 2*PI /\ PI < θ2 x₁ y₁ r < 2*PI.
+Proof.
+  intros.
+  unfold θ1, θ2.
+  destruct total_order_T as [[rgt |req] |rlt]; try lra.
+  destruct total_order_T as [[xgt |xeq] |xlt]; try lra.
+  destruct total_order_T as [[ygt |yeq] |ylt]; try lra.
+  destruct total_order_T as [[agt |aeq] |alt]; try lra.
+
+  set (Q := sqrt (x₁² - (2 * r - y₁) * y₁)).
+  set (θ1 := 2 * atan ((x₁ - Q)/(2 * r - y₁)) + 2 * IZR 1 * PI).
+  set (θ2 := 2 * atan ((x₁ + Q)/(2 * r - y₁)) + 2 * IZR 1 * PI).
+
+  apply (root_ordering_Q2bot'); auto.
+Qed.
+
+Lemma root_ordering_Q3bot_rneg:
+  forall x₁ y₁ r 
+         (rgt0 : r < 0)
+         (bot : 2 * r - y₁ < 0)
+         (Q2 : y₁ < 0)
+         (lf : x₁ < 0)
+         (phase : straight r 0 0 0 x₁ y₁),
+    let θmax := calcθ₁ 0 0 0 x₁ y₁ in
+    θ2 x₁ y₁ r < θmax < θ1 x₁ y₁ r /\ -2 * PI < θ1 x₁ y₁ r < - PI /\ -2 * PI < θ2 x₁ y₁ r < -PI.
+Proof.
+  intros.
+  unfold θ1, θ2.
+  destruct total_order_T as [[rgt |req] |rlt]; try lra.
+  destruct total_order_T as [[xgt |xeq] |xlt]; try lra.
+  destruct total_order_T as [[ygt |yeq] |ylt]; try lra.
+  destruct total_order_T as [[agt |aeq] |alt]; try lra.
+
+  set (Q := sqrt (x₁² - (2 * r - y₁) * y₁)).
+  set (θ1 := 2 * atan ((x₁ - Q)/(2 * r - y₁)) - 2 * IZR 1 * PI).
+  set (θ2 := 2 * atan ((x₁ + Q)/(2 * r - y₁)) - 2 * IZR 1 * PI).
+
+  apply (root_ordering_Q3bot_rneg'); auto.
+Qed.
+
+Lemma root_ordering_nxarm:
+  forall x₁ y₁ r 
+         (rgt0 : 0 < r)
+         (top : y₁ = 0)
+         (lf : x₁ < 0)
+         (phase : straight r 0 0 0 x₁ y₁),
+    let θmax := calcθ₁ 0 0 0 x₁ y₁ in
+    θ1 x₁ y₁ r < θmax /\ θmax = θ2 x₁ y₁ r /\ PI < θ1 x₁ y₁ r < 2 * PI.
+Proof.
+  intros.
+  unfold θ1, θ2.
+  destruct total_order_T as [[rgt |req] |rlt]; try lra.
+  destruct total_order_T as [[xgt |xeq] |xlt]; try lra.
+  destruct total_order_T as [[ygt |yeq] |ylt]; try lra.
+
+  set (Q := sqrt (x₁² - (2 * r - y₁) * y₁)).
+  set (θ1 := 2 * atan ((x₁ - Q)/(2 * r - y₁)) + 2 * IZR 1 * PI).
+  set (θ2 := 2*PI).
+
+  apply (root_ordering_nxarm'); auto.
+Qed.
+
+Lemma root_ordering_nxarm_rneg:
+  forall x₁ y₁ r 
+         (rgt0 : r < 0)
+         (top : y₁ = 0)
+         (lf : x₁ < 0)
+         (phase : straight r 0 0 0 x₁ y₁),
+    let θmax := calcθ₁ 0 0 0 x₁ y₁ in
+    - θmax < θ1 x₁ y₁ r /\ - θmax = θ2 x₁ y₁ r /\ -2*PI < θ1 x₁ y₁ r < -PI.
+Proof.
+  intros.
+  unfold θ1, θ2.
+  destruct total_order_T as [[rgt |req] |rlt]; try lra.
+  destruct total_order_T as [[xgt |xeq] |xlt]; try lra.
+  destruct total_order_T as [[ygt |yeq] |ylt]; try lra.
+
+  set (Q := sqrt (x₁² - (2 * r - y₁) * y₁)).
+  set (θ1 := 2 * atan ((x₁ - Q)/(2 * r - y₁)) - 2 * IZR 1 * PI).
+  set (θ2 := - 2*PI).
+
+  apply (root_ordering_nxarm_rneg'); auto.
+Qed.
+
+Lemma root_ordering_Q3:
+  forall x₁ y₁ r 
+         (rgt0 : 0 < r)
+         (Q3 : y₁ < 0)
+         (lf : x₁ <= 0)
+         (phase : straight r 0 0 0 x₁ y₁),
+    let θmax := calcθ₁ 0 0 0 x₁ y₁ in
+    θ2 x₁ y₁ r < θmax/2 + 2 * PI < θ1 x₁ y₁ r /\  0 < θ2 x₁ y₁ r < PI / 2 /\ PI < θ1 x₁ y₁ r < 2*PI.
+Proof.
+  intros.
+  unfold θ1, θ2.
+  destruct total_order_T as [[rgt |req] |rlt]; try lra.
+  destruct (total_order_T 0 y₁) as [[ygt |yeq] |ylt]; try lra.
+
+  set (Q := sqrt (x₁² - (2 * r - y₁) * y₁)).
+  set (θ1 := 2 * atan ((x₁ - Q)/(2 * r - y₁)) + 2 * IZR 1 * PI).
+  set (θ2 := 2 * atan ((x₁ + Q)/(2 * r - y₁))).
+
+  assert (θ2 < θmax / 2 + 2 * PI < θ1 /\ 0 < θ2 < PI / 2 /\ PI < θ1 < 2 * PI).
+  + apply (root_ordering_Q3'); auto.
+  + destruct total_order_T as [[xgt |xeq] |xlt]; assumption.
+Qed.
+
+
+Lemma root_ordering_Q2_rneg:
+  forall x₁ y₁ r 
+         (rgt0 : r < 0)
+         (Q3 : 0 < y₁)
+         (lf : x₁ <= 0)
+         (phase : straight r 0 0 0 x₁ y₁),
+    let θmax := calcθ₁ 0 0 0 x₁ y₁ in
+    θ1 x₁ y₁ r < θmax/2 - 2 * PI < θ2 x₁ y₁ r /\  -PI/2 < θ2 x₁ y₁ r < 0 /\ -2*PI < θ1 x₁ y₁ r < -PI.
+Proof.
+  intros.
+  unfold θ1, θ2.
+  destruct total_order_T as [[rgt |req] |rlt]; try lra.
+  destruct (total_order_T 0 y₁) as [[ygt |yeq] |ylt]; try lra.
+
+  set (Q := sqrt (x₁² - (2 * r - y₁) * y₁)).
+  set (θ1 := 2 * atan ((x₁ - Q)/(2 * r - y₁)) - 2 * IZR 1 * PI).
+  set (θ2 := 2 * atan ((x₁ + Q)/(2 * r - y₁))).
+
+  assert (θ1 < θmax / 2 - 2 * PI < θ2 /\ - PI / 2 < θ2 < 0 /\ -2 * PI < θ1 < - PI).
+  + apply (root_ordering_Q2_rneg'); auto.
+  + destruct total_order_T as [[xgt |xeq] |xlt]; assumption.
+Qed.
+
+
+Lemma root_ordering_Q4:
+  forall x₁ y₁ r 
+         (rgt0 : 0 < r)
+         (Q4 : y₁ < 0)
+         (rt : 0 <= x₁)
+         (phase : straight r 0 0 0 x₁ y₁),
+    let θmax := calcθ₁ 0 0 0 x₁ y₁ in
+    θ2 x₁ y₁ r < θmax/2 + 2 * PI < θ1 x₁ y₁ r /\ 0 < θ2 x₁ y₁ r < PI /\ 3*PI/2 < θ1 x₁ y₁ r < 2*PI.
+Proof.
+  intros.
+  unfold θ1, θ2.
+  destruct total_order_T as [[rgt |req] |rlt]; try lra.
+  destruct (total_order_T 0 y₁) as [[ygt |yeq] |ylt]; try lra.
+
+  set (Q := sqrt (x₁² - (2 * r - y₁) * y₁)).
+  set (θ1 := 2 * atan ((x₁ - Q)/(2 * r - y₁)) + 2 * IZR 1 * PI).
+  set (θ2 := 2 * atan ((x₁ + Q)/(2 * r - y₁))).
+
+  assert (θ2 < θmax / 2 + 2 * PI < θ1 /\ 0 < θ2 < PI /\ 3 * PI / 2 < θ1 < 2 * PI).
+  + apply (root_ordering_Q4'); auto.
+  + destruct total_order_T as [[xgt |xeq] |xlt]; assumption.
+Qed.
+
+Lemma root_ordering_Q1_rneg:
+  forall x₁ y₁ r 
+         (rgt0 : r < 0)
+         (Q4 : 0 < y₁)
+         (rt : 0 <= x₁)
+         (phase : straight r 0 0 0 x₁ y₁),
+    let θmax := calcθ₁ 0 0 0 x₁ y₁ in
+    θ1 x₁ y₁ r < θmax/2 - 2 * PI < θ2 x₁ y₁ r /\ -PI < θ2 x₁ y₁ r < 0 /\ -2*PI < θ1 x₁ y₁ r < -3*PI/2.
+Proof.
+  intros.
+  unfold θ1, θ2.
+  destruct total_order_T as [[rgt |req] |rlt]; try lra.
+  destruct (total_order_T 0 y₁) as [[ygt |yeq] |ylt]; try lra.
+
+  set (Q := sqrt (x₁² - (2 * r - y₁) * y₁)).
+  set (θ1 := 2 * atan ((x₁ - Q)/(2 * r - y₁)) - 2 * IZR 1 * PI).
+  set (θ2 := 2 * atan ((x₁ + Q)/(2 * r - y₁))).
+
+  assert (θ1 < θmax / 2 - 2 * PI < θ2 /\ - PI < θ2 < 0 /\ -2 * PI < θ1 < -3 * PI / 2).
+  + apply (root_ordering_Q1_rneg'); auto.
+  + destruct total_order_T as [[xgt |xeq] |xlt]; assumption.
+Qed.
+
+Lemma root_ordering_rpos_left:
   forall x₁ y₁ r
          (rgt0 : 0 < r)
          (ygt0 : 0 < y₁)
@@ -7006,9 +7440,9 @@ Proof.
   destruct s.
   destruct (total_order_T 0 (2 * r - y₁)).
   destruct s.
-  apply root_ordering_Q1bot; try assumption.
-  apply (root_ordering_Q1arm _ _ _ rgt0 e r2 r1 phase).
-  apply root_ordering_Q1top; try assumption. 
+  apply root_ordering_Q1bot'; try assumption.
+  apply (root_ordering_Q1arm' _ _ _ rgt0 e r2 r1 phase).
+  apply root_ordering_Q1top'; try assumption. 
   exfalso. rewrite <- e in ygt0. clear - ygt0. lra.
   exfalso. clear - ygt0 r2. lra.
   destruct (total_order_T 0 y₁).
@@ -7051,7 +7485,7 @@ Proof.
   rewrite <- e0, Rmult_0_r in phase. 
   clear - phase. lra.
 
-  apply root_ordering_Q1top; try assumption. 
+  apply root_ordering_Q1top'; try assumption. 
   
   exfalso.
   lra.
@@ -7063,12 +7497,12 @@ Proof.
   destruct (total_order_T 0 (2 * r - y₁)).
   destruct s.
 
-  apply root_ordering_Q2bot; try assumption.
+  apply root_ordering_Q2bot'; try assumption.
   symmetry in e.
   assert (x₁ <= 0) as x1le0. lra.
 
-  apply (root_ordering_Q2arm _ _ _ rgt0); try assumption.
-  apply root_ordering_Q2top; try assumption. left. assumption.
+  apply (root_ordering_Q2arm' _ _ _ rgt0); try assumption.
+  apply root_ordering_Q2top'; try assumption. left. assumption.
 
   exfalso. rewrite <- e in ygt0. clear - ygt0. lra.
   exfalso. clear - ygt0 r2. lra.
@@ -7101,9 +7535,9 @@ Proof.
   clear r1.
   destruct (total_order_T 0 (2 * r - y₁)).
   destruct s.
-  apply root_ordering_Q4top_rneg; try assumption.
-  apply (root_ordering_Q4arm_rneg _ _ _ rgt0 e ygt0 r0 phase).
-  apply root_ordering_Q4bot_rneg; try assumption. 
+  apply root_ordering_Q4top_rneg'; try assumption.
+  apply (root_ordering_Q4arm_rneg' _ _ _ rgt0 e ygt0 r0 phase).
+  apply root_ordering_Q4bot_rneg'; try assumption. 
 
 
   destruct (total_order_T 0 y₁).
@@ -7113,7 +7547,7 @@ Proof.
   clear r0.
   destruct (total_order_T 0 (2 * r - y₁)).
   destruct s.
-  apply root_ordering_Q4top_rneg; try assumption.
+  apply root_ordering_Q4top_rneg'; try assumption.
 
   exfalso. apply (straight_std_impl_ineq) in phase.
   rewrite <- e, Rsqr_0, Rplus_0_l, Rsqr_minus in phase.
@@ -7132,7 +7566,7 @@ Proof.
   rewrite <- e0, Rmult_0_r in phase. 
   clear - phase. lra.
 
-  apply root_ordering_Q4bot_rneg; try assumption. 
+  apply root_ordering_Q4bot_rneg'; try assumption. 
 
   exfalso. apply (straight_std_impl_ineq) in phase.
   rewrite <- e, Rsqr_0, Rplus_0_l, Rsqr_minus in phase.
@@ -7165,10 +7599,10 @@ Proof.
   destruct s.
 
   apply Rgt_lt in r1.
-  apply (root_ordering_Q3top_rneg); try assumption. left; assumption.
+  apply (root_ordering_Q3top_rneg'); try assumption. left; assumption.
   symmetry in e.
-  apply (root_ordering_Q3arm_rneg _ _ _ rgt0); try assumption. left; assumption.
-  apply root_ordering_Q3bot_rneg; try assumption.
+  apply (root_ordering_Q3arm_rneg' _ _ _ rgt0); try assumption. left; assumption.
+  apply root_ordering_Q3bot_rneg'; try assumption.
 Qed.
 
 Lemma root_ordering_rpos_right :
@@ -7191,7 +7625,7 @@ Proof.
   exfalso. clear - r2 ygt0. lra.
   exfalso. rewrite <- e in ygt0. clear - ygt0. lra.
   clear r2.
-  apply root_ordering_Q4; try assumption. left. assumption.
+  apply root_ordering_Q4'; try assumption. left. assumption.
 
   destruct (total_order_T 0 y₁).
   destruct s.
@@ -7200,13 +7634,13 @@ Proof.
   clear r1 r0.
 
   assert (0 <= x₁) as zlex1. right; assumption.
-  apply root_ordering_Q4; try assumption.
+  apply root_ordering_Q4'; try assumption.
   destruct (total_order_T 0 y₁).
   destruct s.
 
   exfalso. clear - r2 ygt0. lra.
   exfalso. rewrite <- e in ygt0. clear - ygt0. lra.
-  apply root_ordering_Q3; try assumption. left. assumption.
+  apply root_ordering_Q3'; try assumption. left. assumption.
 
   exfalso. rewrite <- e in rgt0. clear - rgt0. lra.
   exfalso. clear - r0 rgt0. lra.
@@ -7235,13 +7669,13 @@ Proof.
   destruct s.
 
   clear r1.
-  apply root_ordering_Q1_rneg; try assumption. left. assumption.
+  apply root_ordering_Q1_rneg'; try assumption. left. assumption.
   exfalso. rewrite <- e in ygt0. clear - ygt0. lra.
   exfalso. clear - r1 ygt0. lra.
   assert (0 <= x₁) as zlex1. right; assumption.
   destruct (total_order_T 0 y₁).
   destruct s.
-  apply root_ordering_Q1_rneg; try assumption. 
+  apply root_ordering_Q1_rneg'; try assumption. 
   exfalso. lra.
   exfalso. clear - r0 ygt0. lra.
 
@@ -7249,7 +7683,7 @@ Proof.
   destruct s.
   clear r1.
 
-  apply root_ordering_Q2_rneg; try assumption. left; assumption.
+  apply root_ordering_Q2_rneg'; try assumption. left; assumption.
 
   exfalso. rewrite <- e in ygt0. clear - ygt0. lra.
   exfalso. clear - r1 ygt0. lra.
@@ -7289,7 +7723,7 @@ Proof.
   destruct s.
   exfalso. rewrite yeq0 in r1. clear - r1. lra.
   clear e.
-  specialize (root_ordering_nxarm_rneg _ _ _ rgt0 yeq0 r0 phase) as [ronxa1 [ronxa2 ronxa3]].
+  specialize (root_ordering_nxarm_rneg' _ _ _ rgt0 yeq0 r0 phase) as [ronxa1 [ronxa2 ronxa3]].
   split; assumption.
   exfalso. rewrite yeq0 in r1. clear - r1. lra.
 Qed.
@@ -7326,7 +7760,7 @@ Proof.
   destruct s.
   exfalso. rewrite yeq0 in r1. clear - r1. lra.
   clear e.
-  specialize (root_ordering_nxarm _ _ _ rgt0 yeq0 r0 phase) as [ronxa1 [ronxa2 ronxa3]].
+  specialize (root_ordering_nxarm' _ _ _ rgt0 yeq0 r0 phase) as [ronxa1 [ronxa2 ronxa3]].
   split; assumption.
   exfalso. rewrite yeq0 in r1. clear - r1. lra.
 
@@ -10977,6 +11411,7 @@ Ltac kpt1t2h1 k :=
 
 
 (* end hide *)
+
 Lemma k_prime_theta1_theta2 :
   forall x y r θ
          (rne0 : r <> 0)
