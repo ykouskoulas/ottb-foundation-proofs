@@ -3510,6 +3510,140 @@ Proof.
     clear - faltfa. lra.
 Qed.
 
+(** We define functions θ1 and θ2 that compute an angular location on
+a circle of radius r, such that the line connecting that point with a
+point (x₁, y₁) is tangent to the circle. Without loss of generality,
+we consider a circle centered at (0,r). *)
+
+Definition θ1 x₁ y₁ r : R :=
+  let Q := sqrt (x₁² - (2 * r - y₁) * y₁) in
+  match (total_order_T 0 r) with
+  | inleft (left _) => (* 0 < r *)
+    match (total_order_T 0 x₁, total_order_T 0 y₁) with
+
+    | (inleft (left _), inleft (left _))   => (* 0 < x₁, 0 < y₁, Q1 *)
+      match (total_order_T 0 (2 * r - y₁)) with
+      | inleft (left _) => 2 * atan ((x₁ - Q)/(2 * r - y₁))
+      | inleft (right _) => 2 * atan (y₁/(2 * x₁))
+      | inright _ => 2 * atan ((x₁ - Q)/(2 * r - y₁))
+      end
+    | (inleft (right _), inleft (left _))   => (* 0 = x₁, 0 < y₁, Q1 *)
+      match (total_order_T 0 (2 * r - y₁)) with
+      | inleft (left _) => 2 * atan ((x₁ - Q)/(2 * r - y₁))
+      | inleft (right _) => PI
+      | inright _ => 2 * atan ((x₁ - Q)/(2 * r - y₁))
+      end
+
+    | (inleft (left _), inleft (right _))  => (* 0 < x₁, 0 = y₁ *)
+      0
+    | (inleft _, inright _)         => (* 0 <= x₁, 0 > y₁, Q4 *)
+      2 * atan ((x₁ - Q)/(2 * r - y₁)) + 2 * IZR 1 * PI
+    | (inleft (right _), inleft (right _)) => (* 0 = x₁, 0 = y₁ *)
+      0
+    | (inright _, inleft (left _))         => (* 0 > x₁, 0 < y₁, Q2 *)
+      match (total_order_T 0 (2 * r - y₁)) with
+      | inleft (left _) =>
+        2 * atan ((x₁ - Q)/(2 * r - y₁)) + 2 * IZR 1 * PI (* 2 * r - y₁ > 0 *)
+      | inleft (right _) => PI (* 2 * r - y₁ = 0 *)
+      | inright _ => 2 * atan ((x₁ - Q)/(2 * r - y₁)) (* 2 * r - y₁ < 0 *)
+      end
+    | (inright _, inleft (right _))        => (* 0 > x₁, 0 = y₁ *)
+      2 * atan ((x₁ - Q)/(2 * r - y₁)) + 2 * IZR 1 * PI
+    | (inright _, inright _)               => (* 0 > x₁, 0 > y₁, Q3 *)
+      2 * atan ((x₁ - Q)/(2 * r - y₁)) + 2 * IZR 1 * PI
+    end
+  | inleft (right _) => (* 0 = r *) 0 (* atan2 y x *)
+  | inright _ => (* 0 > r *)
+    match (total_order_T 0 x₁, total_order_T 0 y₁) with
+    | (inleft _, inleft (left _) )  => (* 0 <= x₁, 0 < y₁, Q1 *)
+      2 * atan ((x₁ - Q)/(2 * r - y₁)) - 2 * IZR 1 * PI
+    | (inleft (left _), inleft (right _))  => (* 0 < x₁, 0 = y₁ *)
+      0
+    | (inleft (left _), inright _)         => (* 0 < x₁, 0 > y₁, Q4 *)
+      match (total_order_T 0 (2 * r - y₁)) with
+      | inleft (left _) => 2 * atan ((x₁ - Q)/(2 * r - y₁)) (* 0 < 2 * r - y₁ *)
+      | inleft (right _) => 2 * atan (y₁/(2 * x₁)) (* 0 = 2 * r - y₁ *)
+      | inright _ => 2 * atan ((x₁ - Q)/(2 * r - y₁)) (* 0 > 2 * r - y₁ *)
+      end
+    | (inleft (right _), inright _)         => (* 0 = x₁, 0 > y₁, Q4 *)
+      match (total_order_T 0 (2 * r - y₁)) with
+      | inleft (left _) => 2 * atan ((x₁ - Q)/(2 * r - y₁)) (* 0 < 2 * r - y₁ *)
+      | inleft (right _) => - PI (* 0 = 2 * r - y₁ *)
+      | inright _ => 2 * atan ((x₁ - Q)/(2 * r - y₁)) (* 0 > 2 * r - y₁ *)
+      end
+    | (inleft (right _), inleft (right _)) => (* 0 = x₁, 0 = y₁ *)
+      0
+    | (inright _, inleft (left _))         => (* 0 > x₁, 0 < y₁, Q2 *)
+      2 * atan ((x₁ - Q)/(2 * r - y₁)) - 2 * IZR 1 * PI
+    | (inright _, inleft (right _))        => (* 0 > x₁, 0 = y₁ *)
+      2 * atan ((x₁ - Q)/(2 * r - y₁)) - 2 * IZR 1 * PI
+    | (inright _, inright _)               => (* 0 > x₁, 0 > y₁, Q3 *)
+      match (total_order_T 0 (2 * r - y₁)) with 
+      | inleft (left _) => 2 * atan ((x₁ - Q)/(2 * r - y₁)) (* 2 * r - y₁ > 0 *)
+      | inleft (right _) => -PI (* 2 * r - y₁ = 0 *)
+      | inright _ => 2 * atan ((x₁ - Q)/(2 * r - y₁)) - 2 * IZR 1 * PI (* 2 * r - y₁ < 0 *)
+      end
+    end
+  end.
+
+Definition θ2 x₁ y₁ r : R :=
+  let Q := sqrt (x₁² - (2 * r - y₁) * y₁) in
+  match (total_order_T 0 r) with
+  | inleft (left _) => (* 0 < r *)
+    match (total_order_T 0 x₁, total_order_T 0 y₁) with
+    | (inleft _, inleft (left _))   => (* 0 <= x₁, 0 < y₁, Q1 *)
+      match (total_order_T 0 (2 * r - y₁)) with
+      | inleft (left _) => 2 * atan ((x₁ + Q)/(2 * r - y₁))
+      | inleft (right _) => PI
+      | inright _ => 2 * atan ((x₁ + Q)/(2 * r - y₁)) + 2 * IZR 1 * PI
+      end
+    | (inleft (left _), inleft (right _))  => (* 0 < x₁, 0 = y₁ *)
+      2 * atan (x₁ / r)
+    | (inleft _, inright _)         => (* 0 <= x₁, 0 > y₁, Q4 *)
+      2 * atan ((x₁ + Q)/(2 * r - y₁))
+    | (inleft (right _), inleft (right _)) => (* 0 = x₁, 0 = y₁ *)
+      0 (* invalid position *)
+    | (inright _, inleft (left _))         => (* 0 > x₁, 0 < y₁, Q2 *)
+      match (total_order_T 0 (2 * r - y₁)) with
+      | inleft (left _) =>
+        2 * atan ((x₁ + Q)/(2 * r - y₁)) + 2 * IZR 1 * PI (* 2 * r - y₁ > 0 *)
+      | inleft (right _) => 2*atan (y₁ / (2 * x₁)) + 2 * IZR 1 * PI (* 2 * r - y₁ = 0 *)
+      | inright _ => 2 * atan ((x₁ + Q)/(2 * r - y₁)) + 2 * IZR 1 * PI (* 2 * r - y₁ < 0 *)
+      end
+    | (inright _, inleft (right _))        => (* 0 > x₁, 0 = y₁ *)
+      2 * PI
+    | (inright _, inright _)               => (* 0 > x₁, 0 > y₁, Q3 *)
+      2 * atan ((x₁ + Q)/(2 * r - y₁))
+    end
+  | inleft (right _) => (* 0 = r *) 0
+  | inright _ => (* 0 > r *)
+    match (total_order_T 0 x₁, total_order_T 0 y₁) with
+    | (inleft _, inleft (left _) )  => (* 0 <= x₁, 0 < y₁, Q1 *)
+      2 * atan ((x₁ + Q)/(2 * r - y₁))
+    | (inleft (left _), inleft (right _))  => (* 0 < x₁, 0 = y₁ *)
+      2 * atan (x₁ / r)
+    | (inleft _, inright _)         => (* 0 <= x₁, 0 > y₁, Q4 *)
+      match (total_order_T 0 (2 * r - y₁)) with
+      | inleft (left _) => 2 * atan ((x₁ + Q)/(2 * r - y₁)) - 2 * IZR 1 * PI (* 0 < 2 * r - y₁ *)
+      | inleft (right _) => -PI (* 0 = 2 * r - y₁ *)
+      | inright _ => 2 * atan ((x₁ + Q)/(2 * r - y₁)) (* 0 > 2 * r - y₁ *)
+      end
+    | (inleft (right _), inleft (right _)) => (* 0 = x₁, 0 = y₁ *)
+      0 (* invalid position *)
+    | (inright _, inleft (left _))         => (* 0 > x₁, 0 < y₁, Q2 *)
+      2 * atan ((x₁ + Q)/(2 * r - y₁))
+    | (inright _, inleft (right _))        => (* 0 > x₁, 0 = y₁ *)
+      - 2 * PI
+    | (inright _, inright _)               => (* 0 > x₁, 0 > y₁, Q3 *)
+      match (total_order_T 0 (2 * r - y₁)) with 
+      | inleft (left _) => 2 * atan ((x₁ + Q)/(2 * r - y₁)) - 2 * IZR 1 * PI (* 2 * r - y₁ > 0 *)
+      | inleft (right _) => 2*atan (y₁ / (2 * x₁)) - 2 * IZR 1 * PI (* 2 * r - y₁ = 0 *)
+      | inright _ => 2 * atan ((x₁ + Q)/(2 * r - y₁)) - 2 * IZR 1 * PI (* 2 * r - y₁ < 0 *)
+      end
+    end
+  end.
+
+
 Lemma root_ordering_Q1top:
   forall x₁ y₁ r
          (rgt0 : 0 < r)
@@ -4978,7 +5112,7 @@ Proof.
   rewrite atan_opp. field.
 
   rewrite t2rel, t1rel.
-  enough (θ1' < θmax' < θ2' /\ 0 < θ1' < PI /\ PI < θ2' < 2* PI)
+  enough (θ1' < θmax' < θ2' /\ PI / 2 < θ1' < PI /\ PI < θ2' < 2* PI)
     as [[tmordlb tmordub] [[t1ordlb t1ordub] [t2ordlb t2ordub]]].
   lra.
   apply root_ordering_Q2top; assumption.
@@ -6852,141 +6986,6 @@ Proof.
   apply root_ordering_Q4; try assumption.
   lra.
 Qed.
-
-(** We define functions θ1 and θ2 that compute an angular location on
-a circle of radius r, such that the line connecting that point with a
-point (x₁, y₁) is tangent to the circle. Without loss of generality,
-we consider a circle centered at (0,r). *)
-
-Definition θ1 x₁ y₁ r : R :=
-  let Q := sqrt (x₁² - (2 * r - y₁) * y₁) in
-  match (total_order_T 0 r) with
-  | inleft (left _) => (* 0 < r *)
-    match (total_order_T 0 x₁, total_order_T 0 y₁) with
-
-    | (inleft (left _), inleft (left _))   => (* 0 < x₁, 0 < y₁, Q1 *)
-      match (total_order_T 0 (2 * r - y₁)) with
-      | inleft (left _) => 2 * atan ((x₁ - Q)/(2 * r - y₁))
-      | inleft (right _) => 2 * atan (y₁/(2 * x₁))
-      | inright _ => 2 * atan ((x₁ - Q)/(2 * r - y₁))
-      end
-    | (inleft (right _), inleft (left _))   => (* 0 = x₁, 0 < y₁, Q1 *)
-      match (total_order_T 0 (2 * r - y₁)) with
-      | inleft (left _) => 2 * atan ((x₁ - Q)/(2 * r - y₁))
-      | inleft (right _) => PI
-      | inright _ => 2 * atan ((x₁ - Q)/(2 * r - y₁))
-      end
-
-    | (inleft (left _), inleft (right _))  => (* 0 < x₁, 0 = y₁ *)
-      0
-    | (inleft _, inright _)         => (* 0 <= x₁, 0 > y₁, Q4 *)
-      2 * atan ((x₁ - Q)/(2 * r - y₁)) + 2 * IZR 1 * PI
-    | (inleft (right _), inleft (right _)) => (* 0 = x₁, 0 = y₁ *)
-      0
-    | (inright _, inleft (left _))         => (* 0 > x₁, 0 < y₁, Q2 *)
-      match (total_order_T 0 (2 * r - y₁)) with
-      | inleft (left _) =>
-        2 * atan ((x₁ - Q)/(2 * r - y₁)) + 2 * IZR 1 * PI (* 2 * r - y₁ > 0 *)
-      | inleft (right _) => PI (* 2 * r - y₁ = 0 *)
-      | inright _ => 2 * atan ((x₁ - Q)/(2 * r - y₁)) (* 2 * r - y₁ < 0 *)
-      end
-    | (inright _, inleft (right _))        => (* 0 > x₁, 0 = y₁ *)
-      2 * atan ((x₁ - Q)/(2 * r - y₁)) + 2 * IZR 1 * PI
-    | (inright _, inright _)               => (* 0 > x₁, 0 > y₁, Q3 *)
-      2 * atan ((x₁ - Q)/(2 * r - y₁)) + 2 * IZR 1 * PI
-    end
-  | inleft (right _) => (* 0 = r *) 0 (* atan2 y x *)
-  | inright _ => (* 0 > r *)
-    match (total_order_T 0 x₁, total_order_T 0 y₁) with
-    | (inleft _, inleft (left _) )  => (* 0 <= x₁, 0 < y₁, Q1 *)
-      2 * atan ((x₁ - Q)/(2 * r - y₁)) - 2 * IZR 1 * PI
-    | (inleft (left _), inleft (right _))  => (* 0 < x₁, 0 = y₁ *)
-      0
-    | (inleft (left _), inright _)         => (* 0 < x₁, 0 > y₁, Q4 *)
-      match (total_order_T 0 (2 * r - y₁)) with
-      | inleft (left _) => 2 * atan ((x₁ - Q)/(2 * r - y₁)) (* 0 < 2 * r - y₁ *)
-      | inleft (right _) => 2 * atan (y₁/(2 * x₁)) (* 0 = 2 * r - y₁ *)
-      | inright _ => 2 * atan ((x₁ - Q)/(2 * r - y₁)) (* 0 > 2 * r - y₁ *)
-      end
-    | (inleft (right _), inright _)         => (* 0 = x₁, 0 > y₁, Q4 *)
-      match (total_order_T 0 (2 * r - y₁)) with
-      | inleft (left _) => 2 * atan ((x₁ - Q)/(2 * r - y₁)) (* 0 < 2 * r - y₁ *)
-      | inleft (right _) => - PI (* 0 = 2 * r - y₁ *)
-      | inright _ => 2 * atan ((x₁ - Q)/(2 * r - y₁)) (* 0 > 2 * r - y₁ *)
-      end
-    | (inleft (right _), inleft (right _)) => (* 0 = x₁, 0 = y₁ *)
-      0
-    | (inright _, inleft (left _))         => (* 0 > x₁, 0 < y₁, Q2 *)
-      2 * atan ((x₁ - Q)/(2 * r - y₁)) - 2 * IZR 1 * PI
-    | (inright _, inleft (right _))        => (* 0 > x₁, 0 = y₁ *)
-      2 * atan ((x₁ - Q)/(2 * r - y₁)) - 2 * IZR 1 * PI
-    | (inright _, inright _)               => (* 0 > x₁, 0 > y₁, Q3 *)
-      match (total_order_T 0 (2 * r - y₁)) with 
-      | inleft (left _) => 2 * atan ((x₁ - Q)/(2 * r - y₁)) (* 2 * r - y₁ > 0 *)
-      | inleft (right _) => -PI (* 2 * r - y₁ = 0 *)
-      | inright _ => 2 * atan ((x₁ - Q)/(2 * r - y₁)) - 2 * IZR 1 * PI (* 2 * r - y₁ < 0 *)
-      end
-    end
-  end.
-
-Definition θ2 x₁ y₁ r : R :=
-  let Q := sqrt (x₁² - (2 * r - y₁) * y₁) in
-  match (total_order_T 0 r) with
-  | inleft (left _) => (* 0 < r *)
-    match (total_order_T 0 x₁, total_order_T 0 y₁) with
-    | (inleft _, inleft (left _))   => (* 0 <= x₁, 0 < y₁, Q1 *)
-      match (total_order_T 0 (2 * r - y₁)) with
-      | inleft (left _) => 2 * atan ((x₁ + Q)/(2 * r - y₁))
-      | inleft (right _) => PI
-      | inright _ => 2 * atan ((x₁ + Q)/(2 * r - y₁)) + 2 * IZR 1 * PI
-      end
-    | (inleft (left _), inleft (right _))  => (* 0 < x₁, 0 = y₁ *)
-      2 * atan (x₁ / r)
-    | (inleft _, inright _)         => (* 0 <= x₁, 0 > y₁, Q4 *)
-      2 * atan ((x₁ + Q)/(2 * r - y₁))
-    | (inleft (right _), inleft (right _)) => (* 0 = x₁, 0 = y₁ *)
-      0 (* invalid position *)
-    | (inright _, inleft (left _))         => (* 0 > x₁, 0 < y₁, Q2 *)
-      match (total_order_T 0 (2 * r - y₁)) with
-      | inleft (left _) =>
-        2 * atan ((x₁ + Q)/(2 * r - y₁)) + 2 * IZR 1 * PI (* 2 * r - y₁ > 0 *)
-      | inleft (right _) => 2*atan (y₁ / (2 * x₁)) + 2 * IZR 1 * PI (* 2 * r - y₁ = 0 *)
-      | inright _ => 2 * atan ((x₁ + Q)/(2 * r - y₁)) + 2 * IZR 1 * PI (* 2 * r - y₁ < 0 *)
-      end
-    | (inright _, inleft (right _))        => (* 0 > x₁, 0 = y₁ *)
-      2 * PI
-    | (inright _, inright _)               => (* 0 > x₁, 0 > y₁, Q3 *)
-      2 * atan ((x₁ + Q)/(2 * r - y₁))
-    end
-  | inleft (right _) => (* 0 = r *) 0
-  | inright _ => (* 0 > r *)
-    match (total_order_T 0 x₁, total_order_T 0 y₁) with
-    | (inleft _, inleft (left _) )  => (* 0 <= x₁, 0 < y₁, Q1 *)
-      2 * atan ((x₁ + Q)/(2 * r - y₁))
-    | (inleft (left _), inleft (right _))  => (* 0 < x₁, 0 = y₁ *)
-      2 * atan (x₁ / r)
-    | (inleft _, inright _)         => (* 0 <= x₁, 0 > y₁, Q4 *)
-      match (total_order_T 0 (2 * r - y₁)) with
-      | inleft (left _) => 2 * atan ((x₁ + Q)/(2 * r - y₁)) - 2 * IZR 1 * PI (* 0 < 2 * r - y₁ *)
-      | inleft (right _) => -PI (* 0 = 2 * r - y₁ *)
-      | inright _ => 2 * atan ((x₁ + Q)/(2 * r - y₁)) (* 0 > 2 * r - y₁ *)
-      end
-    | (inleft (right _), inleft (right _)) => (* 0 = x₁, 0 = y₁ *)
-      0 (* invalid position *)
-    | (inright _, inleft (left _))         => (* 0 > x₁, 0 < y₁, Q2 *)
-      2 * atan ((x₁ + Q)/(2 * r - y₁))
-    | (inright _, inleft (right _))        => (* 0 > x₁, 0 = y₁ *)
-      - 2 * PI
-    | (inright _, inright _)               => (* 0 > x₁, 0 > y₁, Q3 *)
-      match (total_order_T 0 (2 * r - y₁)) with 
-      | inleft (left _) => 2 * atan ((x₁ + Q)/(2 * r - y₁)) - 2 * IZR 1 * PI (* 2 * r - y₁ > 0 *)
-      | inleft (right _) => 2*atan (y₁ / (2 * x₁)) - 2 * IZR 1 * PI (* 2 * r - y₁ = 0 *)
-      | inright _ => 2 * atan ((x₁ + Q)/(2 * r - y₁)) - 2 * IZR 1 * PI (* 2 * r - y₁ < 0 *)
-      end
-    end
-  end.
-
-
 
 Lemma root_ordering_rpos_left :
   forall x₁ y₁ r
