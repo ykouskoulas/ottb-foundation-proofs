@@ -21,7 +21,7 @@ tdyn.vo : tdyn.v ttyp.vo util.vo atan2.vo
 ttim.vo : ttim.v ttyp.vo
 	coqc ttim.v
 
-tlens.vo : tlens.v util.vo atan2.vo incr_function_le_ep.vo
+tlens.vo : tlens.v util.vo atan2.vo incr_function_le_ep.vo strt.vo
 	coqc tlens.v
 
 dtlen.vo : dtlen.v tlens.vo util.vo atan2.vo incr_function_le_ep.vo
