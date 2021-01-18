@@ -4189,3 +4189,276 @@ Proof.
     assumption.
 Qed.
 
+(*
+tant2 : forall θ : R, cos (θ / 2) <> 0 -> tan (θ / 2) = sin θ / (1 + cos θ)
+tant2_2 : forall θ : R,     sin θ <> 0 -> tan (θ / 2) = (1 - cos θ) / sin θ
+ *)
+
+Lemma sint22 : forall θ,
+    (sin (θ/2))² = (1 - cos θ) / 2.
+Proof.
+  intros.
+  unfold Rsqr.
+  set (x := θ / 2).
+  assert (θ = 2 * x) as id; try (unfold x; lra).
+  rewrite id.
+  apply (Rmult_eq_reg_l (-2)); try lra.
+  apply (Rplus_eq_reg_r 2).
+  symmetry.
+  specialize (cos_2a_sin x) as tid.
+  lrag tid.
+Qed.
+
+Lemma cost22 : forall θ,
+    (cos (θ/2))² = (1 + cos θ) / 2.
+Proof.
+  intros.
+  set (x := θ / 2).
+  assert (θ = 2 * x) as id; try (unfold x; lra).
+  rewrite id.
+  apply (Rmult_eq_reg_l (-1)); try lra.
+  apply (Rplus_eq_reg_r 1).
+  specialize (sin2_cos2 x) as s2c2.
+  apply (Rplus_eq_compat_r (-1 * (cos x)²)) in s2c2.
+  assert ((sin x)² = -1 * (cos x)² + 1) as id2; try (lrag s2c2).
+  rewrite <- id2.
+  setr ((1 - cos (2 * x)) / 2).
+  rewrite <- id.
+  unfold x.
+  apply sint22.
+Qed.
+
+Lemma cost2_cost: forall t,
+    cos (t / 2) = 0 <-> cos t = -1.
+Proof.
+  intros.
+  split; intros.
+  + apply cos_eq_0_0 in H as [k t2d].
+    assert (t = PI + 2 * IZR k * PI) as td. {
+      apply (Rmult_eq_reg_r (/ 2)); lra. }
+    rewrite td, cos_period1.
+    apply cos_PI.
+  + apply Rsqr_eq_0.
+    rewrite cost22, H.
+    field.
+Qed.
+
+Lemma cost2_cost_not: forall t,
+    cos (t / 2) <> 0 <-> cos t <> -1.
+Proof.
+  split; intros.
+  + intro H0.
+    apply H.
+    rewrite cost2_cost.
+    assumption.
+  + intro H0.
+    apply H.
+    rewrite <- cost2_cost.
+    assumption.
+Qed.
+
+
+Lemma trigeqvx2 : forall θ,
+    ((1 - cos θ)² + (sin θ)² * (sin θ)² + (sin θ)² * (1 - cos θ)²
+       - 2 * (1 - cos θ) * sin θ * sin θ) * (1 + cos θ) =
+    ((sin θ)² - cos θ * (sin θ)²).
+Proof.
+  intros.
+  unfold Rsqr.
+  setl (1 - cos θ
+        - ((sin θ)² + (cos θ)²)
+        - sin θ * sin θ * cos θ
+        + cos θ * cos θ * cos θ
+        + sin θ * sin θ * ((sin θ)² + (cos θ)²)
+        + sin θ * sin θ * cos θ * ((sin θ)² + (cos θ)²)
+       ).
+  rewrite sin2_cos2.
+  arn.
+  setl (- cos θ
+        + cos θ * cos θ * cos θ
+        + (sin θ)²).
+  apply (Rplus_eq_reg_r (- (sin θ)²)).
+  setl (- cos θ * ( 1 - (cos θ)²)).
+  setr (- cos θ * (sin θ)²).
+  specialize (sin2_cos2 θ) as s2c2.
+  apply (Rplus_eq_compat_r (- (cos θ)²)) in s2c2.
+  assert ((sin θ)² = 1 - (cos θ)²) as id2; try (lrag s2c2).
+  rewrite <- id2.
+  reflexivity.
+Qed.
+
+
+Lemma trigeqvy2 : forall θ,
+    ((1 - cos θ)² + (cos θ)² * (sin θ)² + (cos θ)² * (1 - cos θ)² +
+     2 * (1 - cos θ) * cos θ * (1 - cos θ)) * (1 + cos θ) =
+    (1 + cos θ)² - cos θ * (1 + cos θ)².
+Proof.
+  intros.
+  unfold Rsqr.
+  setl (1 + cos θ
+        - 2 * (cos θ)²
+        - 2 * (cos θ)² * cos θ
+        + (cos θ)² * ((sin θ)² + (cos θ)²)
+        + (cos θ)² * cos θ * ((sin θ)² + (cos θ)²)
+       ).
+  rewrite sin2_cos2.
+  setl (1 + cos θ - (cos θ)² - (cos θ)² * cos θ).
+  setr (1 + cos θ - (cos θ)² - (cos θ)² * cos θ).
+  reflexivity.
+Qed.
+  
+Lemma trigeqvxy : forall θ,
+    ((1 - cos θ) * cos θ * sin θ - sin θ * sin θ * cos θ * sin θ -
+     sin θ * (1 - cos θ) * cos θ * (1 - cos θ) - (1 - cos θ) * sin θ * (1 - cos θ)) * 
+    (1 + cos θ) = (cos θ * (1 + cos θ) * sin θ - (1 + cos θ) * sin θ).
+Proof.
+  intros.
+  unfold Rsqr.
+  setl (- sin θ
+        + sin θ * cos θ
+        + 2 * sin θ * cos θ * cos θ
+        - sin θ * cos θ * ((sin θ)² + (cos θ)²)
+        - sin θ * cos θ * cos θ * ((sin θ)² + (cos θ)²)
+       ).
+  rewrite sin2_cos2.
+  arn.
+  setl (cos θ * (1 + cos θ) * sin θ - (1 + cos θ) * sin θ).
+  reflexivity.
+Qed.
+
+
+
+
+
+Lemma linear2form : forall x y θ,
+    cos (θ/2) <> 0 -> 
+    (x * (1 - cos θ) - (x * sin θ - y * cos θ) * sin θ)² +
+    (y * (1 - cos θ) - (x * sin θ - y * cos θ) * (1 - cos θ))² =
+    4 * (sin (θ / 2))² * (y * cos(θ / 2) - x * sin(θ / 2))².
+Proof.
+  intros.
+  setr (4 * (sin (θ / 2))² * (cos (θ / 2))² * (y  - x * sin (θ / 2) / cos (θ / 2))²); try assumption.
+  replace (y - x * sin (θ / 2) / cos (θ / 2)) with (y - x * tan (θ / 2)); try assumption.
+  2 : { unfold tan; field; assumption. }
+  rewrite sint22, cost22, tant2; try assumption.
+  rewrite <- RmultRinv.
+  apply (Rmult_eq_reg_r (1 + cos θ));
+    [|rewrite cost2_cost in H; intro; apply H; lra].
+  setr ((1 - cos θ) * (y * (1 + cos θ) - x * sin θ)²);
+    [rewrite cost2_cost in H; intro; apply H; lra |].
+
+  repeat rewrite Rsqr_minus at 1.
+  repeat rewrite Rmult_minus_distr_r.
+  repeat rewrite Rsqr_minus at 1.
+  repeat rewrite Rsqr_mult.
+  setl (x² * (((1 - cos θ)²
+              + (sin θ)² * (sin θ)²
+              + (sin θ)² * (1 - cos θ)²
+                - 2 * (1 - cos θ) * sin θ * sin θ) * (1 + cos θ))
+        + y² * (((1 - cos θ)²
+                + (cos θ)² * (sin θ)²
+                + (cos θ)² * (1 - cos θ)²
+                + 2 * (1 - cos θ) * cos θ * (1 - cos θ)) * (1 + cos θ))
+        + 2 * x * y * (((1 - cos θ) * cos θ * sin θ
+                       - sin θ * sin θ * cos θ * sin θ
+                       - sin θ * (1 - cos θ) * cos θ * (1 - cos θ)
+                       - (1 - cos θ) * sin θ * (1 - cos θ)) * (1 + cos θ))
+       ).
+
+  setr (x² * ((sin θ)²
+              - cos θ * (sin θ)²)
+        + y² * ((1 + cos θ)²
+                - cos θ * (1 + cos θ)²)
+        + 2 * x * y * (cos θ * (1 + cos θ) * sin θ
+                       - (1 + cos θ) * sin θ)
+       ).
+
+  rewrite trigeqvx2.
+  rewrite trigeqvy2.
+  rewrite trigeqvxy.
+  reflexivity.
+Qed.
+
+
+
+
+
+Lemma arm_dist_linear_wave :
+  forall x y θ,
+    let r := (x * sin θ - y * cos θ) / (1 - cos θ) in
+    cos θ < 1 ->
+    - 1 < cos θ ->
+    ((x - r * sin θ)² + (y - r * (1 - cos θ))²) = (x - y * cos (θ / 2) / sin (θ / 2))².
+Proof.
+  intros * costlt1 n1ltcost.
+  assert (0 < 1 - cos θ) as pd; try lra.
+
+  assert (sin (θ / 2) <> 0) as st2ne0. {
+    intro sint2eq0.
+    generalize costlt1.
+    change (~ cos θ < 1).
+    apply Rle_not_lt.
+    right.
+    symmetry.
+    apply sin_eq_0_0 in sint2eq0 as [k t2d].
+    assert (θ = 2 * IZR k * PI) as td; try lra.
+    rewrite <- (Rplus_0_l θ).
+    rewrite td, cos_period1, cos_0.
+    reflexivity. }
+  
+  unfold r.
+  clear r.
+  rewrite <- RmultRinv.
+  
+  setl (((x * (1 - cos θ) - (x * sin θ - y * cos θ) * sin θ)²  +
+         (y * (1 - cos θ) - (x * sin θ - y * cos θ) * (1 - cos θ))²) * (/ (1 - cos θ))²);
+    try lra.
+
+  rewrite linear2form ; [| rewrite cost2_cost_not ; lra ].
+  setl (4 * ((sin (θ / 2))²)² * (y * cos (θ / 2) * / sin (θ / 2) - x )² * (/ (1 - cos θ))²);
+    try lra.
+  rewrite sint22.
+  setl ((y * cos (θ / 2) * / sin (θ / 2) - x)²); try lra.
+  rewrite RmultRinv.
+  rewrite Rsqr_neg.
+  setl ((x - y * cos (θ/2) / sin (θ/2))²); try assumption.
+  reflexivity.
+Qed.
+
+
+Lemma foo : 
+  forall θ₀ x₀ y₀ x₁ y₁ ra rb  θc θd Du ru θu tup
+         (lt : 0 < ra)
+         (rur : ra <= ru <= rb)
+         (tur : θc <= θu <= θd),
+    let o := (mkpt x₀ y₀) in
+    let p := (mkpt x₁ y₁) in
+    let x := ((x₁ - x₀) * cos θ₀ + (y₁ - y₀) * sin θ₀) in
+    let y := (- (x₁ - x₀) * sin θ₀ + (y₁ - y₀) * cos θ₀) in
+    let θmax := calcθ₁ θ₀ x₀ y₀ x₁ y₁ in
+    forall (no : ~ (x₁ - x₀ = 0 /\ y₁ - y₀ = 0))
+           (nc : θmax <> 0),
+      path_segment Du (Hx ru θ₀ x₀ θu tup) (Hy ru θ₀ y₀ θu tup) o p ->
+      θ1 x y ra < θc ->
+      (((ra <= (x² + y²)/(2*y) \/ y = 0)/\ θc < θmax) \/ (y < 0 /\ θmax < 0)) ->
+      (exists Dw rw twp,
+         (ra <= rw <= rb /\
+          path_segment Dw (Hx rw θ₀ x₀ θc twp) (Hy rw θ₀ y₀ θc twp) o p /\
+          Dw <= Du)) ->
+      
+         1=1.
+Proof.
+  intros.
+  rename H into psu.
+  rename H0 into t1lttc.
+  rename H1 into cond.
+  destruct H2 as [Dw [rw [twp [rwrng [psw minl]]]]].
+
+  specialize (ottb_path_distance Dw x₀ y₀ x₁ y₁ rw θ₀ θc twp psw) as [[trn Dwd]|[strt Dwd]].
+Admitted.
+
+(*  
+  Dw = r * θc + sqrt ((x - r * sin θc)² + (y - r * (1 - cos θc))²)
+  r = (x * sin θc - y * cos θc) / (1 - cos θc)
+
+*)
