@@ -921,6 +921,7 @@ Proof.
   specialize (cos_increasing_1 _ _ PIlex xlePI PIlePI PIle2PI xlt2PI) as cosPIltcosx.
   rewrite H1, cos2PI in cosPIltcosx. lra.
 Qed.
+
 (* begin hide *)
 Lemma IZR_to_INR : forall p, exists n, IZR (Z.pos p) = INR n.
   intros.
@@ -5634,3 +5635,67 @@ Proof.
   assumption. discrR.
 Qed.
 
+(** Misc additional trig lemmas *)
+
+Lemma sint22 : forall θ,
+    (sin (θ/2))² = (1 - cos θ) / 2.
+Proof.
+  intros.
+  unfold Rsqr.
+  set (x := θ / 2).
+  assert (θ = 2 * x) as id; try (unfold x; lra).
+  rewrite id.
+  apply (Rmult_eq_reg_l (-2)); try lra.
+  apply (Rplus_eq_reg_r 2).
+  symmetry.
+  specialize (cos_2a_sin x) as tid.
+  lrag tid.
+Qed.
+
+Lemma cost22 : forall θ,
+    (cos (θ/2))² = (1 + cos θ) / 2.
+Proof.
+  intros.
+  set (x := θ / 2).
+  assert (θ = 2 * x) as id; try (unfold x; lra).
+  rewrite id.
+  apply (Rmult_eq_reg_l (-1)); try lra.
+  apply (Rplus_eq_reg_r 1).
+  specialize (sin2_cos2 x) as s2c2.
+  apply (Rplus_eq_compat_r (-1 * (cos x)²)) in s2c2.
+  assert ((sin x)² = -1 * (cos x)² + 1) as id2; try (lrag s2c2).
+  rewrite <- id2.
+  setr ((1 - cos (2 * x)) / 2).
+  rewrite <- id.
+  unfold x.
+  apply sint22.
+Qed.
+
+Lemma cost2_cost: forall t,
+    cos (t / 2) = 0 <-> cos t = -1.
+Proof.
+  intros.
+  split; intros.
+  + apply cos_eq_0_0 in H as [k t2d].
+    assert (t = PI + 2 * IZR k * PI) as td. {
+      apply (Rmult_eq_reg_r (/ 2)); lra. }
+    rewrite td, cos_period1.
+    apply cos_PI.
+  + apply Rsqr_eq_0.
+    rewrite cost22, H.
+    field.
+Qed.
+
+Lemma cost2_cost_not: forall t,
+    cos (t / 2) <> 0 <-> cos t <> -1.
+Proof.
+  split; intros.
+  + intro H0.
+    apply H.
+    rewrite cost2_cost.
+    assumption.
+  + intro H0.
+    apply H.
+    rewrite <- cost2_cost.
+    assumption.
+Qed.

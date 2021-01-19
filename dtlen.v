@@ -4189,74 +4189,7 @@ Proof.
     assumption.
 Qed.
 
-(*
-tant2 : forall θ : R, cos (θ / 2) <> 0 -> tan (θ / 2) = sin θ / (1 + cos θ)
-tant2_2 : forall θ : R,     sin θ <> 0 -> tan (θ / 2) = (1 - cos θ) / sin θ
- *)
-
-Lemma sint22 : forall θ,
-    (sin (θ/2))² = (1 - cos θ) / 2.
-Proof.
-  intros.
-  unfold Rsqr.
-  set (x := θ / 2).
-  assert (θ = 2 * x) as id; try (unfold x; lra).
-  rewrite id.
-  apply (Rmult_eq_reg_l (-2)); try lra.
-  apply (Rplus_eq_reg_r 2).
-  symmetry.
-  specialize (cos_2a_sin x) as tid.
-  lrag tid.
-Qed.
-
-Lemma cost22 : forall θ,
-    (cos (θ/2))² = (1 + cos θ) / 2.
-Proof.
-  intros.
-  set (x := θ / 2).
-  assert (θ = 2 * x) as id; try (unfold x; lra).
-  rewrite id.
-  apply (Rmult_eq_reg_l (-1)); try lra.
-  apply (Rplus_eq_reg_r 1).
-  specialize (sin2_cos2 x) as s2c2.
-  apply (Rplus_eq_compat_r (-1 * (cos x)²)) in s2c2.
-  assert ((sin x)² = -1 * (cos x)² + 1) as id2; try (lrag s2c2).
-  rewrite <- id2.
-  setr ((1 - cos (2 * x)) / 2).
-  rewrite <- id.
-  unfold x.
-  apply sint22.
-Qed.
-
-Lemma cost2_cost: forall t,
-    cos (t / 2) = 0 <-> cos t = -1.
-Proof.
-  intros.
-  split; intros.
-  + apply cos_eq_0_0 in H as [k t2d].
-    assert (t = PI + 2 * IZR k * PI) as td. {
-      apply (Rmult_eq_reg_r (/ 2)); lra. }
-    rewrite td, cos_period1.
-    apply cos_PI.
-  + apply Rsqr_eq_0.
-    rewrite cost22, H.
-    field.
-Qed.
-
-Lemma cost2_cost_not: forall t,
-    cos (t / 2) <> 0 <-> cos t <> -1.
-Proof.
-  split; intros.
-  + intro H0.
-    apply H.
-    rewrite cost2_cost.
-    assumption.
-  + intro H0.
-    apply H.
-    rewrite <- cost2_cost.
-    assumption.
-Qed.
-
+(* begin hide *)
 
 Lemma trigeqvx2 : forall θ,
     ((1 - cos θ)² + (sin θ)² * (sin θ)² + (sin θ)² * (1 - cos θ)²
@@ -4645,6 +4578,7 @@ Proof.
          assumption.
 Qed.
 
+(* end hide *)
 
 Lemma plane_wave_form :
   forall (D:nonnegreal) (x₀ y₀ x₁ y₁ r θ₀ θc:R) rtp
