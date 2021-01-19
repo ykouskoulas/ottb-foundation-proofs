@@ -4381,9 +4381,7 @@ Qed.
 
 
 
-
-
-Lemma arm_dist_linear_wave :
+Lemma dist_linear_wave :
   forall x y θ,
     let r := (x * sin θ - y * cos θ) / (1 - cos θ) in
     cos θ < 1 ->
@@ -4393,7 +4391,7 @@ Proof.
   intros * costlt1 n1ltcost.
   assert (0 < 1 - cos θ) as pd; try lra.
 
-  assert (sin (θ / 2) <> 0) as st2ne0. {
+  + assert (sin (θ / 2) <> 0) as st2ne0. {
     intro sint2eq0.
     generalize costlt1.
     change (~ cos θ < 1).
@@ -4425,40 +4423,256 @@ Proof.
   reflexivity.
 Qed.
 
-
-Lemma foo : 
-  forall θ₀ x₀ y₀ x₁ y₁ ra rb  θc θd Du ru θu tup
-         (lt : 0 < ra)
-         (rur : ra <= ru <= rb)
-         (tur : θc <= θu <= θd),
-    let o := (mkpt x₀ y₀) in
-    let p := (mkpt x₁ y₁) in
-    let x := ((x₁ - x₀) * cos θ₀ + (y₁ - y₀) * sin θ₀) in
-    let y := (- (x₁ - x₀) * sin θ₀ + (y₁ - y₀) * cos θ₀) in
-    let θmax := calcθ₁ θ₀ x₀ y₀ x₁ y₁ in
-    forall (no : ~ (x₁ - x₀ = 0 /\ y₁ - y₀ = 0))
-           (nc : θmax <> 0),
-      path_segment Du (Hx ru θ₀ x₀ θu tup) (Hy ru θ₀ y₀ θu tup) o p ->
-      θ1 x y ra < θc ->
-      (((ra <= (x² + y²)/(2*y) \/ y = 0)/\ θc < θmax) \/ (y < 0 /\ θmax < 0)) ->
-      (exists Dw rw twp,
-         (ra <= rw <= rb /\
-          path_segment Dw (Hx rw θ₀ x₀ θc twp) (Hy rw θ₀ y₀ θc twp) o p /\
-          Dw <= Du)) ->
-      
-         1=1.
+Lemma plane_wave_form_std :
+  forall (D:nonnegreal) (x y r θc:R) rtp
+         (rp : 0 < r)
+         (no : ~ (x = 0 /\ y = 0))
+         (phase : straight r 0 0 0 x y)
+         (P : path_segment D (Hx r 0 0 θc rtp) (Hy r 0 0 θc rtp) (mkpt 0 0) (mkpt x y)),
+  nonneg D = r * θc + Rabs (x - y * cos (θc / 2) / sin (θc / 2)).
 Proof.
   intros.
-  rename H into psu.
-  rename H0 into t1lttc.
-  rename H1 into cond.
-  destruct H2 as [Dw [rw [twp [rwrng [psw minl]]]]].
 
-  specialize (ottb_path_distance Dw x₀ y₀ x₁ y₁ rw θ₀ θc twp psw) as [[trn Dwd]|[strt Dwd]].
-Admitted.
+  set (o := {| ptx := 0; pty := 0 |}) in *.
+  set (p := {| ptx := x; pty := y |}) in *.
+  specialize (not_colinear_s _ _ _ _ rtp D P) as nc.
+  specialize (ottb_compute_r_s _ _ _ _ rtp D no P) as [[trn rd] | [str rd]];
+    [apply turningcond in trn; apply straightcond in phase; lra| clear str].
+  specialize (ottb_compute_straight_t_s _ _ _ _ rtp D phase P) as tcd.
+  specialize (ottb_path_distance _ _ _ _ _ _ _ _ rtp P) as [[trn dd] | [str dd]];
+    [apply turningcond in trn; apply straightcond in phase; lra| clear str].
+  autorewrite with null in dd.
+  replace (y - (r - r * cos θc)) with (y - r * (1 - cos θc)) in dd by lra.
 
-(*  
-  Dw = r * θc + sqrt ((x - r * sin θc)² + (y - r * (1 - cos θc))²)
-  r = (x * sin θc - y * cos θc) / (1 - cos θc)
+  destruct (total_order_T y 0) as [[ylt0 | yeq0]| ygt0].
+  + destruct (total_order_T x 0) as [xle0o| xgt0].
+    ++ assert (x <= 0) as xle0; try (destruct xle0o; lra); clear xle0o.
+       specialize (root_ordering_Q3 _ _ _ rp ylt0 xle0 phase) as [t1t2o [t2r [t1lb t1ub]]];
+         clear t1t2o t2r.
+       rewrite <- tcd in *.
 
-*)
+       assert (cos θc < 1) as ctlt1. {
+         rewrite <- cos_2PI.
+         apply cos_increasing_1; lra. }
+  
+       assert (-1 < cos θc) as n1ltct. {
+         rewrite <- cos_PI.
+         apply cos_increasing_1; lra. }
+
+       specialize (dist_linear_wave x y _ ctlt1 n1ltct) as dstid.
+       rewrite <- rd in dstid.
+       rewrite dstid in dd.
+       rewrite sqrt_Rsqr_abs in dd.
+       assumption.
+    ++ assert (0 <= x) as zlex; try lra.
+       specialize (root_ordering_Q4 _ _ _ rp ylt0 zlex phase) as [t1t2o [t2r [t1lb t1ub]]];
+         clear t1t2o t2r.
+       rewrite <- tcd in *.
+
+       assert (cos θc < 1) as ctlt1. {
+         rewrite <- cos_2PI.
+         apply cos_increasing_1; lra. }
+  
+       assert (-1 < cos θc) as n1ltct. {
+         rewrite <- cos_PI.
+         apply cos_increasing_1; lra. }
+
+       specialize (dist_linear_wave x y _ ctlt1 n1ltct) as dstid.
+       rewrite <- rd in dstid.
+       rewrite dstid in dd.
+       rewrite sqrt_Rsqr_abs in dd.
+       assumption.
+
+  + destruct (total_order_T x 0) as [[xlt0 | xeq0]| xgt0]; try lra.
+    specialize (root_ordering_nxarm _ _ _ rp yeq0 xlt0 phase) as [t1t2o [t2r [t1lb t1ub]]];
+         clear t1t2o t2r.
+       rewrite <- tcd in *.
+
+       assert (cos θc < 1) as ctlt1. {
+         rewrite <- cos_2PI.
+         apply cos_increasing_1; lra. }
+  
+       assert (-1 < cos θc) as n1ltct. {
+         rewrite <- cos_PI.
+         apply cos_increasing_1; lra. }
+
+       specialize (dist_linear_wave x y _ ctlt1 n1ltct) as dstid.
+       rewrite <- rd in dstid.
+       rewrite dstid in dd.
+       rewrite sqrt_Rsqr_abs in dd.
+       assumption.
+
+  + destruct (total_order_T x 0) as [xle0| xgt0].
+    ++ destruct (total_order_T (2 * r - y) 0) as [[top | arm]| bot].
+       +++ (* top *)
+         assert (x <= 0) as xle; try (destruct xle0; lra). clear xle0.
+         specialize (root_ordering_Q2top _ _ _ rp top xle phase) as [t1t2o [[t1lb t1ub] t2r]];
+           clear t1t2o t2r.
+         rewrite <- tcd in *.
+         
+         assert (cos θc < 1) as ctlt1. {
+           rewrite <- cos_0.
+           apply cos_decreasing_1; lra. }
+         
+         assert (-1 < cos θc) as n1ltct. {
+           rewrite <- cos_PI.
+           apply cos_decreasing_1; lra. }
+         
+         specialize (dist_linear_wave x y _ ctlt1 n1ltct) as dstid.
+         rewrite <- rd in dstid.
+         rewrite dstid in dd.
+         rewrite sqrt_Rsqr_abs in dd.
+         assumption.
+       +++ (* arm *)
+         destruct xle0 as [xlt0 | xeq0].
+         unfold θ1 in *.
+         destruct total_order_T as [[z0 | z1] | z2]; try lra; clear z0.
+         destruct total_order_T as [[z0 | z1] | z2]; try lra; clear z2.
+         destruct total_order_T as [[z0 | z1] | z2]; try lra; clear z0.
+         destruct total_order_T as [[z0 | z1] | z2]; try lra; clear z1.
+         subst.
+         autorewrite with null in *.
+         replace (y - - (y * -1) / (1 - -1) * (1 - -1)) with 0 in dd by lra.
+         rewrite <- (RmultRinv _ 1).
+         autorewrite with null in *.
+         rewrite sqrt_Rsqr_abs in dd.
+         assumption.
+         
+         unfold θ1 in *.
+         destruct total_order_T as [[z0 | z1] | z2]; try lra; clear z0.
+         destruct total_order_T as [[z0 | z1] | z2]; try lra; clear z1.
+         destruct total_order_T as [[z0 | z1] | z2]; try lra; clear z0.
+         destruct total_order_T as [[z0 | z1] | z2]; try lra; clear z1.
+         subst.
+
+         exfalso.
+         clear - phase.
+         apply straightcond in phase.
+         subst.
+         autorewrite with null in *.
+         replace (2 * (- (y * -1) / (1 - -1)) * y) with (y*y) in phase by lra.
+         unfold Rsqr in phase.
+         lra.
+         
+       +++ (* bottom *)
+         assert (x <= 0) as xle; try (destruct xle0; lra). clear xle0.
+         destruct xle as [xlt |xeq].
+         specialize (root_ordering_Q2bot _ _ _ rp bot ygt0 xlt phase) as [t1t2o [[t1lb t1ub] t2r]];
+           clear t1t2o t2r.
+         rewrite <- tcd in *.
+         
+         assert (cos θc < 1) as ctlt1. {
+           rewrite <- cos_2PI.
+           apply cos_increasing_1; lra. }
+         
+         assert (-1 < cos θc) as n1ltct. {
+           rewrite <- cos_PI.
+           apply cos_increasing_1; lra. }
+         
+         specialize (dist_linear_wave x y _ ctlt1 n1ltct) as dstid.
+         rewrite <- rd in dstid.
+         rewrite dstid in dd.
+         rewrite sqrt_Rsqr_abs in dd.
+         assumption.
+
+         (* x=0, 0 < y points are inside the turning circle, unreachable *)
+         exfalso.
+         clear - ygt0 bot xeq phase.
+         apply straightcond in phase.
+         subst.
+         autorewrite with null in *.
+         unfold Rsqr in phase.
+         apply Rmult_lt_reg_r in phase; try assumption.
+         lra.
+
+    ++ destruct (total_order_T (2 * r - y) 0) as [[top | arm]| bot].
+       +++ (* top *)
+         assert (0 <= x) as xle; try lra. clear xgt0.
+         specialize (root_ordering_Q1top _ _ _ rp top xle phase) as [t1t2o [[t1lb t1ub] t2r]];
+           clear t1t2o t2r.
+         rewrite <- tcd in *.
+         
+         assert (cos θc < 1) as ctlt1. {
+           rewrite <- cos_0.
+           apply cos_decreasing_1; lra. }
+         
+         assert (-1 < cos θc) as n1ltct. {
+           rewrite <- cos_PI.
+           apply cos_decreasing_1; lra. }
+         
+         specialize (dist_linear_wave x y _ ctlt1 n1ltct) as dstid.
+         rewrite <- rd in dstid.
+         rewrite dstid in dd.
+         rewrite sqrt_Rsqr_abs in dd.
+         assumption.
+       +++ (* arm *)
+         symmetry in arm.
+         specialize (root_ordering_Q1arm _ _ _ rp arm ygt0 xgt0 phase) as [t2r [t1lb t1ub]];
+           clear t2r.
+         rewrite <- tcd in *.
+         
+         assert (cos θc < 1) as ctlt1. {
+           rewrite <- cos_0.
+           apply cos_decreasing_1; lra. }
+         
+         assert (-1 < cos θc) as n1ltct. {
+           rewrite <- cos_PI.
+           apply cos_decreasing_1; lra. }
+         
+         specialize (dist_linear_wave x y _ ctlt1 n1ltct) as dstid.
+         rewrite <- rd in dstid.
+         rewrite dstid in dd.
+         rewrite sqrt_Rsqr_abs in dd.
+         assumption.
+
+       +++ (* bottom *)
+         specialize (root_ordering_Q1bot _ _ _ rp bot ygt0 xgt0 phase) as [t1t2o [[t1lb t1ub] t2r]];
+           clear t1t2o t2r.
+         rewrite <- tcd in *.
+         
+         assert (cos θc < 1) as ctlt1. {
+           rewrite <- cos_0.
+           apply cos_decreasing_1; lra. }
+         
+         assert (-1 < cos θc) as n1ltct. {
+           rewrite <- cos_PI.
+           apply cos_decreasing_1; lra. }
+         
+         specialize (dist_linear_wave x y _ ctlt1 n1ltct) as dstid.
+         rewrite <- rd in dstid.
+         rewrite dstid in dd.
+         rewrite sqrt_Rsqr_abs in dd.
+         assumption.
+Qed.
+
+
+Lemma plane_wave_form :
+  forall (D:nonnegreal) (x₀ y₀ x₁ y₁ r θ₀ θc:R) rtp
+         (rp : 0 < r)
+         (no : ~ (x₁ - x₀ = 0 /\ y₁ - y₀ = 0))
+         (phase : straight r θ₀ x₀ y₀ x₁ y₁)
+         (P : path_segment D (Hx r θ₀ x₀ θc rtp) (Hy r θ₀ y₀ θc rtp) (mkpt x₀ y₀) (mkpt x₁ y₁)),
+    let x := (x₁ - x₀) * cos θ₀ + (y₁ - y₀) * sin θ₀ in
+    let y := - (x₁ - x₀) * sin θ₀ + (y₁ - y₀) * cos θ₀ in
+    nonneg D = r * θc + Rabs (x - y * cos (θc / 2) / sin (θc / 2)).
+Proof.
+  intros.
+  unfold x, y; clear x y.
+  apply path_stdR in P.
+  apply straight_rot in phase.
+  apply (notid_rot θ₀) in no.
+  set (x := (x₁ - x₀) * cos θ₀ + (y₁ - y₀) * sin θ₀) in *.
+  set (y := - (x₁ - x₀) * sin θ₀ + (y₁ - y₀) * cos θ₀) in *.
+  set (o := {| ptx := 0; pty := 0 |}) in *.
+  set (p := {| ptx := x; pty := y |}) in *.
+  specialize (not_colinear_s _ _ _ _ rtp D P) as nc.
+  specialize (ottb_compute_r_s _ _ _ _ rtp D no P) as [[trn rd] | [str rd]];
+    [apply turningcond in trn; apply straightcond in phase; lra| clear str].
+  specialize (ottb_compute_straight_t_s _ _ _ _ rtp D phase P) as tcd.
+  specialize (ottb_path_distance _ _ _ _ _ _ _ _ rtp P) as [[trn dd] | [str dd]];
+    [apply turningcond in trn; apply straightcond in phase; lra| clear str].
+  autorewrite with null in dd.
+  eapply plane_wave_form_std; try assumption.
+  Unshelve.
+  assumption.
+Qed.
