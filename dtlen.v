@@ -3837,21 +3837,6 @@ Proof.
       lrag sra. }
     clear ralerm.
 
-(*
-    assert (turning rm 0 0 0 x y) as trm. {
-      apply condturning.
-      unfold rm.
-      setl (x² + y²); lra. }
-    specialize (intro_max_turning_path_std _ _ _ trm no) as [rtp m].
-    set (Dm := {| nonneg := rm * calcθ₁ 0 0 0 x y;
-                  cond_nonneg := nna rm (calcθ₁ 0 0 0 x y) rtp |}) in *.
-    change (path_segment Dm (Hx rm 0 0 θmax rtp) (Hy rm 0 0 θmax rtp) o p) in m.
-
-    specialize (tmax_radius x y ltac:(lra)) as rmdef.
-    simpl in rmdef.
-    change (rm = (x * sin θmax - y * cos θmax) / (1 - cos θmax)) in rmdef.
-
-*)
     apply condstraight in sra.
     specialize (intro_r_path_std _ _ _ sra) as [rta [Dagt0 a]].
     apply thmaxne0; lra.
@@ -3935,21 +3920,6 @@ Proof.
       lrag sra. }
     clear ralerm.
 
-(*
-    assert (turning rm 0 0 0 x y) as trm. {
-      apply condturning.
-      unfold rm.
-      setl (x² + y²); lra. }
-    specialize (intro_max_turning_path_std _ _ _ trm no) as [rtp m].
-    set (Dm := {| nonneg := rm * calcθ₁ 0 0 0 x y;
-                  cond_nonneg := nna rm (calcθ₁ 0 0 0 x y) rtp |}) in *.
-    change (path_segment Dm (Hx rm 0 0 θmax rtp) (Hy rm 0 0 θmax rtp) o p) in m.
-
-    specialize (tmax_radius x y ltac:(lra)) as rmdef.
-    simpl in rmdef.
-    change (rm = (x * sin θmax - y * cos θmax) / (1 - cos θmax)) in rmdef.
-
-*)
     apply condstraight in sra.
     specialize (intro_r_path_std _ _ _ sra) as [rta [Dagt0 a]].
     apply thmaxne0; lra.
@@ -4578,9 +4548,8 @@ Proof.
          assumption.
 Qed.
 
-(* end hide *)
 
-Lemma plane_wave_form :
+Lemma plane_wave_form_pre :
   forall (D:nonnegreal) (x₀ y₀ x₁ y₁ r θ₀ θc:R) rtp
          (rp : 0 < r)
          (no : ~ (x₁ - x₀ = 0 /\ y₁ - y₀ = 0))
@@ -4610,3 +4579,94 @@ Proof.
   Unshelve.
   assumption.
 Qed.
+
+
+Definition cot t := cos t / sin t.
+
+(* end hide *)
+
+Lemma plane_wave_part :
+  forall (D:nonnegreal) (x₀ y₀ x₁ y₁ r θ₀ θc:R) rtp
+         (rp : 0 < r)
+         (no : ~ (x₁ - x₀ = 0 /\ y₁ - y₀ = 0))               
+         (phase : straight r θ₀ x₀ y₀ x₁ y₁)
+         (P : path_segment D (Hx r θ₀ x₀ θc rtp) (Hy r θ₀ y₀ θc rtp) (mkpt x₀ y₀) (mkpt x₁ y₁)),
+    let x := (x₁ - x₀) * cos θ₀ + (y₁ - y₀) * sin θ₀ in
+    let y := - (x₁ - x₀) * sin θ₀ + (y₁ - y₀) * cos θ₀ in
+    forall (valid : y * cot (θc / 2) > x), 
+    nonneg D = r * θc + y * cot (θc / 2) - x.
+Proof.
+  intros.
+  unfold cot in *.
+  specialize (plane_wave_form_pre _ _ _ _ _ _ _ _ rtp rp no phase P) as Ddef.
+  simpl in *.
+  change (nonneg D = r * θc + Rabs (x - y * cos (θc / 2) / sin (θc / 2))) in Ddef.
+  rewrite Rabs_left in Ddef; try lra.
+Qed.
+
+Lemma product_inequalities : forall al a ah bl b bh,
+    0 < al ->
+    0 < bl ->
+    al <= a <= ah ->
+    bl <= b <= bh ->
+    al * bl <= a * b <= ah * bh.
+Proof.
+  intros *.
+  intros zltal zltbl arng brng.
+  split.
+  apply (Rle_trans _ (al * b));
+    [apply Rmult_le_compat_l; lra|
+     apply Rmult_le_compat_r; lra].
+  apply (Rle_trans _ (ah * b));
+    [apply Rmult_le_compat_r; lra|
+     apply Rmult_le_compat_l; lra].
+Qed.
+
+Lemma bounded_part_std :
+  forall x y ra rb θc θd Du Da Db ru θu tup tap tbp
+         (ragt : 0 < ra) (ygt : 0 < y) (no : ~ (x = 0 /\ y = 0)),
+  forall (rur : ra <= ru <= rb)
+         (tur : θc <= θu <= θd),
+    let o := (mkpt 0 0) in
+    let p := (mkpt x y) in
+    let xl := ra * sin θc in
+    let yl := ra * (1 - cos θc) in
+    let xh := rb * sin θd in
+    let yh := rb * (1 - cos θd) in
+      turning ru 0 0 0 x y -> 
+      path_segment Du (Hx ru 0 0 θu tup) (Hy ru 0 0 θu tup) o p -> 
+      turning ra 0 0 0 xl yl -> 
+      path_segment Da (Hx ra 0 0 θc tap) (Hy ra 0 0 θc tap) o (mkpt xl yl) -> 
+      turning rb 0 0 0 xh yh -> 
+      path_segment Db (Hx rb 0 0 θd tbp) (Hy rb 0 0 θd tbp) o (mkpt xh yh) -> 
+      Da <= Du <= Db.
+Proof.
+  intros * zltra zlty no rur tur * tU U tA A tB B.
+
+  specialize (ottb_path_distance _ _ _ _ _ _ _ _ tup U) as [[tu Dud] |[sp rest]];
+    [clear tu|clear - sp tU;
+     apply straightcond in sp;
+     apply turningcond in tU;
+     lra].
+  rewrite <- eqv_calcs in Dud;
+    [|arn; assumption|assumption].
+  rewrite thms in Dud; unfold atan2 in Dud; destruct pre_atan2 in Dud.
+
+  specialize (ottb_path_distance _ _ _ _ _ _ _ _ tap A) as [[ta Dad] |[sp rest]];
+    [clear ta|clear - sp tA;
+     apply straightcond in sp;
+     apply turningcond in tA;
+     lra].
+  rewrite <- eqv_calcs in Dad;
+    [|arn|assumption].
+  rewrite thms in Dad; unfold atan2 in Dad; destruct pre_atan2 in Dad.
+
+  specialize (ottb_path_distance _ _ _ _ _ _ _ _ tbp B) as [[tb Dbd] |[sp rest]];
+    [clear tb|clear - sp tB;
+     apply straightcond in sp;
+     apply turningcond in tB;
+     lra].
+  rewrite <- eqv_calcs in Dbd;
+    [|arn|assumption].
+  rewrite thms in Dbd; unfold atan2 in Dbd; destruct pre_atan2 in Dbd.
+Admitted.
