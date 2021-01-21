@@ -4604,6 +4604,7 @@ Proof.
   rewrite Rabs_left in Ddef; try lra.
 Qed.
 
+(* begin hide *)
 Lemma product_inequalities : forall al a ah bl b bh,
     0 < al ->
     0 < bl ->
@@ -4622,51 +4623,126 @@ Proof.
      apply Rmult_le_compat_l; lra].
 Qed.
 
-Lemma bounded_part_std :
-  forall x y ra rb θc θd Du Da Db ru θu tup tap tbp
-         (ragt : 0 < ra) (ygt : 0 < y) (no : ~ (x = 0 /\ y = 0)),
+(* end hide *)
+
+Lemma bounded_turning_part_std :
+  forall ra rb θc θd Du Da Db ru θu tup tap tbp
+         (ragt : 0 < ra),
   forall (rur : ra <= ru <= rb)
          (tur : θc <= θu <= θd),
     let o := (mkpt 0 0) in
-    let p := (mkpt x y) in
+    let x := ra * sin θu in
+    let y := ra * (1 - cos θu) in
+      turning ru 0 0 0 x y -> 
+      path_segment Du (Hx ru 0 0 θu tup) (Hy ru 0 0 θu tup) o (mkpt x y) -> 
     let xl := ra * sin θc in
     let yl := ra * (1 - cos θc) in
-    let xh := rb * sin θd in
-    let yh := rb * (1 - cos θd) in
-      turning ru 0 0 0 x y -> 
-      path_segment Du (Hx ru 0 0 θu tup) (Hy ru 0 0 θu tup) o p -> 
       turning ra 0 0 0 xl yl -> 
       path_segment Da (Hx ra 0 0 θc tap) (Hy ra 0 0 θc tap) o (mkpt xl yl) -> 
+    let xh := rb * sin θd in
+    let yh := rb * (1 - cos θd) in
       turning rb 0 0 0 xh yh -> 
       path_segment Db (Hx rb 0 0 θd tbp) (Hy rb 0 0 θd tbp) o (mkpt xh yh) -> 
       Da <= Du <= Db.
 Proof.
-  intros * zltra zlty no rur tur * tU U tA A tB B.
+  intros * zltra rur tur * tU U * tA A * tB B.
+
+  assert (0 < ru) as rugt0; try lra.
+  assert (0 < ra) as ragt0; try lra.
+  assert (0 < rb) as rbgt0; try lra.
+
+  assert (0 < θu < 2 * PI) as turng. {
+    split.
+    apply (Rmult_lt_reg_l ru); try lra.
+    apply (Rmult_lt_reg_l ru); try lra.
+    rewrite <- (Rabs_right ru) at 2; lra. }
+
+  assert (0 < θc < 2 * PI) as tcrng. {
+    split.
+    apply (Rmult_lt_reg_l ra); try lra.
+    apply (Rmult_lt_reg_l ra); try lra.
+    rewrite <- (Rabs_right ra) at 2; lra. }
+
+  assert (0 < θd < 2 * PI) as tdrng. {
+    split.
+    apply (Rmult_lt_reg_l rb); try lra.
+    apply (Rmult_lt_reg_l rb); try lra.
+    rewrite <- (Rabs_right rb) at 2; lra. }
 
   specialize (ottb_path_distance _ _ _ _ _ _ _ _ tup U) as [[tu Dud] |[sp rest]];
     [clear tu|clear - sp tU;
      apply straightcond in sp;
      apply turningcond in tU;
      lra].
+  assert (~ (x = 0 /\ y = 0)) as no. {
+    unfold x.
+    unfold y.
+    intros [lseq0 rseq0].
+    apply Rmult_integral in lseq0; destruct lseq0 as [poof|seq0]; try lra.
+    apply Rmult_integral in rseq0; destruct rseq0 as [poof|omceq0]; try lra.
+    apply sin_eq_O_2PI_0 in seq0; try lra.
+    destruct seq0 as [seq0 | [seq0 | seq0 ]] ; try lra.
+    rewrite seq0, cos_PI in omceq0.
+    lra. }
   rewrite <- eqv_calcs in Dud;
     [|arn; assumption|assumption].
-  rewrite thms in Dud; unfold atan2 in Dud; destruct pre_atan2 in Dud.
+  rewrite thms in Dud.
+  assert (θu = 2 * atan2 y x) as tud. {
+    symmetry.
+    unfold x, y.
+    apply chord_property; lra. }
+  rewrite <- tud in Dud.
+  rewrite Dud.
 
   specialize (ottb_path_distance _ _ _ _ _ _ _ _ tap A) as [[ta Dad] |[sp rest]];
     [clear ta|clear - sp tA;
      apply straightcond in sp;
      apply turningcond in tA;
      lra].
+  assert (~ (xl = 0 /\ yl = 0)) as nol. {
+    unfold xl.
+    unfold yl.
+    intros [lseq0 rseq0].
+    apply Rmult_integral in lseq0; destruct lseq0 as [poof|seq0]; try lra.
+    apply Rmult_integral in rseq0; destruct rseq0 as [poof|omceq0]; try lra.
+    apply sin_eq_O_2PI_0 in seq0; try lra.
+    destruct seq0 as [seq0 | [seq0 | seq0 ]] ; try lra.
+    rewrite seq0, cos_PI in omceq0.
+    lra. }
   rewrite <- eqv_calcs in Dad;
-    [|arn|assumption].
-  rewrite thms in Dad; unfold atan2 in Dad; destruct pre_atan2 in Dad.
+    [|arn; assumption|assumption].
+  rewrite thms in Dad.
+  assert (θc = 2 * atan2 yl xl) as tcd. {
+    symmetry.
+    unfold xl, yl.
+    apply chord_property; lra. }
+  rewrite <- tcd in Dad.
+  rewrite Dad.
 
   specialize (ottb_path_distance _ _ _ _ _ _ _ _ tbp B) as [[tb Dbd] |[sp rest]];
     [clear tb|clear - sp tB;
      apply straightcond in sp;
      apply turningcond in tB;
      lra].
+  assert (~ (xh = 0 /\ yh = 0)) as noh. {
+    unfold xh.
+    unfold yh.
+    intros [lseq0 rseq0].
+    apply Rmult_integral in lseq0; destruct lseq0 as [poof|seq0]; try lra.
+    apply Rmult_integral in rseq0; destruct rseq0 as [poof|omceq0]; try lra.
+    apply sin_eq_O_2PI_0 in seq0; try lra.
+    destruct seq0 as [seq0 | [seq0 | seq0 ]] ; try lra.
+    rewrite seq0, cos_PI in omceq0.
+    lra. }
   rewrite <- eqv_calcs in Dbd;
-    [|arn|assumption].
-  rewrite thms in Dbd; unfold atan2 in Dbd; destruct pre_atan2 in Dbd.
-Admitted.
+    [|arn;assumption|assumption].
+  rewrite thms in Dbd.
+  assert (θd = 2 * atan2 yh xh) as tdd. {
+    symmetry.
+    unfold xh, yh.
+    apply chord_property; lra. }
+  rewrite <- tdd in Dbd.
+  rewrite Dbd.
+
+  apply product_inequalities ; lra.
+Qed.
