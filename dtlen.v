@@ -4623,7 +4623,6 @@ Proof.
      apply Rmult_le_compat_l; lra].
 Qed.
 
-(* end hide *)
 
 Lemma bounded_turning_part_std :
   forall ra rb θc θd Du Da Db ru θu tup tap tbp
@@ -4746,3 +4745,93 @@ Proof.
 
   apply product_inequalities ; lra.
 Qed.
+
+(* end hide *)
+
+Lemma bounded_turning_part :
+  forall θ₀ x₀ y₀ ra rb θc θd Du Da Db ru θu tup tap tbp
+         (ragt : 0 < ra),
+  forall (rur : ra <= ru <= rb)
+         (tur : θc <= θu <= θd),
+    let o := (mkpt x₀ y₀) in
+    let x := ra * sin θu in
+    let y := ra * (1 - cos θu) in
+    let x₁ :=  x * cos θ₀ - y * sin θ₀ + x₀ in
+    let y₁ := x * sin θ₀ + y * cos θ₀ + y₀ in
+      turning ru θ₀ x₀ y₀ x₁ y₁ -> 
+      path_segment Du (Hx ru θ₀ x₀ θu tup) (Hy ru θ₀ y₀ θu tup) o (mkpt x₁ y₁) -> 
+    let xl := ra * sin θc in
+    let yl := ra * (1 - cos θc) in
+    let xl₁ :=  xl * cos θ₀ - yl * sin θ₀ + x₀ in
+    let yl₁ := xl * sin θ₀ + yl * cos θ₀ + y₀ in
+      turning ra θ₀ x₀ y₀ xl₁ yl₁ -> 
+      path_segment Da (Hx ra θ₀ x₀ θc tap) (Hy ra θ₀ y₀ θc tap) o (mkpt xl₁ yl₁) -> 
+    let xh := rb * sin θd in
+    let yh := rb * (1 - cos θd) in
+    let xh₁ := xh * cos θ₀ - yh * sin θ₀ + x₀ in
+    let yh₁ := xh * sin θ₀ + yh * cos θ₀ + y₀ in
+      turning rb θ₀ x₀ y₀ xh₁ yh₁ -> 
+      path_segment Db (Hx rb θ₀ x₀ θd tbp) (Hy rb θ₀ y₀ θd tbp) o (mkpt xh₁ yh₁) -> 
+      Da <= Du <= Db.
+Proof.
+  intros * zltra rur tur * tU U * tA A * tB B.
+
+  apply path_stdR in U.
+  apply path_stdR in A.
+  apply path_stdR in B.
+
+  apply turning_rot in tU.
+  apply turning_rot in tA.
+  apply turning_rot in tB.
+
+  assert (((x₁ - x₀) * cos θ₀ + (y₁ - y₀) * sin θ₀) = x) as id. {
+    unfold x₁, y₁.
+    setl ( x * ((sin θ₀)² + (cos θ₀)²) + y * (sin θ₀ * cos θ₀ - cos θ₀ * sin θ₀)).
+    rewrite sin2_cos2, <- sin_minus.
+    arn.
+    reflexivity. }
+  rewrite id in *; clear id.
+
+  assert ((- (x₁ - x₀) * sin θ₀ + (y₁ - y₀) * cos θ₀) = y) as id. {
+    unfold x₁, y₁.
+    setl ( y * ((sin θ₀)² + (cos θ₀)²) + x * (sin θ₀ * cos θ₀ - cos θ₀ * sin θ₀)).
+    rewrite sin2_cos2, <- sin_minus.
+    arn.
+    reflexivity. }
+  rewrite id in *; clear id.
+
+  assert (((xl₁ - x₀) * cos θ₀ + (yl₁ - y₀) * sin θ₀) = xl) as id. {
+    unfold xl₁, yl₁.
+    setl ( xl * ((sin θ₀)² + (cos θ₀)²) + yl * (sin θ₀ * cos θ₀ - cos θ₀ * sin θ₀)).
+    rewrite sin2_cos2, <- sin_minus.
+    arn.
+    reflexivity. }
+  rewrite id in *; clear id.
+
+  assert ((- (xl₁ - x₀) * sin θ₀ + (yl₁ - y₀) * cos θ₀) = yl) as id. {
+    unfold xl₁, yl₁.
+    setl ( yl * ((sin θ₀)² + (cos θ₀)²) + xl * (sin θ₀ * cos θ₀ - cos θ₀ * sin θ₀)).
+    rewrite sin2_cos2, <- sin_minus.
+    arn.
+    reflexivity. }
+  rewrite id in *; clear id.
+
+  assert (((xh₁ - x₀) * cos θ₀ + (yh₁ - y₀) * sin θ₀) = xh) as id. {
+    unfold xh₁, yh₁.
+    setl ( xh * ((sin θ₀)² + (cos θ₀)²) + yh * (sin θ₀ * cos θ₀ - cos θ₀ * sin θ₀)).
+    rewrite sin2_cos2, <- sin_minus.
+    arn.
+    reflexivity. }
+  rewrite id in *; clear id.
+
+  assert ((- (xh₁ - x₀) * sin θ₀ + (yh₁ - y₀) * cos θ₀) = yh) as id. {
+    unfold xh₁, yh₁.
+    setl ( yh * ((sin θ₀)² + (cos θ₀)²) + xh * (sin θ₀ * cos θ₀ - cos θ₀ * sin θ₀)).
+    rewrite sin2_cos2, <- sin_minus.
+    arn.
+    reflexivity. }
+  rewrite id in *; clear id.
+  
+  eapply bounded_turning_part_std; eassumption.
+Qed.
+
