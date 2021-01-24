@@ -680,7 +680,7 @@ Proof.
 Qed.
   
 
-Lemma squatting_triangle_acute :
+Lemma squatting_triangle :
   forall h b1 b2 h' 
          (zlth : 0 < h)
          (zltb1 : 0 < b1)
@@ -702,8 +702,36 @@ Proof.
   apply Rplus_le_lt_compat; try lra.
   apply Rsqr_incrst_1; lra.
 Qed.
+  
+Lemma smaller_interior_path_triangle_obtuse :
+  forall h b1 b2 b2' h' 
+         (zlth : 0 < h' < h)
+         (zltb1 : 0 < b1)
+         (zltb2' : 0 < b2' < b2)
+         (wtn : h / b2 < h' / b2')
+         (wto : h' / (b1+b2') < h / (b1+b2)),
+    sqrt((b1+b2')² + h'²) + sqrt(b2'² + h'²) <
+    sqrt((b1+b2)² + h²) + sqrt(b2² + h²).
+Proof.
+  intros.
+  set (h'' := (b1+b2') * h / (b1+b2)).
+  apply (Rlt_le_trans _ (sqrt((b1+b2')² + h''²) + sqrt(b2'² + h''²))).
+  + apply squatting_triangle; try lra; unfold h''.
+    zltab.
+    lra.
+    split; try lra.
+    apply (Rmult_lt_reg_r (/ (b1 + b2'))).
+    zltab; try lra.
+    lrag wto.
+  + apply sliding_triangle_obtuse; try lra.
+    unfold h''.
+    zltab; try lra.
+    unfold h''.
+    field; try lra.
+Qed.
 
-Lemma smaller_interior_path_triangle :
+
+Lemma smaller_interior_path_triangle_acute :
   forall h b1 b2 h' b1' b2'
          (zlth : 0 < h)
          (zltb1 : 0 < b1)
@@ -731,7 +759,7 @@ Proof.
     destruct (total_order_T b1' b1); [destruct s|].
     + set (h' :=  h * b1' * / b1).
       apply (Rlt_le_trans _ (sqrt (b1'² + h'²) + sqrt (b2'² + h'²))).
-      apply squatting_triangle_acute; try lra.
+      apply squatting_triangle; try lra.
       unfold h'.
       zltab.
       split.
@@ -750,7 +778,7 @@ Proof.
       unfold h'.
       reflexivity.
     + apply (Rlt_le_trans _ (sqrt (b1'² + h²) + sqrt (b2'² + h²))).
-      apply squatting_triangle_acute; try lra.
+      apply squatting_triangle; try lra.
       assert (b2' = b2) as f; try lra.
       rewrite e, f.
       right; reflexivity.
@@ -758,7 +786,7 @@ Proof.
       apply (Rlt_le_trans _ (sqrt (b2'² + h'²) + sqrt (b1'² + h'²))).
       rewrite Rplus_comm.
       
-      apply squatting_triangle_acute; try lra.
+      apply squatting_triangle; try lra.
       unfold h'.
       zltab.
       split.
@@ -805,6 +833,88 @@ Proof.
     apply Rlt_0_sqr; try lra.
 Qed.
 
+(* Relative length between a path created by
+   two lines intersecting the origin,
+   and another created by two lines intersecting 
+   the point (x,0). *)
+
+(* outer triangle   y = m * x
+                    y = n * (x - k)
+  inner triangle    y = m1 * x
+                    y = n1 * (x - k)
+*)
+
+Lemma shorter_path_woPI :
+  forall m n m1 n1 k
+         (ziso : 0 < m1 < m) (* zero intercept slopes *)
+         (kiso : n < n1) (* k-intercept slope order *)
+         (kpos : 0 < k)
+         (int : (m < n /\ n > 0) \/ ( n < 0)),
+    let Px :=  k * n / (n - m) in
+    let Py :=  m * Px in
+    let Qx :=  k * n1 / (n1 - m1) in
+    let Qy :=  m1 * Qx in
+    sqrt (Qx² + Qy²) + sqrt ((Qx - k)² + Qy²) <
+    sqrt (Px² + Py²) + sqrt ((Px - k)² + Py²).
+Proof.
+  intros.
+  
+  destruct (total_order_T n 0) as [[nlt0 |neq0] |ngt0];
+    destruct (total_order_T n1 0) as [[n1lt0 |n1eq0] |n1gt0]; destruct int as [int |int]; try lra.
+  + assert (0 < Px) as pxgt0. {
+      unfold Px, Py.
+      setr (k * (-n) / (-n + m)); try lra.
+      zltab; lra. }
+    assert (0 < Py) as pygt0. {
+      unfold Py; zltab. }
+    assert (0 < Qx) as qxgt0. {
+      unfold Qx, Qy.
+      setr (k * (-n1) / (-n1 + m1)); try lra.
+      zltab; lra. }
+    assert (0 < Qy) as qygt0. {
+      unfold Qy; zltab. }
+
+    rewrite (Rsqr_neg (Px - k)).
+    rewrite (Rsqr_neg (Qx - k)).
+    apply smaller_interior_path_triangle_acute; try lra.
+    
+    unfold Px, Py.
+    setr (k * (1 - (-n) / (- n + m))); try lra.
+    zltab.
+    apply (Rmult_lt_reg_r (- n + m)); try lra.
+    setl 0.
+    setr (m); lra.
+
+    unfold Qx, Qy.
+    setr (k * (1 - (-n1) / (- n1 + m1))); try lra.
+    zltab.
+    apply (Rmult_lt_reg_r (- n1 + m1)); try lra.
+    setl 0.
+    setr (m1); lra.
+
+    unfold Qy, Py.
+    apply (Rmult_lt_reg_r (/ (Px * Qx))); try zltab.
+    setl m1; try lra.
+    setr m; lra.
+
+    unfold Py, Qy, Px, Qx.
+    replace (k * n / (n - m) - k) with (k * (m / (n-m))).
+    replace (k * n1 / (n1 - m1) - k) with (k * (m1 / (n1-m1))).
+    setl (m1 * (k * (-n1) / (- n1 + m1)) * (k * (m / (- n + m)))); try lra.
+    setr (m * (k * (-n) / (- n + m)) * (k * (m1 / (- n1 + m1)))); try lra.
+    apply (Rmult_lt_reg_r (/ (m1 * (k * / (- n1 + m1)) * (k * (m / (- n + m)))))).
+    zltab; try lra.
+    setl (-n1); try lra.
+    setr (-n); lra.
+
+    field_simplify; lra.
+    field_simplify; lra.
+  + admit.
+  + admit.
+  + admit.
+Admitted.
+
+    
 Definition dist_R2 a b := dist_euc (ptx a) (pty a) (ptx b) (pty b).
 
 Lemma dist_R2_pos : forall a b : pt, dist_R2 a b >= 0.
@@ -1129,7 +1239,7 @@ Proof.
            rewrite <- (sin_period1 _ 1).
            apply sin_gt_0;
              lra.
-(*****************************************************)
+
     ++ unfold b1, ax'. (* h, ay' -> b1, ax' *)
 
        rewrite thms in tmidef.
@@ -1158,9 +1268,6 @@ Proof.
        rewrite <- cos_minus.
        assert (θ = θ1 x y r / 2) as tdef. lra.
 
-(*     
-       e - θ1 / 2
-*)
        destruct (total_order_T 0 y); [destruct s|].
        +++ rewrite tdef.
            specialize (root_ordering_rpos_left _ _ _ lt r0 oc) as [rorl roru].
@@ -1255,7 +1362,177 @@ Proof.
                 lra.
        +++ lra.
 
-    ++ admit. (* 0 < b2 *)
+    ++ unfold b2.
+       unfold x', b1, ax'.
+
+       setr ((x - xi) * cos η + (y - yi) * sin η).
+(*       set (xxi := x - xi) in *.
+       set (yyi := y - yi) in *. *)
+
+       rewrite thms in tmidef.
+       unfold atan2 in tmidef.
+       destruct pre_atan2 as [θ [trng [yid xid]]].
+       set (θmax := calcθ₁ 0 0 0 x y).
+       assert (η = θmax / 2) as ed. {
+         unfold η, θmax.
+         rewrite thms. lra. }
+
+       unfold η, atan2 in *.
+       destruct pre_atan2 as [e [erng [yd xd]]].
+       clear η.
+       rewrite xid.
+       rewrite yid at 2.
+       set (M := sqrt (yi² + xi²)) in *.
+       assert (0 < M) as zltm. {
+         unfold M.
+         apply sqrt_lt_R0.
+         apply posss.
+         lra. }
+
+       set (M' := sqrt (y² + x²)) in *.
+       assert (0 < M') as mpgt0. {
+         unfold M'.
+         apply sqrt_lt_R0.
+         apply posss.
+         lra. }
+
+       rewrite yd, xd.
+       setr (M' * ((sin e)² + (cos e)²) + - M * (cos θ * cos e + sin θ * sin e)).
+       rewrite sin2_cos2, <- cos_minus.
+       apply (Rplus_lt_reg_r (M * cos (θ - e))).
+       apply (Rmult_lt_reg_r (/ M)).
+       zltab.
+       setl (cos (θ - e)); try lra.
+       setr (M'/M); try lra.
+       apply (Rle_lt_trans _ 1).
+       apply COS_bound.
+       apply (Rmult_lt_reg_r M); try assumption.
+       setl M. setr M'; try lra.
+       unfold M', M.
+       apply sqrt_lt_1; try zltab.
+
+       
+       SearchPattern (sqrt _ < sqrt _).
+       
+       repeat rewrite Rmult_minus_distr_r.
+       SearchPattern ((_ - _) * _ = _).
+Check cos_plus.
+(*
+      cos (θ + e) < M' / M
+*)
+(* setr (M' * cos e - M * cos θ) * cos e + (M' * sin e - M * sin θ) * sin e *)
+         SearchPattern (0 < sqrt _).
+       Check thms.
+       Check cos_minus.
+       Search atan2.
+       
+       Check cosatan.
+(*
+  M * cos (θ - e) < (x * cos e) + (y * sin e) 
+  sqrt (2 * r * yi) * cos (θ - e) < 1
+*)
+       apply (Rmult_lt_reg_r (/ M)).
+       zltab.
+       setl 0; try lra.
+       setr (cos e * cos θ + sin e * sin θ); try lra.
+       rewrite <- cos_minus.
+       assert (θ = θ1 x y r / 2) as tdef. lra.
+
+       destruct (total_order_T 0 y); [destruct s|].
+       +++ rewrite tdef.
+           specialize (root_ordering_rpos_left _ _ _ lt r0 oc) as [rorl roru].
+           change (θ1 x y r < θmax) in rorl.
+           clear roru.
+
+           apply cos_gt_0; try lra.
+
+           destruct (Rlt_dec 0 x) as [zltx | zgex].
+           ++++ assert (0 < e <= PI/2) as [elb eub]. {
+                  rewrite ed.
+                  unfold θmax.
+                  rewrite thms.
+                  fieldrewrite (2 * atan2 y x / 2) (atan2 y x).
+                  specialize (atan2Q1 _ _ zltx r0) as at2b.
+                  lra. }
+                lra.
+           ++++ apply Rnot_lt_le in zgex.
+                destruct zgex as [xlt0 |xeq0].
+                assert (PI / 2 < e < PI) as [el eu]. {
+                  rewrite ed.
+                  unfold θmax.
+                  rewrite thms.
+                  fieldrewrite (2 * atan2 y x / 2) (atan2 y x).
+                  apply (atan2Q2 _ _ xlt0 r0).
+                }
+                (* x < 0 part *)
+                specialize (tinrng _ _ _ _ _ _ oc) as t1rng.
+                autorewrite with null in t1rng.
+                simpl in t1rng.
+                change (0 < r * θ1 x y r < Rabs r * 2 * PI ->
+                        0 < θmax /\
+                        (θmax / 2 < θ1 x y r < θmax \/
+                         -2 * PI < θ1 x y r < θmax / 2 - 2 * PI) \/
+                        θmax < 0 /\
+                        (θmax < θ1 x y r < θmax / 2 \/
+                         θmax / 2 + 2 * PI < θ1 x y r < 2 * PI)) in t1rng.
+                rewrite <- ed in *.
+                assert (0 < r * θ1 x y r < Rabs r * 2 * PI) as cond. {
+                  split.
+                  zltab.
+                  apply (Rmult_lt_reg_r (/r)); try zltab.
+                  setl (θ1 x y r); try lra.
+                  rewrite Rabs_right; try lra.
+                  setr (2 * PI); lra. }
+                specialize (t1rng cond).
+                assert (0 < θmax) as zlttm. {
+                  unfold θmax.
+                  rewrite thms.
+                  apply (Rmult_lt_reg_r (/2)); try lra.
+                  setl 0.
+                  setr (atan2 y x).
+                  specialize (atan2Q2 _ _ xlt0 r0) as [tml tmu].
+                  specialize PI_RGT_0 as pigt0.
+                  lra. }
+                destruct t1rng as [t1rng|t1rng]; lra.
+
+                (* x = 0 part *)
+                assert (e = PI / 2) as epi2. {
+                  rewrite ed.
+                  unfold θmax.
+                  rewrite thms, xeq0, atan2_PI2;
+                    lra. }
+                rewrite epi2.
+                lra.
+
+       +++ destruct (Rlt_dec 0 x) as [zltx | zgex].
+           ++++ clear - lb zltx e0 lt p1p2 p2ub.
+                rewrite <- e0 in *.
+                autorewrite with null in lb.
+                assert (0 < wy) as zlewy. {
+                  unfold wy.
+                  apply Rmult_lt_0_compat.
+                  assumption.
+                  specialize (COS_bound φ₂) as [clb cub].
+                  destruct cub.
+                  lra.
+                  apply cosθeq1 in H; try lra. }
+                exfalso.
+                generalize lb.
+                change (~ 0 >= wy * x).
+                apply Rlt_not_ge.
+                zltab.
+           ++++ apply Rnot_lt_le in zgex.
+                destruct zgex as [xlt |xeq].
+                symmetry in e0.
+                specialize (root_ordering_nxarm _ _ _ lt e0 xlt oc) as [t1tm [tmt2 [t1l t1u]]].
+                change (θ1 x y r < θmax) in t1tm.
+                clear tmt2.
+                change (PI < θ1 x y r) in t1l.
+                apply cos_gt_0; lra.
+                lra.
+       +++ lra.
+
+      admit. (* 0 < b2 *)
 (*****************************************************)
     ++ unfold h', aiy'.
        setr (wx * sin η - wy * cos η).
