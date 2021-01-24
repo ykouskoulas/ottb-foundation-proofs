@@ -838,16 +838,17 @@ Qed.
    and another created by two lines intersecting 
    the point (x,0). *)
 
-(* outer triangle   y = m * x
-                    y = n * (x - k)
-  inner triangle    y = m1 * x
-                    y = n1 * (x - k)
+(*
+  outer triangle   y = m * x
+                   y = n * (x - k)
+  inner triangle   y = m1 * x
+                   y = n1 * (x - k)
 *)
 
 Lemma shorter_path_woPI :
   forall m n m1 n1 k
-         (ziso : 0 < m1 < m) (* zero intercept slopes *)
-         (kiso : n < n1) (* k-intercept slope order *)
+         (ziso : 0 < m1 < m) (* origin intercept slopes *)
+         (kiso : n < n1 < 0 \/ 0 < n < n1 \/ n1 < 0 < n) (* k x-intercept slope order *)
          (kpos : 0 < k)
          (int : (m < n /\ n > 0) \/ ( n < 0)),
     let Px :=  k * n / (n - m) in
@@ -860,7 +861,9 @@ Proof.
   intros.
   
   destruct (total_order_T n 0) as [[nlt0 |neq0] |ngt0];
-    destruct (total_order_T n1 0) as [[n1lt0 |n1eq0] |n1gt0]; destruct int as [int |int]; try lra.
+    destruct (total_order_T n1 0) as [[n1lt0 |n1eq0] |n1gt0];
+    destruct int as [int |int];
+    try lra.
   + assert (0 < Px) as pxgt0. {
       unfold Px, Py.
       setr (k * (-n) / (-n + m)); try lra.
@@ -909,9 +912,129 @@ Proof.
 
     field_simplify; lra.
     field_simplify; lra.
-  + admit.
-  + admit.
-  + admit.
+
+  + assert (0 < Px) as pxgt0. {
+      unfold Px, Py.
+      zltab; lra. }
+    assert (0 < Py) as pygt0. {
+      unfold Py; zltab. }
+    assert (0 < Qx) as qxgt0. {
+      unfold Qx, Qy.
+      setr (k * (-n1) / (- n1 + m1)); try lra.
+      zltab; lra. }
+    assert (0 < Qy) as qygt0. {
+      unfold Qy; zltab. }
+
+    rewrite (Rsqr_neg (Qx - k)).
+    set (Qy' := m * Qx).
+
+    apply (Rlt_trans _ (sqrt (Qx² + Qy'²) + sqrt ((- (Qx - k))² + Qy'²))).
+    apply squatting_triangle; try lra.
+    unfold Qy'; zltab.
+    unfold Qx.
+    setr (k * (1 - (-n1) / (- n1 + m1))); try lra.
+    zltab.
+    apply (Rplus_lt_reg_r (- n1 / (- n1 + m1))).
+    apply (Rmult_lt_reg_r (-n1 + m1)); try lra.
+    setl (-n1); lra.
+    unfold Qy, Qy'.
+    split; try lra.
+    zltab.
+    apply (Rmult_lt_reg_r (/ Qx)); [zltab|].
+    setl m1; try lra.
+    setr m; lra.
+
+    
+    set (Qy'' := m * k).
+    assert (Qx < k) as qxltk. {
+      unfold Qx.
+      setl (k * ((-n1) / (m1 - n1))); try lra.
+      rewrite <- (Rmult_1_r k) at 2.
+      apply Rmult_lt_compat_l; try assumption.
+      apply (Rmult_lt_reg_r (m1 - n1)); try lra.
+      setl (-n1); lra. }
+
+    apply (Rlt_trans _ (sqrt (k² + Qy''²) + sqrt ( Qy''²)));
+                                unfold Qy', Qy''.
+    ++ admit.
+    ++ admit.
+
+  + assert (0 < Px) as pxgt0. {
+      unfold Px, Py.
+      zltab; lra. }
+    assert (0 < Py) as pygt0. {
+      unfold Py; zltab. }
+    assert (0 < Qx) as qxgt0. {
+      unfold Qx, Qy.
+      zltab; lra. }
+    assert (0 < Qy) as qygt0. {
+      unfold Qy; zltab. }
+
+    assert (Qy < Py) as qyltpy. {
+      unfold Qy, Py, Qx, Px.
+      apply Rmult_gt_0_lt_compat; try lra.
+      apply Rlt_gt.
+      zltab; lra.
+      
+      setl (k * (n1 / (n1 - m1))); try lra.
+      setr (k * (n / (n - m))); try lra.
+      apply Rmult_lt_compat_l; try lra.
+      apply (Rmult_lt_reg_r ((n1-m1)*(n-m))); try zltab.
+      apply (Rplus_lt_reg_r (- n1 * n)).
+      setl (- (n1 * m)); try lra.
+      setr (- (n * m1)); try lra.
+      apply Ropp_lt_contravar.
+      apply Rmult_gt_0_lt_compat; try lra. }
+
+    assert (k < Qx) as kltqx. {
+      unfold Qx.
+      rewrite <- (Rmult_1_r k) at 1.
+      setr (k * (n1 / (n1 - m1))); try lra.
+      apply Rmult_lt_compat_l; try lra.
+      apply (Rmult_lt_reg_r (n1 - m1)); try lra.
+      setl (n1 - m1).
+      setr (n1); lra. }
+
+    destruct kiso as [kiso | kiso]; try lra.
+    destruct kiso as [kiso | kiso]; try lra.
+
+    assert (Qx < Px) as qxltpx. {
+      unfold Qx, Px.
+      apply (Rmult_lt_reg_r (/ k * (n1 - m1) * (n -m ))); try zltab.
+      apply (Rplus_lt_reg_r (- n1 * n)).
+      setl (- (n1 * m)); try lra.
+      setr (- (m1 * n)); try lra.
+      apply Ropp_lt_contravar.
+      rewrite Rmult_comm.
+      apply Rmult_gt_0_lt_compat; try lra. }
+
+    replace (Qx² + Qy²) with ((k + (Qx - k))² + Qy²).
+    replace (Px² + Py²) with ((k + (Px - k))² + Py²).
+    destruct int as [mltn zltn].
+    apply smaller_interior_path_triangle_obtuse; try lra.
+
+    (* n < n1 *)
+    unfold Py, Qy, Px, Qx.
+    setl (n).
+    split; try lra.
+    replace (k * n - k * (n - m)) with (k * m) by try lra.
+    apply Rmult_integral_contrapositive_currified; try lra.
+    setr n1.
+    split; try lra.
+    replace (k * n1 - k * (n1 - m1)) with (k * m1) by try lra.
+    apply Rmult_integral_contrapositive_currified; try lra.
+    lra.
+
+    replace (k + (Qx - k)) with Qx by lra.
+    replace (k + (Px - k)) with Px by lra.
+
+    (* m1 < m *)
+    unfold Qy, Py, Qx, Px.
+    setl m1; try lra.
+    setr m; lra.
+
+    replace (k + (Px - k)) with Px by lra; reflexivity.
+    replace (k + (Qx - k)) with Qx by lra; reflexivity.
 Admitted.
 
     
