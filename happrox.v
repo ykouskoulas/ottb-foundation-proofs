@@ -556,11 +556,273 @@ Proof.
     destruct Rbar_le_dec; simpl in *; try lra.
 Qed.
 
+(* d1 is the distance from vertex 1 to the x coordinate of "center" vertex
+   d2 is the distance from x coordinate of the "center" vertex to vertex 2
+   vertex 1 and 2 are at the origin and the + x axis, respectively *)
+
+Lemma colinear_dist : forall d1 d2 h,
+    0 <= d1 -> 0 <= d2 -> 
+    sqrt (d1 + d2)² = sqrt (d1² + h²) + sqrt (d2² + h²) -> h = 0.
+Proof.
+  intros.
+  rewrite sqrt_Rsqr in H1; try lra.
+  destruct (Req_dec h 0) as [heq0 | hne0]; try assumption.
+
+  exfalso.
+  assert (d1 < sqrt (d1² + h²)) as d1lt. {
+    rewrite <- (sqrt_Rsqr d1) at 1; try lra.
+    apply sqrt_lt_1; try lra.
+    apply Rle_0_sqr.
+    left.
+    apply posss; lra.
+    apply (Rplus_lt_reg_r (- d1²)).
+    setl 0.
+    setr (h²).
+    unfold Rsqr.
+    destruct (Rlt_dec 0 h) as [zlth | zgeh].
+    zltab.
+    apply Rnot_lt_le in zgeh as [hlt0 | heq0]; try lra.
+    setr ((- h)*(- h)).
+    zltab. }
+  
+  assert (d2 < sqrt (d2² + h²)) as d2lt. {
+    rewrite <- (sqrt_Rsqr d2) at 1; try lra.
+    apply sqrt_lt_1; try lra.
+    apply Rle_0_sqr.
+    left.
+    apply posss; lra.
+    apply (Rplus_lt_reg_r (- d2²)).
+    setl 0.
+    setr (h²).
+    unfold Rsqr.
+    destruct (Rlt_dec 0 h) as [zlth | zgeh].
+    zltab.
+    apply Rnot_lt_le in zgeh as [hlt0 | heq0]; try lra.
+    setr ((- h)*(- h)).
+    zltab. }
+  specialize (Rplus_lt_compat _ _ _ _ d1lt d2lt) as lt.
+  rewrite <- H1 in lt.
+  lra.
+Qed.
+
+
+Lemma line_segment_trans : forall tx ty x0 x1 y0 y1,
+    (x0 - x1)² + (y0 - y1)² = ((x0+tx) - (x1+tx))² + ((y0+ty) - (y1+ty))².
+Proof.
+  intros.
+  replace (x0 + tx - (x1 + tx)) with (x0 - x1) by lra.
+  replace (y0 + ty - (y1 + ty)) with (y0 - y1) by lra.
+  reflexivity.
+Qed.
+
+
+
+Lemma line_segment_rot : forall a x0 x1 y0 y1,
+    let x0' := x0 * cos a - y0 * sin a in
+    let y0' := x0 * sin a + y0 * cos a in
+    let x1' := x1 * cos a - y1 * sin a in
+    let y1' := x1 * sin a + y1 * cos a in
+    (x0 - x1)² + (y0 - y1)² = (x0' - x1')² + (y0' - y1')².
+Proof.
+  intros.
+  set (L := (x0 - x1)² + (y0 - y1)²).
+  unfold x0', x1', y0', y1'.
+  setr (x0² * ((sin a)² + (cos a)²)
+        + y0² * ((sin a)² + (cos a)²)
+        + x1² * ((sin a)² +  (cos a)²)
+        + y1² * ((sin a)² +  (cos a)²)
+          - 2 * x0 * x1 * ((sin a)² +  (cos a)²)
+          - 2 * y0 * y1 * ((sin a)² +  (cos a)²)).
+  rewrite sin2_cos2.
+  arn.
+  unfold L.
+  repeat rewrite Rsqr_minus.
+  field.
+Qed.
+
+
+Lemma line_segment_trans_rot : forall a tx ty x0 y0 x1 y1,
+    let x0' := (x0 + tx) * cos a - (y0 + ty) * sin a in
+    let y0' := (x0 + tx) * sin a + (y0 + ty) * cos a in
+    let x1' := (x1 + tx) * cos a - (y1 + ty) * sin a in
+    let y1' := (x1 + tx) * sin a + (y1 + ty) * cos a in
+    (x0 - x1)² + (y0 - y1)² = (x0' - x1')² + (y0' - y1')².
+Proof.
+  intros.
+  rewrite (line_segment_trans tx ty x0 x1).
+  rewrite (line_segment_rot a (x0 + tx) (x1 + tx)).
+  unfold x0', x1', y0', y1'.
+  reflexivity.
+Qed.
+
+    
+Lemma colinear_coord : forall x0 y0 x1 y1 x2 y2,
+    ~ (x2 - x0 = 0 /\ y2 - y0 = 0) -> 
+    sqrt ((x0 - x2)² + (y0 - y2)²) =
+    sqrt ((x0 - x1)² + (y0 - y1)²) + sqrt ((x1 - x2)² + (y1 - y2)²) ->
+    let a := atan2 (y2 - y0) (x2 - x0) in
+    - (x1 - x0) * sin a + (y1 - y0) * cos a = 0.
+Proof.
+  intros * no cl *.
+  unfold atan2 in *.
+  destruct pre_atan2 as [q [qrng [defy defx]]].
+  unfold a in *; clear a.
+  set (M := sqrt ((y2 - y0)² + (x2 - x0)²)) in *.
+
+  assert (0 < (y2 - y0)² + (x2 - x0)²) as ss. { apply posss; lra. }
+         
+  assert (0 < M) as zleM. {
+    unfold M.
+    rewrite <- sqrt_0.
+    apply sqrt_lt_1; try lra. }
+
+  
+  repeat rewrite (line_segment_trans_rot (-q) (-x0) (-y0) x0 y0) in cl.
+  rewrite (line_segment_trans_rot (-q) (-x0) (-y0) x1 y1) in cl.
+
+  set (x2' := ((x2 - x0) * cos q + (y2 - y0) * sin q)) in *.  
+  
+  replace ((x0 + - x0) * cos (- q) - (y0 + - y0) * sin (- q) -
+           ((x2 + - x0) * cos (- q) - (y2 + - y0) * sin (- q))) with
+      (0 - x2') in cl.
+  2 : { unfold x2'; rewrite sin_neg, cos_neg; field. }
+
+  set (y2' := (- (x2 - x0) * sin q + (y2 - y0) * cos q)) in *.
+
+  replace ((x0 + - x0) * sin (- q) + (y0 + - y0) * cos (- q) -
+           ((x2 + - x0) * sin (- q) + (y2 + - y0) * cos (- q))) with
+      (0 - y2') in cl.
+  2 : { unfold y2'; rewrite sin_neg, cos_neg; field. }
+
+  set (x1' := ((x1 - x0) * cos q + (y1 - y0) * sin q)) in *.
+  replace ((x0 + - x0) * cos (- q) - (y0 + - y0) * sin (- q) -
+           ((x1 + - x0) * cos (- q) - (y1 + - y0) * sin (- q))) with
+      (0 - x1') in cl.
+  2 : { unfold x1'; rewrite sin_neg, cos_neg; field. }
+
+  set (y1' := (- (x1 - x0) * sin q + (y1 - y0) * cos q)) in *.
+  replace ((x0 + - x0) * sin (- q) + (y0 + - y0) * cos (- q) -
+           ((x1 + - x0) * sin (- q) + (y1 + - y0) * cos (- q))) with
+      (0 - y1') in cl.
+  2 : { unfold y1'; rewrite sin_neg, cos_neg; field. }
+
+  replace ((x1 + - x0) * cos (- q) - (y1 + - y0) * sin (- q) -
+           ((x2 + - x0) * cos (- q) - (y2 + - y0) * sin (- q))) with
+      (x1' - x2') in cl.
+  2 : { unfold x1', x2'; rewrite sin_neg, cos_neg; field. }
+
+  replace ((x1 + - x0) * sin (- q) + (y1 + - y0) * cos (- q) -
+           ((x2 + - x0) * sin (- q) + (y2 + - y0) * cos (- q))) with
+      (y1' - y2') in cl.
+  2 : { unfold y1', y2'; rewrite sin_neg, cos_neg; field. }
+
+  assert (y2' = 0) as y2'eq0. {
+    unfold y2'.
+    rewrite defx, defy.
+    field. }
+
+  assert (0 < x2') as zltx2'. {
+    unfold x2'.
+    rewrite defx, defy.
+    setr (M * ((sin q)² + (cos q)²)).
+    rewrite sin2_cos2.
+    lra. }
+
+  rewrite y2'eq0 in *.
+  autorewrite with null in cl.
+  repeat rewrite <- Rsqr_neg in cl.
+  destruct (total_order_T x1' 0) as [[x1'lt0 |x1'eq0]|x1'gt0];
+  destruct (total_order_T x1' x2') as [[x1'ltx2' |x1'eqx2']|x1'gtx2']; try lra.
+  + exfalso.
+    rewrite (Rsqr_neg (x1' - x2')) in cl;
+      replace (- (x1' - x2')) with (x2' - x1') in cl by lra.
+    assert (sqrt x2'² < sqrt (x1'² + y1'²) + sqrt ((x2' - x1')² + y1'²)) as ctr. {
+      rewrite <- (Rplus_0_l (sqrt x2'²)).
+      apply Rplus_le_lt_compat.
+      apply sqrt_pos.
+      apply sqrt_lt_1;
+        [apply Rle_0_sqr|
+         apply Rplus_le_le_0_compat; apply Rle_0_sqr|].
+      rewrite <- (Rplus_0_r x2'²).
+      apply Rplus_lt_le_compat.
+      apply Rsqr_incrst_1; try lra.
+      apply Rle_0_sqr. }
+    lra.
+
+  + rewrite (Rsqr_neg (x1' - x2')) in cl;
+      replace (- (x1' - x2')) with (x2' - x1') in cl by lra.
+    replace x2' with (x1' + (x2' - x1')) in cl at 1 by lra.
+    apply colinear_dist in cl; lra.
+
+  + rewrite (Rsqr_neg (x1' - x2')) in cl;
+      replace (- (x1' - x2')) with (x2' - x1') in cl by lra.
+    replace x2' with (x1' + (x2' - x1')) in cl at 1 by lra.
+    apply colinear_dist in cl; lra.
+
+  + rewrite (Rsqr_neg (x1' - x2')) in cl;
+      replace (- (x1' - x2')) with (x2' - x1') in cl by lra.
+    replace x2' with (x1' + (x2' - x1')) in cl at 1 by lra.
+    apply colinear_dist in cl; lra.
+
+  + rewrite sqrt_Rsqr in cl; [|left; assumption].
+    assert (x2' < sqrt (x1'² + y1'²) + sqrt ((x1' - x2')² + y1'²))
+(* working here *)
+(**
+x2' = sqrt (x1'² + y1'²) + sqrt ((x1' - x2')² + y1'²)
+x2' = x2' + x1' - x2
+
+x2' < x1' + x1' - x2
+
+**)
+    assert (x2'² < x2'²) as ctr. {
+      rewrite cl at 2.
+      rewrite Rsqr_plus.
+      repeat rewrite Rsqr_sqrt;
+        try (apply Rplus_le_le_0_compat; apply Rle_0_sqr).
+      
+      rewrite Rsqr_minus at 1.
+      apply (Rplus_lt_reg_r (- x2'²)).
+      setl 0.
+      setr ((x1'² + y1'² + x1'² + y1'²) +
+            2 * (sqrt (x1'² + y1'²) * sqrt ((x1' - x2')² + y1'²) - x1' * x2')).
+      apply Rplus_lt_le_0_compat.
+      apply Rplus_lt_le_0_compat; [|apply Rle_0_sqr].
+      apply Rplus_lt_le_0_compat; [|apply Rle_0_sqr].
+      apply Rplus_lt_le_0_compat; [apply Rlt_0_sqr; lra|apply Rle_0_sqr].
+      apply Rmult_le_pos; try lra.
+
+      apply (Rplus_le_reg_r (x1' * x2')).
+      arn.
+      setr (sqrt (x1'² + y1'²) * sqrt ((x1' - x2')² + y1'²)).
+      apply Rsqr_incr_0;
+        [|apply Rmult_le_pos; lra|
+         apply Rmult_le_pos; apply sqrt_pos].
+      repeat rewrite Rsqr_mult.
+      repeat rewrite Rsqr_sqrt; try (apply Rplus_le_le_0_compat; apply Rle_0_sqr).
+
+      rewrite Rmult_plus_distr_r.
+      rewrite Rmult_plus_distr_l.
+      rewrite Rmult_plus_distr_l.
+      rewrite Rsqr_minus.
+      repeat rewrite Rmult_minus_distr_l.
+      repeat rewrite Rmult_plus_distr_l.
+      apply (Rplus_le_reg_r (- x1'² * x2'² + x1'² * x1' * 2  * x2' + y1'² * 2 * x1' * x2')).
+      setl (2 * x1' * (x2' * x1'²  + x2' * y1'²)).
+      setr (y1'² * y1'²
+            + y1'² * x2'²
+            + x1'² * x1'²
+            + 2 * x1'² * y1'²).
+      admit. }
+    exfalso.
+    lra.
+Admitted.
+  
+
 Lemma sliding_triangle_acute :
   forall h b1 b2 h' b1' b2'
          (zlth : 0 < h)
          (zltb1 : 0 < b1)
-         (zltb2 : 0 < b2)
+         (zltb2 : 0 <= b2)
          (zlth' : 0 < h')
          (zltb1': 0 < b1')
          (zltb2' : 0 < b2')
@@ -574,7 +836,25 @@ Proof.
   (* can try to fix this later, if desired to make goal < 
   assert (sqrt (b1'² + h'²) + sqrt (b2'² + h'²) = sqrt (b1² + h²) + sqrt (b2² + h²)) as ctr. admit.
   exfalso. *)
-  specialize (triangle (b1+b2) 0 b1' h' b1 h) as tri.
+  specialize (triangle (b1+b2) 0 b1' h' b1 h) as [tri | etri].
+  2 : { exfalso.
+        unfold dist_euc in *.
+        replace ((b1 + b2 - b1')² + (0 - h')²) with ((b1 - b1' + b2)² + h'²) in etri.
+        replace ((b1 + b2 - b1)² + (0 - h)²) with (b2² + h²) in etri.
+(*
+  hrat : h' = h * b1' * / b1
+  sumb : b1' + b2' = b1 + b2
+  etri : sqrt ((b1 - b1' + b2)² + h'²) = sqrt (b2² + h²) + sqrt ((b1 - b1')² + (h - h')²)
+
+ h' = h * b1' * / b1
+ b1' + b2' = b1 + b2
+
+   sqrt ((b1 - b1' + b2)² + h'²) = sqrt (b2² + h²) + sqrt ((b1 - b1')² + (h - h')²)
+*)
+
+        rewrite hrat in *.
+      }
+  
   unfold dist_euc in tri.
   autorewrite with null in tri.
   rewrite <- sumb in tri at 1.
@@ -623,7 +903,7 @@ Lemma sliding_triangle_obtuse :
          (zltb1 : 0 < b1)
          (zltb2 : 0 < b2)
          (zlth' : 0 < h')
-         (zltb2' : 0 < b2')
+         (zltb2' : 0 <= b2')
          (b2o : b2' < b2)
          (hrat : h' = h * (b1 + b2') * / (b1 + b2)),
     sqrt((b1+b2')² + h'²) + sqrt(b2'² + h'²) <=
@@ -953,11 +1233,12 @@ Proof.
       apply Rmult_lt_compat_l; try assumption.
       apply (Rmult_lt_reg_r (m1 - n1)); try lra.
       setl (-n1); lra. }
-
-    apply (Rlt_trans _ (sqrt (k² + Qy''²) + sqrt ( Qy''²)));
-                                unfold Qy', Qy''.
-    ++ admit.
-    ++ admit.
+    
+    apply (Rlt_trans _ (sqrt (k² + Qy''²) + sqrt (0² + Qy''²))).
+    ++ apply sliding_triangle_acute.
+    ++ replace k with (k + 0) at 1.
+       replace Px with (k + (Px - k)) at 1.
+       apply sliding_triangle_obtuse.
 
   + assert (0 < Px) as pxgt0. {
       unfold Px, Py.
