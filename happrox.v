@@ -765,59 +765,29 @@ Proof.
     apply colinear_dist in cl; lra.
 
   + rewrite sqrt_Rsqr in cl; [|left; assumption].
-    assert (x2' < sqrt (x1'² + y1'²) + sqrt ((x1' - x2')² + y1'²))
-(* working here *)
-(**
-x2' = sqrt (x1'² + y1'²) + sqrt ((x1' - x2')² + y1'²)
-x2' = x2' + x1' - x2
-
-x2' < x1' + x1' - x2
-
-**)
-    assert (x2'² < x2'²) as ctr. {
-      rewrite cl at 2.
-      rewrite Rsqr_plus.
-      repeat rewrite Rsqr_sqrt;
-        try (apply Rplus_le_le_0_compat; apply Rle_0_sqr).
-      
-      rewrite Rsqr_minus at 1.
-      apply (Rplus_lt_reg_r (- x2'²)).
-      setl 0.
-      setr ((x1'² + y1'² + x1'² + y1'²) +
-            2 * (sqrt (x1'² + y1'²) * sqrt ((x1' - x2')² + y1'²) - x1' * x2')).
-      apply Rplus_lt_le_0_compat.
-      apply Rplus_lt_le_0_compat; [|apply Rle_0_sqr].
-      apply Rplus_lt_le_0_compat; [|apply Rle_0_sqr].
-      apply Rplus_lt_le_0_compat; [apply Rlt_0_sqr; lra|apply Rle_0_sqr].
-      apply Rmult_le_pos; try lra.
-
-      apply (Rplus_le_reg_r (x1' * x2')).
-      arn.
-      setr (sqrt (x1'² + y1'²) * sqrt ((x1' - x2')² + y1'²)).
-      apply Rsqr_incr_0;
-        [|apply Rmult_le_pos; lra|
-         apply Rmult_le_pos; apply sqrt_pos].
-      repeat rewrite Rsqr_mult.
-      repeat rewrite Rsqr_sqrt; try (apply Rplus_le_le_0_compat; apply Rle_0_sqr).
-
-      rewrite Rmult_plus_distr_r.
-      rewrite Rmult_plus_distr_l.
-      rewrite Rmult_plus_distr_l.
-      rewrite Rsqr_minus.
-      repeat rewrite Rmult_minus_distr_l.
-      repeat rewrite Rmult_plus_distr_l.
-      apply (Rplus_le_reg_r (- x1'² * x2'² + x1'² * x1' * 2  * x2' + y1'² * 2 * x1' * x2')).
-      setl (2 * x1' * (x2' * x1'²  + x2' * y1'²)).
-      setr (y1'² * y1'²
-            + y1'² * x2'²
-            + x1'² * x1'²
-            + 2 * x1'² * y1'²).
-      admit. }
-    exfalso.
+    assert (x2' < sqrt (x1'² + y1'²) + sqrt ((x1' - x2')² + y1'²)) as ctr. {
+      apply (Rlt_le_trans _ (sqrt (x1'²) + sqrt ((x1' - x2')²))).
+      apply (Rlt_le_trans _ (x1' + (x1' - x2'))).
+      lra.
+      repeat rewrite sqrt_Rsqr; try lra.
+      apply Rplus_le_compat.
+      apply sqrt_le_1;
+        [apply Rle_0_sqr|
+         apply Rplus_le_le_0_compat; apply Rle_0_sqr|
+         apply (Rplus_le_reg_r (- x1'²));
+         setl 0;
+         setr (y1'²);
+         apply Rle_0_sqr].
+      apply sqrt_le_1;
+        [apply Rle_0_sqr|
+         apply Rplus_le_le_0_compat; apply Rle_0_sqr|
+         apply (Rplus_le_reg_r (-(x1' - x2')²));
+         setl 0;
+         setr (y1'²);
+         apply Rle_0_sqr]. }
     lra.
-Admitted.
-  
-
+Qed.
+      
 Lemma sliding_triangle_acute :
   forall h b1 b2 h' b1' b2'
          (zlth : 0 < h)
@@ -829,32 +799,63 @@ Lemma sliding_triangle_acute :
          (bp1ltb1 : b1' < b1)
          (hrat : h' = h * b1' * / b1)
          (sumb : b1' + b2' = b1 + b2),
-    sqrt(b1'² + h'²) + sqrt(b2'² + h'²) <=
+    sqrt(b1'² + h'²) + sqrt(b2'² + h'²) <
     sqrt(b1² + h²) + sqrt(b2² + h²).
 Proof.
   intros.
-  (* can try to fix this later, if desired to make goal < 
-  assert (sqrt (b1'² + h'²) + sqrt (b2'² + h'²) = sqrt (b1² + h²) + sqrt (b2² + h²)) as ctr. admit.
-  exfalso. *)
+
   specialize (triangle (b1+b2) 0 b1' h' b1 h) as [tri | etri].
   2 : { exfalso.
         unfold dist_euc in *.
-        replace ((b1 + b2 - b1')² + (0 - h')²) with ((b1 - b1' + b2)² + h'²) in etri.
-        replace ((b1 + b2 - b1)² + (0 - h)²) with (b2² + h²) in etri.
-(*
-  hrat : h' = h * b1' * / b1
-  sumb : b1' + b2' = b1 + b2
-  etri : sqrt ((b1 - b1' + b2)² + h'²) = sqrt (b2² + h²) + sqrt ((b1 - b1')² + (h - h')²)
+        apply colinear_coord in etri; try lra.
+        replace (- (b1 - (b1 + b2))) with b2 in etri by lra.
+        autorewrite with null in etri.
+        rewrite atan2_cos_id, atan2_sin_id in etri; try lra.
+        repeat rewrite <- Rsqr_pow2 in etri.
 
- h' = h * b1' * / b1
- b1' + b2' = b1 + b2
+        assert (b2 * h' + h * (- b2') = 0) as etr2. {
+          replace (- b2') with (b1' - (b1 + b2)).
+          2 : { rewrite <- sumb; lra. }
+          assert (0 < / sqrt ((b1' - (b1 + b2))² + h'²)) as dgt0. {
+            zltab.
+            apply sqrt_lt_R0.
+            apply Rplus_le_lt_0_compat; try (apply Rle_0_sqr).
+            unfold Rsqr.
+            apply Rmult_lt_0_compat; lra. }
+          
+          apply (Rmult_eq_reg_r (/ sqrt ((b1' - (b1 + b2))² + h'²))); try lra. }
 
-   sqrt ((b1 - b1' + b2)² + h'²) = sqrt (b2² + h²) + sqrt ((b1 - b1')² + (h - h')²)
-*)
+        assert (b2' = b1 + b2 - b1') as b2d; try lra.
+        assert ((b1 + b2) * (b1 - b1') = 0) as ctr. {
+          setl (b1 * (b1 + b2 - b1') - b2 * b1').
+          rewrite <- b2d.
+          apply (Rplus_eq_reg_r (b2 * b1')).
+          apply (Rmult_eq_reg_r (/ (b2' * b1')));
+            [| zltab; apply Rmult_integral_contrapositive_currified; try zltab].
+          setl (b1 / b1'); try lra.
+          setr (b2 / b2'); try lra.
 
-        rewrite hrat in *.
-      }
-  
+          assert (h / h' = b1 / b1') as hhd1. {
+            apply (Rmult_eq_reg_r (h' * b1' / b1)).
+            symmetry; lrag hrat; lra.
+            rewrite <- RmultRinv.
+            apply Rmult_integral_contrapositive_currified; try zltab.
+            apply Rmult_integral_contrapositive_currified; try zltab. }
+
+          assert (h / h' = b2 / b2') as hhd2. {
+            apply (Rmult_eq_reg_r (h' * b2')).
+            apply (Rplus_eq_reg_r (- (b2 / b2' * (h' * b2')))).
+            setr (-0); try lra.
+            setl (- (- h / h' * (h' * b2') + (b2 / b2' * (h' * b2')))); try lra.
+            apply Ropp_eq_compat.
+            lrag etr2; try lra.
+            apply Rmult_integral_contrapositive_currified; try zltab. }
+
+          lrag hrat. }
+
+        apply Rmult_integral in ctr.
+        destruct ctr; lra. }
+        
   unfold dist_euc in tri.
   autorewrite with null in tri.
   rewrite <- sumb in tri at 1.
@@ -906,14 +907,55 @@ Lemma sliding_triangle_obtuse :
          (zltb2' : 0 <= b2')
          (b2o : b2' < b2)
          (hrat : h' = h * (b1 + b2') * / (b1 + b2)),
-    sqrt((b1+b2')² + h'²) + sqrt(b2'² + h'²) <=
+    sqrt((b1+b2')² + h'²) + sqrt(b2'² + h'²) <
     sqrt((b1+b2)² + h²) + sqrt(b2² + h²).
 Proof.
   intros.
-  (* can try to fix this later, if desired to make goal < 
-  assert (sqrt (b1'² + h'²) + sqrt (b2'² + h'²) = sqrt (b1² + h²) + sqrt (b2² + h²)) as ctr. admit.
-  exfalso. *)
-  specialize (triangle b1 0 (b1+b2') h' (b1+b2) h) as tri.
+
+  specialize (triangle b1 0 (b1+b2') h' (b1+b2) h) as [tri|etri].
+  2 : { exfalso.
+        unfold dist_euc in *.
+        apply colinear_coord in etri; try lra.
+        replace (- (b1 + b2 - b1)) with (-b2) in etri by lra.
+        replace (b1 + b2' - b1) with (b2') in etri by lra.
+        autorewrite with null in etri.
+        rewrite atan2_cos_id, atan2_sin_id in etri; try lra.
+        repeat rewrite <- Rsqr_pow2 in etri.
+
+        assert (- b2 * h' + h * b2' = 0) as etr2. {
+          assert (0 < / sqrt (b2'² + h'²)) as dgt0. {
+            zltab.
+            apply sqrt_lt_R0.
+            apply Rplus_le_lt_0_compat; try (apply Rle_0_sqr).
+            unfold Rsqr.
+            apply Rmult_lt_0_compat; lra. }
+          
+          apply (Rmult_eq_reg_r (/ sqrt (b2'² + h'²))); try lra. }
+
+        assert (b2 = b2') as ctr. {
+          apply (Rmult_eq_reg_r b1); try lra.
+          apply (Rplus_eq_reg_r (b2' * b2)).
+          setl ((b1 + b2') * b2).
+          setr (b2' * (b1 + b2)).
+             
+          assert (h' / h = (b1 + b2') * / (b1 + b2)) as hhd1. {
+            apply (Rmult_eq_reg_r h); try lra.
+            lrag hrat; lra. }
+
+          assert (h' / h = b2' / b2) as hhd2. {
+            apply (Rmult_eq_reg_r (h * b2)).
+            apply (Rplus_eq_reg_r (- (b2 * h'))).
+            symmetry.
+            lrag etr2.
+            apply Rmult_integral_contrapositive_currified; try zltab. }
+
+          apply (Rmult_eq_reg_r (/ ((b1 + b2)* b2)));
+             [| zltab; apply Rmult_integral_contrapositive_currified; try zltab].
+          rewrite hhd2 in hhd1.
+          symmetry.
+          lrag hhd1. }
+        lra. }
+
   unfold dist_euc in tri.
   autorewrite with null in tri.
   assert (forall x, (b1 - (b1 + x))= (- x)) as id; try (intros; lra).
@@ -958,7 +1000,7 @@ Proof.
   rewrite id.
   lra.
 Qed.
-  
+
 
 Lemma squatting_triangle :
   forall h b1 b2 h' 
@@ -1003,7 +1045,7 @@ Proof.
     apply (Rmult_lt_reg_r (/ (b1 + b2'))).
     zltab; try lra.
     lrag wto.
-  + apply sliding_triangle_obtuse; try lra.
+  + left; apply sliding_triangle_obtuse; try lra.
     unfold h''.
     zltab; try lra.
     unfold h''.
@@ -1048,7 +1090,7 @@ Proof.
       apply (Rmult_lt_reg_r b1); try lra.
       lrag lb.
       
-      apply sliding_triangle_acute; try lra.
+      left; apply sliding_triangle_acute; try lra.
       unfold h'.
       apply (Rmult_lt_reg_r b1); try lra.
       setl 0.
@@ -1076,7 +1118,7 @@ Proof.
       lrag rb.
       
       rewrite (Rplus_comm (sqrt (b1² + h²))).
-      apply sliding_triangle_acute; try lra.
+      left; apply sliding_triangle_acute; try lra.
       unfold h'.
       apply (Rmult_lt_reg_r b2); try lra.
       setl 0.
@@ -1223,7 +1265,6 @@ Proof.
     apply (Rmult_lt_reg_r (/ Qx)); [zltab|].
     setl m1; try lra.
     setr m; lra.
-
     
     set (Qy'' := m * k).
     assert (Qx < k) as qxltk. {
@@ -1233,13 +1274,14 @@ Proof.
       apply Rmult_lt_compat_l; try assumption.
       apply (Rmult_lt_reg_r (m1 - n1)); try lra.
       setl (-n1); lra. }
-    
-    apply (Rlt_trans _ (sqrt (k² + Qy''²) + sqrt (0² + Qy''²))).
+
+    admit. (* working here *)
+(*    apply (Rlt_trans _ (sqrt (k² + Qy''²) + sqrt (0² + Qy''²))).
     ++ apply sliding_triangle_acute.
     ++ replace k with (k + 0) at 1.
        replace Px with (k + (Px - k)) at 1.
        apply sliding_triangle_obtuse.
-
+*)
   + assert (0 < Px) as pxgt0. {
       unfold Px, Py.
       zltab; lra. }
