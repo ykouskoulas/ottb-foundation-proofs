@@ -1167,7 +1167,7 @@ Qed.
                    y = n1 * (x - k)
 *)
 
-Lemma shorter_path_woPI :
+Lemma shorter_path :
   forall m n m1 n1 k
          (ziso : 0 < m1 < m) (* origin intercept slopes *)
          (kiso : n < n1 < 0 \/ 0 < n < n1 \/ n1 < 0 < n) (* k x-intercept slope order *)
@@ -1275,13 +1275,28 @@ Proof.
       apply (Rmult_lt_reg_r (m1 - n1)); try lra.
       setl (-n1); lra. }
 
-    admit. (* working here *)
-(*    apply (Rlt_trans _ (sqrt (k² + Qy''²) + sqrt (0² + Qy''²))).
-    ++ apply sliding_triangle_acute.
-    ++ replace k with (k + 0) at 1.
-       replace Px with (k + (Px - k)) at 1.
-       apply sliding_triangle_obtuse.
-*)
+    apply (Rlt_trans _ (sqrt (k² + Qy''²) + sqrt (0² + Qy''²))).
+    ++ apply sliding_triangle_acute; try lra.
+       unfold Qy''; apply Rmult_lt_0_compat; lra.
+       unfold Qy'; apply Rmult_lt_0_compat; lra.
+       unfold Qy'', Qy'; field; lra.
+
+    ++ assert (0 < Px - k) as pxkgt0. {
+         unfold Px.
+         apply (Rplus_lt_reg_r k).
+         apply (Rmult_lt_reg_r ((n - m) * / k)); try zltab.
+         setl (n - m); try lra.
+         setr (n); lra. }
+
+       replace k with (k + 0) at 1 by lra.
+       replace Px with (k + (Px - k)) at 1 by lra.
+       apply sliding_triangle_obtuse; try lra.
+       unfold Qy''; apply Rmult_lt_0_compat; lra.
+       unfold Qy'', Py, Px; field.
+       split; try lra.
+       replace (k * (n - m) + (k * n - k * (n - m))) with (k * n); try lra.
+       apply Rmult_integral_contrapositive_currified; try zltab.
+
   + assert (0 < Px) as pxgt0. {
       unfold Px, Py.
       zltab; lra. }
@@ -1358,7 +1373,7 @@ Proof.
 
     replace (k + (Px - k)) with Px by lra; reflexivity.
     replace (k + (Qx - k)) with Qx by lra; reflexivity.
-Admitted.
+Qed.
 
     
 Definition dist_R2 a b := dist_euc (ptx a) (pty a) (ptx b) (pty b).
