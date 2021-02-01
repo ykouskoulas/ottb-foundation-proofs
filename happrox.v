@@ -1645,6 +1645,131 @@ Proof.
     set (Px := k * n / (n - m)).
     set (Py := m * Px).
 
+    assert (ax' <> 0) as ax'neq0.
+    {  unfold ax'.
+       rewrite thms in tmidef.
+       unfold atan2 in tmidef.
+       destruct pre_atan2 as [θ [trng [yid xid]]].
+       set (θmax := calcθ₁ 0 0 0 x y).
+       assert (η = θmax / 2) as ed. {
+         unfold η, θmax.
+         rewrite thms. lra. }
+
+       unfold η, atan2 in *.
+       destruct pre_atan2 as [e [erng [yd xd]]].
+       clear η.
+       rewrite xid.
+       rewrite yid at 2.
+       set (M := sqrt (yi² + xi²)) in *.
+       assert (0 < M) as zltm. {
+         unfold M.
+         apply sqrt_lt_R0.
+         apply posss.
+         lra. }
+       intro Pcos_minus.
+       apply (Rmult_eq_compat_r (/M)) in Pcos_minus.
+       regRL.
+       assert (cos e * cos θ + sin e * sin θ = 0) by lra.
+       apply (Rmult_lt_reg_r (/ M)).
+       zltab.
+       setl 0; try lra.
+       setr (cos e * cos θ + sin e * sin θ); try lra.
+       rewrite <- cos_minus.
+       assert (θ = θ1 x y r / 2) as tdef. lra.
+
+       destruct (total_order_T 0 y); [destruct s|].
+       +++ rewrite tdef.
+           specialize (root_ordering_rpos_left _ _ _ lt r0 oc) as [rorl roru].
+           change (θ1 x y r < θmax) in rorl.
+           clear roru.
+
+           apply cos_gt_0; try lra.
+
+           destruct (Rlt_dec 0 x) as [zltx | zgex].
+           ++++ assert (0 < e <= PI/2) as [elb eub]. {
+                  rewrite ed.
+                  unfold θmax.
+                  rewrite thms.
+                  fieldrewrite (2 * atan2 y x / 2) (atan2 y x).
+                  specialize (atan2Q1 _ _ zltx r0) as at2b.
+                  lra. }
+                lra.
+           ++++ apply Rnot_lt_le in zgex.
+                destruct zgex as [xlt0 |xeq0].
+                assert (PI / 2 < e < PI) as [el eu]. {
+                  rewrite ed.
+                  unfold θmax.
+                  rewrite thms.
+                  fieldrewrite (2 * atan2 y x / 2) (atan2 y x).
+                  apply (atan2Q2 _ _ xlt0 r0).
+                }
+                (* x < 0 part *)
+                specialize (tinrng _ _ _ _ _ _ oc) as t1rng.
+                autorewrite with null in t1rng.
+                simpl in t1rng.
+                change (0 < r * θ1 x y r < Rabs r * 2 * PI ->
+                        0 < θmax /\
+                        (θmax / 2 < θ1 x y r < θmax \/
+                         -2 * PI < θ1 x y r < θmax / 2 - 2 * PI) \/
+                        θmax < 0 /\
+                        (θmax < θ1 x y r < θmax / 2 \/
+                         θmax / 2 + 2 * PI < θ1 x y r < 2 * PI)) in t1rng.
+                rewrite <- ed in *.
+                assert (0 < r * θ1 x y r < Rabs r * 2 * PI) as cond. {
+                  split.
+                  zltab.
+                  apply (Rmult_lt_reg_r (/r)); try zltab.
+                  setl (θ1 x y r); try lra.
+                  rewrite Rabs_right; try lra.
+                  setr (2 * PI); lra. }
+                specialize (t1rng cond).
+                assert (0 < θmax) as zlttm. {
+                  unfold θmax.
+                  rewrite thms.
+                  apply (Rmult_lt_reg_r (/2)); try lra.
+                  setl 0.
+                  setr (atan2 y x).
+                  specialize (atan2Q2 _ _ xlt0 r0) as [tml tmu].
+                  specialize PI_RGT_0 as pigt0.
+                  lra. }
+                destruct t1rng as [t1rng|t1rng]; lra.
+
+                (* x = 0 part *)
+                assert (e = PI / 2) as epi2. {
+                  rewrite ed.
+                  unfold θmax.
+                  rewrite thms, xeq0, atan2_PI2;
+                    lra. }
+                rewrite epi2.
+                lra.
+
+       +++ destruct (Rlt_dec 0 x) as [zltx | zgex].
+           ++++ clear - lb zltx e0 lt p1p2 p2ub.
+                rewrite <- e0 in *.
+                autorewrite with null in lb.
+                assert (0 < wy) as zlewy. {
+                  unfold wy.
+                  apply Rmult_lt_0_compat.
+                  assumption.
+                  specialize (COS_bound φ₂) as [clb cub].
+                  destruct cub.
+                  lra.
+                  apply cosθeq1 in H; try lra. }
+                exfalso.
+                generalize lb.
+                change (~ 0 >= wy * x).
+                apply Rlt_not_ge.
+                zltab.
+           ++++ apply Rnot_lt_le in zgex.
+                destruct zgex as [xlt |xeq].
+                symmetry in e0.
+                specialize (root_ordering_nxarm _ _ _ lt e0 xlt oc) as [t1tm [tmt2 [t1l t1u]]].
+                change (θ1 x y r < θmax) in t1tm.
+                clear tmt2.
+                change (PI < θ1 x y r) in t1l.
+                apply cos_gt_0; lra.
+                lra.
+       +++ lra.
     (* ax' <> 0 /\ k - ax' <> 0 /\ ay' * ax' - - ay' * (k - ax') <> 0
        ay' * k <> 0 *)
     (* aix' <> 0 /\ k - aix' <> 0 /\ aiy' * aix' - - aiy' * (k - aix') <> 0 *)
