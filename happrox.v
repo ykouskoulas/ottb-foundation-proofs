@@ -21,6 +21,7 @@ Require Import dtlen.
 Open Scope R_scope.
 Set Bullet Behavior "Strict Subproofs".
 
+(* end hide *)
 Axiom path_length_lower_bound : forall pathx pathy s0 s1 d,
     is_RInt (magnitude (Derive pathx) (Derive pathy)) s0 s1 d ->
     sqrt ((pathx s0 - pathx s1)² + (pathy s0 - pathy s1)²) <= d.
@@ -1167,7 +1168,7 @@ Qed.
                    y = n1 * (x - k)
 *)
 
-Lemma shorter_path :
+Lemma shorter_two_step_linear_path :
   forall m n m1 n1 k
          (ziso : 0 < m1 < m) (* origin intercept slopes *)
          (kiso : n < n1 < 0 \/ 0 < n < n1 \/ n1 < 0 < n) (* k x-intercept slope order *)
@@ -1458,14 +1459,10 @@ Proof.
   unfold dist; simpl; reflexivity.
 Qed.
 
-(*
-  analysis of alternatives:
-  a1: keeping design in-house
-  a2: selling kansas plant
-*)                                        
 
 Search Metric_Space.
 Print Metric_Space.
+
 
 Lemma rot_pt_eq_len : forall x y η, 
     let x' := x * cos η + y * sin η in
@@ -1482,6 +1479,7 @@ Proof.
   arn.
   reflexivity.
 Qed.
+
 
 Lemma minlength_inner_infinite_hat_straight_std :
   forall r x y φ₂
@@ -1604,9 +1602,81 @@ Proof.
 
     rewrite y'eq0 in *.
     arn.
+    rewrite <- (Rsqr_neg aiy'), <- (Rsqr_neg ay').
+    
+    rewrite (Rsqr_neg (x' - aix')).
+    rewrite (Rsqr_neg (x' - ax')).
+    replace (- (x' - aix')) with (aix' - x') by lra.
+    replace (- (x' - ax')) with (ax' - x') by lra.
+    left.
+    set (k := x') in *.
 
-    rewrite (Rsqr_neg aiy'), (Rsqr_neg ay').
+    specialize (posss _ _ no) as zltx2y2. 
+    assert (0 < sqrt (x² + y²)) as zltrx2y2. {
+      apply sqrt_lt_R0.
+      assumption. }
+    
+    assert (0 < k) as zltk. {
+      unfold k, x'.
+      unfold η.
+      rewrite atan2_cos_id; try lra.
+      rewrite atan2_sin_id; try lra.
+      repeat rewrite <- Rsqr_pow2.
+      apply (Rmult_lt_reg_r (sqrt (x² + y²))); try lra.
+      arn.
+      setr (x² + y²); try lra.
+      unfold Rsqr in zltrx2y2.
+      lra. }
 
+(*
+  outer triangle   y = m * x
+                   y = n * (x - k)
+  inner triangle   y = m1 * x
+                   y = n1 * (x - k)
+*)
+
+    
+    set (m := - ay' / ax').
+    set (m1 := - aiy'/ aix').
+    set (n := ay' / (k - ax')).
+    set (n1 := aiy' / (k - aix')).
+    set (Qx := k * n1 / (n1 - m1)).
+    set (Qy := m1 * Qx).
+    set (Px := k * n / (n - m)).
+    set (Py := m * Px).
+
+    (* ax' <> 0 /\ k - ax' <> 0 /\ ay' * ax' - - ay' * (k - ax') <> 0
+       ay' * k <> 0 *)
+    (* aix' <> 0 /\ k - aix' <> 0 /\ aiy' * aix' - - aiy' * (k - aix') <> 0 *)
+    assert (Qx² + Qy² = aix'² + aiy'²) as lhs1. {
+      unfold Qy, Qx, n1, m1.
+      setl (aix'² + aiy'²); try lra.
+      admit. }
+    assert ((Qx - k)² + Qy² = (aix' - k)² + aiy'²) as lhs2. {
+      unfold Qy, Qx, n1, m1.
+      setl ((aix' - k)² + aiy'²); try lra.
+      admit. }
+    assert (Px² + Py² = ax'² + ay'²) as rhs1. {
+      unfold Py, Px, n, m.
+      setl (ax'² + ay'²); try lra.
+      admit. }
+    assert ((Px - k)² + Py² = (ax' - k)² + ay'²) as rhs2. {
+      unfold Py, Px, n, m.
+      setl ((ax' - k)² + ay'²); try lra.
+      admit. }
+
+    rewrite <- lhs1, <- lhs2, <- rhs1, <- rhs2.
+    apply shorter_two_step_linear_path; try assumption.
+
+
+  ============================
+  sqrt (aix'² + (- aiy')²) + sqrt ((x' - aix')² + (- aiy')²) <=
+  sqrt (ax'² + (- ay')²) + sqrt ((x' - ax')² + (- ay')²)
+
+  sqrt (Qx² + Qy²) + sqrt ((Qx - k)² + Qy²) <
+  sqrt (Px² + Py²) + sqrt ((Px - k)² + Py²)
+                                
+    (**** break ****)
     set (h := -ay') in *.
     set (h' := -aiy') in *.
     set (b1' := aix') in *.
@@ -1614,6 +1684,7 @@ Proof.
     set (b1 := ax') in *.
     set (b2 := x' - b1) in *.
     left.
+    
     apply smaller_interior_path_triangle.
     7 : {
       unfold b2, b2', b1, b1'.
