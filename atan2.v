@@ -57,9 +57,14 @@ Section TrigInterval_UniformSpace.
     intros. unfold TrigInterval_ball in *.
     apply (ball_sym). assumption.
   Qed.
+
+  Definition point_of_TI : TI.
+  econstructor; eapply (SIN_bound 0).
+  Defined.
   
   Definition TrigInterval_UniformSpace_mixin :=
-    UniformSpace.Mixin _ _ TrigInterval_ball_center
+    UniformSpace.Mixin _ point_of_TI _
+                       TrigInterval_ball_center
                        TrigInterval_ball_sym
                        TrigInterval_ball_triangle.
 
