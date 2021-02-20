@@ -2115,3 +2115,105 @@ Proof.
     field_simplify; lra.
 Qed.
 
+
+Lemma spreading_circle_matches_fixed_orientation:
+  forall r1 r2 θ r s t
+         (zlts : 0 < s)
+         (zlts : 0 < θ)
+         (zler1 : 0 <= r1)
+         (rbnd : r1 <= r <= r2)
+         (tm : s * t = r * θ),
+    let x := r * sin(θ) in
+    let y := r * (1-cos(θ)) in
+    let v := s * sqrt(2 * (1 - cos(θ))) / θ in
+    x² + y² = (v * t)².
+Proof.
+  intros.
+  unfold x, y, v.
+  assert (t = r * θ / s) as tdef. {
+    apply (Rmult_eq_reg_r s); try lra.
+    lrag tm. }
+  rewrite tdef.
+  repeat rewrite <- RmultRinv.
+  repeat rewrite Rsqr_mult.
+  rewrite Rsqr_minus.
+  setl (r² * (((sin θ)² + (cos θ)²) + 1 - 2 * cos θ)).
+  rewrite sin2_cos2.
+  rewrite Rsqr_inv; try lra.
+  rewrite Rsqr_sqrt.
+  setr (r² * (1 + 1 - 2 * cos θ)); lra.
+  zltab; specialize (COS_bound θ) as [lb ub]; lra.
+Qed.
+
+
+Lemma spreading_circle_matches_fixed_orientation2:
+  forall r1 r2 θ1 θ2 θ r s t
+         (zlts : 0 < s)
+         (zltt : 0 < θ1)
+         (tbnd : θ1 <= θ <= θ2)
+         (t2ltpi2 : θ2 < PI / 2)
+         (zler1 : 0 < r1)
+         (rbnd : r1 <= r <= r2)
+         (tm : s * t = r * θ),
+    let x := r * sin(θ) in
+    let y := r * (1-cos(θ)) in
+    let v1 := s * sqrt(2 * (1 - cos(θ1))) / θ1 in
+    let v2 := s * sqrt(2 * (1 - cos(θ2))) / θ2 in
+    (v2 * t)² <= x² + y² <= (v1 * t)².
+Proof.
+  intros.
+  unfold v1, v2.
+  clear v1 v2.
+
+  unfold x, y.
+  rewrite (spreading_circle_matches_fixed_orientation r1 r2 _ _ s t); try lra.
+
+  repeat rewrite <- RmultRinv.
+  repeat rewrite Rsqr_mult.
+  rewrite Rsqr_sqrt; [|  zltab; specialize (COS_bound θ2) as [lb ub]; lra].
+  rewrite Rsqr_sqrt; [|  zltab; specialize (COS_bound θ) as [lb ub]; lra].
+  rewrite Rsqr_sqrt; [|  zltab; specialize (COS_bound θ1) as [lb ub]; lra].
+  assert (forall θ, (1 - cos θ) = 2 * (sin (θ/2))²) as id. {
+    intros.
+    apply (Rmult_eq_reg_r (/ 2)).
+    rewrite RmultRinv.
+    rewrite <- sint22.
+    field.
+    intro; lra. }
+  repeat rewrite id.
+
+  assert (t = r * θ / s) as tdef. {
+    apply (Rmult_eq_reg_r s); try lra.
+    lrag tm. }
+  assert (0 < t) as zltt0. {
+    rewrite tdef, <- RmultRinv.
+    zltab. }
+  
+  set (sinc := fun θ => sin θ / θ).
+
+  split.
+  + apply (Rmult_le_reg_r ((/ s²) * (/ t²))); [ unfold Rsqr; zltab |].
+    setl ((sin (θ2 / 2)/ (θ2 / 2))²); try lra.
+    setr ((sin (θ / 2)/ (θ / 2))²); try lra.
+    change ((sinc (θ2 / 2))² <= (sinc (θ / 2))²).
+    destruct tbnd as [ls [rs| rse]].
+    ++ left. (* derive_decreasing_interv *)
+       admit.
+    ++ subst; right; reflexivity.
+  + apply (Rmult_le_reg_r ((/ s²) * (/ t²))); [ unfold Rsqr; zltab |].
+    setr ( (sin (θ1 / 2)/ (θ1 / 2))²); try lra.
+    setl ((sin (θ / 2)/ (θ / 2))²); try lra.
+    change ((sinc (θ / 2))² <= (sinc (θ1 / 2))²).
+    destruct tbnd as [[lsl |lse] rs].
+    ++ left.
+(*       apply Rsqr_incrst_1
+       eapply incr_function; try lra; *)
+       admit.
+    ++ subst; right; reflexivity.
+Qed.
+
+
+
+
+Search tan.
+derive_pt_tan
