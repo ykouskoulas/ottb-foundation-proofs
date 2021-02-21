@@ -2158,17 +2158,6 @@ sqrt (x² + y²) * r * θ / (2 * r * sin (θ / 2)) = r * θ
 sqrt (x² + y²) * θ / (2 * sin (θ / 2)) = r * θ
 *)
 
-(* don't know if we need this *)
-(*
-Lemma is_lim_form0 : is_lim  (fun x => cos x / x - sin x / x²) 0 0.
-Proof.
-  unfold is_lim, filterlim, filter_le, Rbar_locally, locally,
-  filtermap, Rbar_locally', locally', within, locally.
-  simpl.
-  intros P [e yball].
-  Check is_lim_sinc_0.
-Admitted.
- *)
 
 Lemma spreading_circle_matches_fixed_orientation_xy:
   forall x y (zley : 0 < y),
@@ -2238,6 +2227,14 @@ Proof.
   unfold Rsqr; field; assumption.
 Qed.
 
+Lemma incr_function2
+     : forall (f : R -> R) (a b : Rbar) (df : R -> R),
+       (forall x : R, Rbar_lt a x -> Rbar_lt x b -> is_derive f x (df x)) ->
+       (forall x : R, Rbar_lt a x -> Rbar_lt x b -> df x > 0) ->
+       forall x y : R, Rbar_le a x -> x < y -> Rbar_le y b -> f x < f y.
+Admitted.
+
+
 Lemma sinc_deriv_lt0 : forall x,
     0 < x < PI ->
     cos x / x - sin x / x² < 0.
@@ -2261,36 +2258,9 @@ Proof.
 
     specialize (is_derive_tan _ cxne0) as dtan.
     rewrite <- Rsqr_pow2 in dtan.
-
+    
     set (f := (fun x => tan x - x)).
 
-    assert (is_derive f x (tan x)²) as df. {
-      unfold f.
-      auto_derive.
-      change (ex_derive tan x).
-      unfold ex_derive.
-      exists (((tan x)² + 1)).
-      assumption.
-      apply is_derive_unique in dtan.
-      change (1 * Derive tan x + - (1) = (tan x)²).
-      rewrite dtan.
-      field. }
-
-    assert (0 < (tan x)²) as t2gt0. {
-      specialize (Rle_0_sqr (tan x)) as zletx2.
-      destruct zletx2 as [lt | eq]; try assumption.
-      exfalso.
-      symmetry in eq.
-      apply Rsqr_eq_0 in eq.
-      unfold tan in eq.
-      rewrite <- RmultRinv in eq.
-      apply Rmult_integral in eq.
-      destruct eq as [s0 |c0].
-      apply sin_eq_O_2PI_0 in s0; lra.
-      generalize c0.
-      change (/ cos x <> 0).
-      apply Rinv_neq_0_compat.
-      assumption. }
 
     destruct (total_order_T x (PI/2)) as [[lt|eq]|gt]; try lra.
     ++ assert (0 < cos x) as zltc. {
@@ -2305,10 +2275,67 @@ Proof.
        setl 0.
        setr (tan x - x).
        change (0 < f x).
-       
-       
-       (*  apply incr_function? *)
-       admit.
+
+       assert (f 0 = 0) as f00. {
+         unfold f.
+         arn.
+         rewrite tan_0.
+         reflexivity. }
+       rewrite <- f00.
+
+       apply (incr_function2 f 0 (PI/2) (fun z => (tan z)²)); try (simpl; lra).
+       simpl; intros.
+
+       assert (cos x0 <> 0) as cxne02. {
+         intro cxeq02.
+         destruct (Rle_dec 0 x0).
+         apply cos_eq_0_2PI_0 in cxeq02; lra.
+         apply Rnot_le_lt in n.
+         rewrite <- (cos_period1 _ 1%Z) in cxeq02.
+         apply cos_eq_0_2PI_0 in cxeq02; lra. }
+
+       specialize (is_derive_tan _ cxne02) as dtan2.
+       rewrite <- Rsqr_pow2 in dtan2.
+
+       assert (is_derive f x0 (tan x0)²) as df. {
+         unfold f.
+         auto_derive.
+         change (ex_derive tan x0).
+         unfold ex_derive.
+         exists (((tan x0)² + 1)).
+         assumption.
+         apply is_derive_unique in dtan2.
+         change (1 * Derive tan x0 + - (1) = (tan x0)²).
+         rewrite dtan2.
+         field. }
+       assumption.
+
+       simpl; intros.
+       assert (cos x0 <> 0) as cxne02. {
+         intro cxeq02.
+         destruct (Rle_dec 0 x0).
+         apply cos_eq_0_2PI_0 in cxeq02; lra.
+         apply Rnot_le_lt in n.
+         rewrite <- (cos_period1 _ 1%Z) in cxeq02.
+         apply cos_eq_0_2PI_0 in cxeq02; lra. }
+
+       assert (0 < (tan x0)²) as t2gt0. {
+         specialize (Rle_0_sqr (tan x0)) as zletx2.
+         destruct zletx2 as [lt2 | eq]; try assumption.
+         exfalso.
+         symmetry in eq.
+         apply Rsqr_eq_0 in eq.
+         unfold tan in eq.
+         rewrite <- RmultRinv in eq.
+         apply Rmult_integral in eq.
+         destruct eq as [s0 |c0].
+         apply sin_eq_O_2PI_0 in s0; lra.
+         generalize c0.
+         change (/ cos x0 <> 0).
+         apply Rinv_neq_0_compat.
+         assumption. }
+       lra.
+
     ++ apply (Rmult_lt_reg_r (/ - (cos x))).
        apply Rinv_0_lt_compat.
        setl (- 0).
@@ -2323,74 +2350,8 @@ Proof.
        apply (Rlt_trans _ 0); try lra.
        rewrite <- (tan_period _ (-1)%Z); try lra.
        apply tan_lt_0; lra.
-Admitted.
+Qed.
   
-(*
-Lemma spreading_circle_matches_fixed_orientation2:
-  forall r1 r2 θ1 θ2 θ r s t
-         (zlts : 0 < s)
-         (zltt : 0 < θ1)
-         (tbnd : θ1 <= θ <= θ2)
-         (t2ltpi2 : θ2 < PI / 2)
-         (zler1 : 0 < r1)
-         (rbnd : r1 <= r <= r2)
-         (tm : s * t = r * θ),
-    let x := r * sin(θ) in
-    let y := r * (1-cos(θ)) in
-    let v1 := s * sqrt(2 * (1 - cos(θ1))) / θ1 in
-    let v2 := s * sqrt(2 * (1 - cos(θ2))) / θ2 in
-    (v2 * t)² <= x² + y² <= (v1 * t)².
-Proof.
-  intros.
-  unfold v1, v2.
-  clear v1 v2.
-
-  unfold x, y.
-  rewrite (spreading_circle_matches_fixed_orientation_rt _ _ s t); try lra.
-
-  repeat rewrite <- RmultRinv.
-  repeat rewrite Rsqr_mult.
-  rewrite Rsqr_sqrt; [|  zltab; specialize (COS_bound θ2) as [lb ub]; lra].
-  rewrite Rsqr_sqrt; [|  zltab; specialize (COS_bound θ) as [lb ub]; lra].
-  rewrite Rsqr_sqrt; [|  zltab; specialize (COS_bound θ1) as [lb ub]; lra].
-  assert (forall θ, (1 - cos θ) = 2 * (sin (θ/2))²) as id. {
-    intros.
-    apply (Rmult_eq_reg_r (/ 2)).
-    rewrite RmultRinv.
-    rewrite <- sint22.
-    field.
-    intro; lra. }
-  repeat rewrite id.
-
-  assert (t = r * θ / s) as tdef. {
-    apply (Rmult_eq_reg_r s); try lra.
-    lrag tm. }
-  assert (0 < t) as zltt0. {
-    rewrite tdef, <- RmultRinv.
-    zltab. }
-  
-  split.
-  + apply (Rmult_le_reg_r ((/ s²) * (/ t²))); [ unfold Rsqr; zltab |].
-    setl ((sin (θ2 / 2)/ (θ2 / 2))²); try lra.
-    setr ((sin (θ / 2)/ (θ / 2))²); try lra.
-    change ((sinc (θ2 / 2))² <= (sinc (θ / 2))²).
-    destruct tbnd as [ls [rs| rse]].
-    ++ left. (* derive_decreasing_interv *)
-       admit.
-    ++ subst; right; reflexivity.
-  + apply (Rmult_le_reg_r ((/ s²) * (/ t²))); [ unfold Rsqr; zltab |].
-    setr ( (sin (θ1 / 2)/ (θ1 / 2))²); try lra.
-    setl ((sin (θ / 2)/ (θ / 2))²); try lra.
-    change ((sinc (θ / 2))² <= (sinc (θ1 / 2))²).
-    destruct tbnd as [[lsl |lse] rs].
-    ++ left.
-       (* apply Rsqr_incrst_1
-          eapply incr_function; try lra; *)
-       admit.
-    ++ subst; right; reflexivity.
-Admitted.
-*)
-
 
 Lemma circular_waves_approximate_turn :
   forall x y r1 r2 θ1 θ2 (zley : 0 < y),
@@ -2496,54 +2457,3 @@ Proof.
     reflexivity.
 Qed.
 
-
-
-    
-      lra.
-is_derive_opp
-     : forall (f : ?K -> ?V) (x1 : ?K) (l : ?V),
-       is_derive f x1 l -> is_derive (fun x2 : ?K => opp (f x2)) x1 (opp l)
-    Check is_deriv_sinc.
-    
-    evar (1).
-    Check is_derive_opp.
-    ; apply is_deriv_sinc; lra.
-    specialize is_deriv_sinc.
-    Search is_derive.
-    simpl; intros.
-    forall x0 : R, x0 <> 0 -> is_derive sinc x0 (cos x0 / x0 - sin x0 / x0²))
-    specialize is_deriv_sinc.
-    specialize sinc_deriv_lt0.
-
-    admit.
-    
-  apply sin_eq_O_2PI_0 in sint2eq0; lra.
-  reflexivity.
-
-  
-  assert (forall θ, (1 - cos θ) = 2 * (sin (θ/2))²) as id. {
-    intros.
-    apply (Rmult_eq_reg_r (/ 2)).
-    rewrite RmultRinv.
-    rewrite <- sint22.
-    field.
-    intro; lra. }
-  repeat rewrite id.
-  replace (2 * (2 * (sin (θ1 / 2))²)) with ((2 * sin (θ1 / 2))²);
-    [|unfold Rsqr; field].
-  replace (2 * (2 * (sin (θ2 / 2))²)) with ((2 * sin (θ2 / 2))²);
-    [|unfold Rsqr; field].
-  repeat rewrite sqrt_Rsqr.
-  split.
-  admit.
-
-  unfold θ.
-  replace (2 * atan2 y x / 2) with (atan2 y x) by lra.
-  SearchPattern (sqrt (_)² = _).
-  admit.
-  
-
-  Check sint22.
-
-Search tan.
-derive_pt_tan
