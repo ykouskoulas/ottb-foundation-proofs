@@ -72,6 +72,8 @@ Set Implicit Arguments.
 Unset Strict Implicit.
 Unset Printing Implicit Defensive.
 
+
+
 Lemma incr_function_le_cont_ep (f : R -> R) (a b : Rbar) (df : R -> R) :
   (forall (x : R), Rbar_le a x -> Rbar_le x b -> continuous f x) ->
   (forall (x : R), Rbar_lt a x -> Rbar_lt x b -> is_derive f x (df x)) ->
@@ -182,6 +184,66 @@ Proof.
   assumption.
   assumption.
   apply (Rbar_lt_le_trans _ y).
+  assumption.
+  assumption.
+Qed.
+
+
+
+Lemma incr_function_le_ep_one_sided (f : R -> R) (a b : Rbar) (df : R -> R) :
+  (forall (x : R), Rbar_le a x -> Rbar_lt x b -> is_derive f x (df x)) ->
+  (forall (x : R), Rbar_lt a x -> Rbar_lt x b -> df x > 0) ->
+  (forall (x y : R), Rbar_le a x -> x < y -> Rbar_lt y b -> f x < f y).
+Proof.
+  move => Df Hf x y Hax Hxy Hyb.
+  apply Rminus_lt_0.
+  assert (x <> y) as xney; try lra.
+  assert (Rmin x y = x) as rmd. {
+    unfold Rmin.
+    destruct Rle_dec; lra. }
+  assert (Rmax x y = y) as rxd. {
+    unfold Rmax.
+    destruct Rle_dec; lra. }
+
+  assert (forall x0 : R, Rmin x y < x0 < Rmax x y ->
+                         is_derive f x0 (df x0)) as cnd1. {
+    rewrite rmd rxd.
+    intros x0 [x0l x0u].
+    apply Df.
+    apply Rbar_lt_le.
+    apply (Rbar_le_lt_trans _ x).
+    assumption.
+    assumption.
+    apply (Rbar_lt_le_trans _ y).
+    assumption.
+    apply Rbar_lt_le.
+    assumption. }
+    
+  assert (forall x0 : R, Rmin x y <= x0 <= Rmax x y -> continuity_pt f x0) as cnd2. {
+    rewrite rmd rxd.
+    intros x0 [x0l x0u].
+    apply continuous_pt_impl_continuity_pt.
+    apply (ex_derive_continuous f x0).
+    exists (df x0).
+    apply Df.
+    apply (Rbar_le_trans _ x).
+    assumption.
+    assumption.
+    apply (Rbar_le_lt_trans _ y).
+    assumption.
+    assumption. }
+    
+  specialize (MVT_gen_ep f x y df xney cnd1 cnd2) as [c [crng dif]].
+  rewrite dif.
+  zltab.
+  rewrite rmd rxd in crng.
+  apply Rgt_lt.
+  destruct crng as [cl cu].
+  apply Hf.
+  apply (Rbar_le_lt_trans _ x).
+  assumption.
+  assumption.
+  apply (Rbar_lt_trans _ y).
   assumption.
   assumption.
 Qed.

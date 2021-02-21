@@ -2227,14 +2227,6 @@ Proof.
   unfold Rsqr; field; assumption.
 Qed.
 
-Lemma incr_function2
-     : forall (f : R -> R) (a b : Rbar) (df : R -> R),
-       (forall x : R, Rbar_lt a x -> Rbar_lt x b -> is_derive f x (df x)) ->
-       (forall x : R, Rbar_lt a x -> Rbar_lt x b -> df x > 0) ->
-       forall x y : R, Rbar_le a x -> x < y -> Rbar_le y b -> f x < f y.
-Admitted.
-
-
 Lemma sinc_deriv_lt0 : forall x,
     0 < x < PI ->
     cos x / x - sin x / x² < 0.
@@ -2283,7 +2275,8 @@ Proof.
          reflexivity. }
        rewrite <- f00.
 
-       apply (incr_function2 f 0 (PI/2) (fun z => (tan z)²)); try (simpl; lra).
+       apply (@incr_function_le_ep_one_sided f 0 (PI/2) (fun z => (tan z)²));
+         try (simpl; lra).
        simpl; intros.
 
        assert (cos x0 <> 0) as cxne02. {
