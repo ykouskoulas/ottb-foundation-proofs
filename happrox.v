@@ -23,9 +23,6 @@ Require Import dtlen.
 Open Scope R_scope.
 Set Bullet Behavior "Strict Subproofs".
 
-(* end hide *)
-(* infinite hat *)
-
 Lemma straight_neg1 x y r :
   r < 0 ->
   y > 0 ->
@@ -51,6 +48,9 @@ Proof.
     apply Rmult_lt_compat_l; lra.
   - apply posss; intro Q; destruct Q; subst; lra.
 Qed.
+
+(* end hide *)
+(* infinite hat *)
 
 
 Lemma Darm_continuous : 
@@ -332,6 +332,8 @@ by le_epsilon.
 
  *)
 
+(* begin hide *)
+
 Lemma underapprox_turning_std :
   forall r x y
          (lt : 0 < r)
@@ -466,758 +468,7 @@ exists d>0, |rm-r|<d -> sqrt ((x- r * sin th)^2 + (y - r*(1-cos th))^2) < e |-
 sqrt (x^2 + y^2) <= r * th + sqrt ((x- r * sin th)^2 + (y - r*(1-cos th))^2) |- 
 
 *)  
-
-Lemma minlength_outer_infinite_hat_straight_std :
-  forall r x y φ₂
-         (p1p2 : 0 < φ₂)
-         (p2ub : φ₂ <= 2 * PI)
-         (lt : 0 < r)
-         (oc : 2 * r * y < x² + y²),
-    let wx := r*sin φ₂ in
-    let wy := r*(1 - cos φ₂) in
-    (y >= 0 /\ wx * y <= wy * x) -> 
-    sqrt (x² + y²) <= L x y (θ1 x y r) r.
-Proof.
-  intros until 4.
-  intros * [rb lb].
-
-  unfold L.
-  assert (sqrt (x² + y²) = L x y 0 r) as id. {
-    unfold L.
-    arn.
-    reflexivity. }
-  rewrite id; clear id.
-
-  destruct (total_order_T 0 x) as [[zltx|zeq0]|zgtx].
-  + destruct rb as [ygt0 |yeq0].
-    unfold L.
-    arn.
-    apply condstraight in oc.
-    specialize (Darm_Q_gen 0 0 0 x y r oc ltac:(lra)) as daqg.
-    simpl in daqg.
-    autorewrite with null in daqg.
-    rewrite daqg.
-    fieldrewrite (x² + y²) (x² - (2 * 0 - y) * y).
-    setl (0 + sqrt (x² - (2 * 0 - y) * y)).
-    left.
-    specialize (full_path_dist_increasing_req0_s x y r ltac:(lra) oc lt) as zr.
-    simpl in zr.
-    destruct Rbar_le_dec; simpl in *; try lra.
-    destruct Rbar_le_dec; simpl in *; try lra.
-    (* y=0 case *)
-    unfold L, θ1.
-    destruct total_order_T as [[zltr|zeqr] | zgtr];
-    try destruct total_order_T as [[zltx2|zeqx] | zgtx];
-    try destruct total_order_T as [[zlty|zeqy] | zgty];
-    try destruct total_order_T as [[zltA|zeqA] | zgtA]; try lra.
-  + destruct rb as [ygt0|yeq0];
-      [|rewrite <- zeq0, yeq0 in oc;
-        autorewrite with null in oc;
-        lra].
-    unfold L.
-    arn.
-    apply condstraight in oc.
-    specialize (Darm_Q_gen 0 0 0 x y r oc ltac:(lra)) as daqg.
-    simpl in daqg.
-    autorewrite with null in daqg.
-    rewrite daqg.
-    fieldrewrite (x² + y²) (x² - (2 * 0 - y) * y).
-    setl (0 + sqrt (x² - (2 * 0 - y) * y)).
-    left.
-    specialize (full_path_dist_increasing_req0_s x y r ltac:(lra) oc lt) as zr.
-    simpl in zr.
-    destruct Rbar_le_dec; simpl in *; try lra.
-    destruct Rbar_le_dec; simpl in *; try lra.
-
-  + unfold L.
-    arn.
-    apply condstraight in oc.
-    specialize (Darm_Q_gen 0 0 0 x y r oc ltac:(lra)) as daqg.
-    simpl in daqg.
-    autorewrite with null in daqg.
-    rewrite daqg.
-    fieldrewrite (x² + y²) (x² - (2 * 0 - y) * y).
-    setl (0 + sqrt (x² - (2 * 0 - y) * y)).
-    left.
-    specialize (full_path_dist_increasing_req0_s x y r ltac:(lra) oc lt) as zr.
-    simpl in zr.
-    destruct Rbar_le_dec; simpl in *; try lra.
-    destruct Rbar_le_dec; simpl in *; try lra.
-Qed.
-
-
-
-Lemma maxlength_outer_infinite_hat_straight_std :
-  forall r x y φ₂
-         (p1p2 : 0 < φ₂)
-         (p2ub : φ₂ < 2 * PI)
-         (lt : 0 < r)
-         (oc : 2 * r * y < x² + y²),
-    let wx := r*sin φ₂ in
-    let wy := r*(1 - cos φ₂) in
-    y >= 0 /\ wx * y <= wy * x -> 
-    L x y (θ1 x y r) r <= r * φ₂ + sqrt ((x - wx)² + (y - wy)²).
-Proof.
-  intros * p2lb p2ub rgt0 oc * [ygt0 ld].
-
-         
-  destruct (total_order_T 0 x) as [[zltx|zeq0]|zgtx].
-  + unfold L.
-    apply condstraight in oc.
-    apply (Rplus_le_reg_r (- r * θ1 x y r)).
-    (* setl (sqrt (x² - (2 * r - y) * y)). *)
-    setl (sqrt ((x - r * sin (θ1 x y r))² + (y - r * (1 - cos (θ1 x y r)))²)).
-    setr (r * (φ₂  - θ1 x y r) + sqrt ((x - wx)² + (y - wy)²)).
-    apply (Rle_trans _ (sqrt ((x - wx)² + (y - wy)²) +
-                        sqrt ((wx - r * sin (θ1 x y r))² + (wy - r * (1 - cos (θ1 x y r)) )²))).
-    ++ apply triangle.
-    ++ apply (Rplus_le_reg_r (- sqrt ((x - wx)² + (y - wy)²))).
-       setl (sqrt ((wx - r * sin (θ1 x y r))² + (wy - r * (1 - cos (θ1 x y r)))²)).
-       setr (r * (φ₂ - θ1 x y r)).
-       
-       apply (Rle_trans _ (sqrt ((r * sin (φ₂ - θ1 x y r))² + (r * (1 - cos (φ₂ - θ1 x y r)))²))).
-       +++ unfold wx, wy.
-           apply sqrt_le_1_alt.
-           repeat rewrite Rsqr_minus.
-           setl (r² * ((sin φ₂)² + (sin (θ1 x y r))² - 2 * sin φ₂ * sin (θ1 x y r) +
-                       (1 - cos φ₂)² + (1 - cos (θ1 x y r))² -
-                                       2 * (1 - cos φ₂) * (1 - cos (θ1 x y r)))).
-           setr (r² * ((sin (φ₂ - θ1 x y r))² + (1 - cos (φ₂ - θ1 x y r))²)).
-           repeat rewrite Rsqr_minus.
-           replace ((sin φ₂)² + (sin (θ1 x y r))² - 2 * sin φ₂ * sin (θ1 x y r)
-                    + (1² + (cos φ₂)² - 2 * 1 * cos φ₂) + (1² + (cos (θ1 x y r))²
-                    - 2 * 1 * cos (θ1 x y r)) - 2 * (1 - cos φ₂) * (1 - cos (θ1 x y r))) with
-               (((sin φ₂)² + (cos φ₂)²) + ((sin (θ1 x y r))² + (cos (θ1 x y r))²)
-              - 2 * sin φ₂ * sin (θ1 x y r) + 1 - 2 * cos φ₂ + 1 
-             - 2 * 1 * cos (θ1 x y r) - 2 * (1 - cos φ₂) * (1 - cos (θ1 x y r)))
-           by (unfold Rsqr; lra).
-         replace ((sin (φ₂ - θ1 x y r))² + (1² + (cos (φ₂ - θ1 x y r))²
-                  - 2 * 1 * cos (φ₂ - θ1 x y r))) with
-             (((sin (φ₂ - θ1 x y r))² + (cos (φ₂ - θ1 x y r))²)
-              + 1 - 2 * cos (φ₂ - θ1 x y r))
-           by (unfold Rsqr; lra).
-         repeat rewrite sin2_cos2.
-         rewrite cos_minus.
-         lra.
-     +++ assert (2 * r * (r * (1 - cos (φ₂ - θ1 x y r))) =
-                 (r * sin (φ₂ - θ1 x y r))² + (r * (1 - cos (φ₂ - θ1 x y r)))²) as id. {
-           repeat rewrite Rsqr_mult.
-           rewrite Rsqr_minus.
-           setr (r² * (((sin (φ₂ - θ1 x y r))² + (cos (φ₂ - θ1 x y r))²)
-                       + 1 - 2 * cos (φ₂ - θ1 x y r))).
-           rewrite sin2_cos2.
-           unfold Rsqr.
-           field. }
-
-           destruct ygt0 as [ygt0 | yeq0].
-           2 : {
-             rewrite <- id.
-             replace (φ₂ - θ1 x y r) with φ₂.
-             apply Rsqr_incr_0; [|apply sqrt_pos| zltab].
-             rewrite Rsqr_sqrt; [| zltab ;specialize (COS_bound φ₂) as [lb ub]; try lra].
-             apply (Rmult_le_reg_l (/ (4 * r * r))); try zltab.
-             setl ((1 - cos φ₂) / 2); try lra.
-             setr ((φ₂ / 2)²); try lra.
-             rewrite <- sint22.
-             apply Rsqr_incr_1; try lra.
-             left.
-             apply (Rplus_lt_reg_r (- sin (φ₂ / 2))).
-             setl 0.
-             setr (φ₂ / 2  - sin (φ₂ / 2)).
-             apply x_minus_sin_x_pos; try lra.
-             apply sin_ge_0; try lra.
-             rewrite yeq0.
-             
-             unfold θ1.
-             destruct total_order_T as [[ltr|eqr]|gtr]; try lra.
-             destruct total_order_T as [[ltx|eqx]|gtx]; try lra.
-             destruct total_order_T as [[lt0|eq0]|gt0]; try lra.
-           }
-           
-           assert (0 < φ₂ - θ1 x y r < 2 * PI) as ab. {
-             destruct (total_order_T φ₂ PI) as [[plt|peq]|pgt];
-               destruct (total_order_T 0 (2 * r - y)) as [[lt|eq]|gt].
-             ++ (* phi2 lt pi *)
-               specialize (root_ordering_Q1bot _ _ _ rgt0 lt ygt0 zltx oc)
-                 as [[tml tmu] [[t1rl t1ru] t2r]].
-               clear tmu t2r.
-               split; try lra.
-               apply (Rplus_lt_reg_r (θ1 x y r)).
-               arn.
-               setr φ₂.
-               apply (Rlt_le_trans _ (calcθ₁ 0 0 0 x y)); try lra.
-               rewrite thms; try lra.
-               rewrite <- (chord_property r); try lra.
-               apply Rmult_le_compat_l; try lra.
-               assert (0 < sin φ₂) as sp2gt0. {
-                 apply sin_gt_0; try lra. }
-
-               assert (0 < 1 - cos φ₂) as omcp2gt0. {
-                 specialize (COS_bound φ₂) as [cbl [cbu |cbe]].
-                 lra.
-                 apply cosθeq1 in cbe ;try lra. }
-
-               repeat rewrite atan2_atan_Q1; try lra; try zltab.
-                
-               destruct ld as [ldlt |ldeq].
-               +++ left.
-                   apply atan_increasing.
-                   change (y / x < wy / wx).
-                   apply (Rmult_lt_reg_r (wx * x)).
-                   unfold wx.
-                   zltab.
-                   setl (wx * y); try lra.
-                   setr (wy * x); try lra.
-                   unfold wx.
-                   apply Rmult_integral_contrapositive_currified; lra.
-                   
-               +++ change (atan (y / x) <= atan (wy / wx)).
-                   right; f_equal.
-                   apply (Rmult_eq_reg_r (x * wx)).
-                   2 : {
-                     apply Rmult_integral_contrapositive_currified ; try lra.
-                     unfold wx.
-                     zltab.
-                     apply Rmult_integral_contrapositive_currified; lra. }
-
-                   setl (wx * y); try lra.
-                   setr (wy * x); try lra.
-                   unfold wx.
-                   zltab.
-                   apply Rmult_integral_contrapositive_currified; lra.
-             ++ (* phi2 lt pi *)
-               specialize (root_ordering_Q1arm _ _ _ rgt0 eq ygt0 zltx oc)
-                 as [[tml tmu] [t1rl t1ru]].
-               clear tmu.
-               split; try lra.
-               apply (Rplus_lt_reg_r (θ1 x y r)).
-               arn.
-               setr φ₂.
-               apply (Rlt_le_trans _ (calcθ₁ 0 0 0 x y)); try lra.
-               rewrite thms; try lra.
-               rewrite <- (chord_property r); try lra.
-               apply Rmult_le_compat_l; try lra.
-               assert (0 < sin φ₂) as sp2gt0. {
-                 apply sin_gt_0; try lra. }
-
-               assert (0 < 1 - cos φ₂) as omcp2gt0. {
-                 specialize (COS_bound φ₂) as [cbl [cbu |cbe]].
-                 lra.
-                 apply cosθeq1 in cbe ;try lra. }
-
-               repeat rewrite atan2_atan_Q1; try lra; try zltab.
-                
-               destruct ld as [ldlt |ldeq].
-               +++ left.
-                   apply atan_increasing.
-                   change (y / x < wy / wx).
-                   apply (Rmult_lt_reg_r (wx * x)).
-                   unfold wx.
-                   zltab.
-                   setl (wx * y); try lra.
-                   setr (wy * x); try lra.
-                   unfold wx.
-                   apply Rmult_integral_contrapositive_currified; lra.
-                   
-               +++ change (atan (y / x) <= atan (wy / wx)).
-                   right; f_equal.
-                   apply (Rmult_eq_reg_r (x * wx)).
-                   2 : {
-                     apply Rmult_integral_contrapositive_currified ; try lra.
-                     unfold wx.
-                     zltab.
-                     apply Rmult_integral_contrapositive_currified; lra. }
-
-                   setl (wx * y); try lra.
-                   setr (wy * x); try lra.
-                   unfold wx.
-                   zltab.
-                   apply Rmult_integral_contrapositive_currified; lra.
-             ++ (* phi2 lt pi *)
-               specialize (root_ordering_Q1top x y r rgt0 gt ltac:(lra) oc)
-                 as [[tml tmu] [[t1rl t1ru] t2r]].
-               clear tmu t2r.
-               split; try lra.
-               apply (Rplus_lt_reg_r (θ1 x y r)).
-               arn.
-               setr φ₂.
-               apply (Rlt_le_trans _ (calcθ₁ 0 0 0 x y)); try lra.
-               rewrite thms; try lra.
-               rewrite <- (chord_property r); try lra.
-               apply Rmult_le_compat_l; try lra.
-               assert (0 < sin φ₂) as sp2gt0. {
-                 apply sin_gt_0; try lra. }
-
-               assert (0 < 1 - cos φ₂) as omcp2gt0. {
-                 specialize (COS_bound φ₂) as [cbl [cbu |cbe]].
-                 lra.
-                 apply cosθeq1 in cbe ;try lra. }
-
-               repeat rewrite atan2_atan_Q1; try lra; try zltab.
-                
-               destruct ld as [ldlt |ldeq].
-               +++ left.
-                   apply atan_increasing.
-                   change (y / x < wy / wx).
-                   apply (Rmult_lt_reg_r (wx * x)).
-                   unfold wx.
-                   zltab.
-                   setl (wx * y); try lra.
-                   setr (wy * x); try lra.
-                   unfold wx.
-                   apply Rmult_integral_contrapositive_currified; lra.
-                   
-               +++ change (atan (y / x) <= atan (wy / wx)).
-                   right; f_equal.
-                   apply (Rmult_eq_reg_r (x * wx)).
-                   2 : {
-                     apply Rmult_integral_contrapositive_currified ; try lra.
-                     unfold wx.
-                     zltab.
-                     apply Rmult_integral_contrapositive_currified; lra. }
-
-                   setl (wx * y); try lra.
-                   setr (wy * x); try lra.
-                   unfold wx.
-                   zltab.
-                   apply Rmult_integral_contrapositive_currified; lra.
-
-             ++ specialize (root_ordering_Q1bot _ _ _ rgt0 lt ygt0 zltx oc)
-                 as [[tml tmu] [[t1rl t1ru] t2r]].
-                split; lra.
-
-             ++ specialize (root_ordering_Q1arm _ _ _ rgt0 eq ygt0 zltx oc)
-                 as [[tml tmu] [t1rl t1ru]].
-                split; lra.
-
-             ++ specialize (root_ordering_Q1top x y r rgt0 gt ltac:(lra) oc)
-                 as [[tml tmu] [[t1rl t1ru] t2r]].
-                split; lra.
-
-             ++ specialize (root_ordering_Q1bot _ _ _ rgt0 lt ygt0 zltx oc)
-                 as [[tml tmu] [[t1rl t1ru] t2r]].
-                split; lra.
-
-             ++ specialize (root_ordering_Q1arm _ _ _ rgt0 eq ygt0 zltx oc)
-                 as [[tml tmu] [t1rl t1ru]].
-                split; lra.
-
-             ++ specialize (root_ordering_Q1top x y r rgt0 gt ltac:(lra) oc)
-                 as [[tml tmu] [[t1rl t1ru] t2r]].
-                split; lra. }
-
-           assert (r * (1 - cos (φ₂ - θ1 x y r)) > 0) as id2. {
-             apply Rlt_gt.
-             zltab.
-             specialize (COS_bound (φ₂ - θ1 x y r)) as [cl [cu |ce]]; try lra.
-             apply cosθeq1 in ce; lra. }
-
-           assert (calcθ₁ 0 0 0 (r * sin (φ₂ - θ1 x y r)) (r * (1 - cos (φ₂ - θ1 x y r))) =
-                   (φ₂ - θ1 x y r)) as id3. {
-             unfold calcθ₁.
-             arn.
-             apply chord_property; lra. }
-           rewrite <- id3 at 3.
-           apply (underapprox_turning_std _ _ _ rgt0 id id2).
-
-  + (* template inserted here *)
-    apply condstraight in oc.
-    specialize (theta1_rsgn_bnd _ _ r ltac:(lra) oc) as [ls rs].
-    specialize (ls rgt0).
-    unfold L.
-
-    apply (Rplus_le_reg_r (- r * θ1 x y r)).
-    (* setl (sqrt (x² - (2 * r - y) * y)). *)
-    setl (sqrt ((x - r * sin (θ1 x y r))² + (y - r * (1 - cos (θ1 x y r)))²)).
-    setr (r * (φ₂  - θ1 x y r) + sqrt ((x - wx)² + (y - wy)²)).
-    apply (Rle_trans _ (sqrt ((x - wx)² + (y - wy)²) +
-                        sqrt ((wx - r * sin (θ1 x y r))² + (wy - r * (1 - cos (θ1 x y r)) )²))).
-    ++ apply triangle.
-    ++ apply (Rplus_le_reg_r (- sqrt ((x - wx)² + (y - wy)²))).
-       setl (sqrt ((wx - r * sin (θ1 x y r))² + (wy - r * (1 - cos (θ1 x y r)))²)).
-       setr (r * (φ₂ - θ1 x y r)).
-
-       apply (Rle_trans _ (sqrt ((r * sin (φ₂ - θ1 x y r))² + (r * (1 - cos (φ₂ - θ1 x y r)))²))).
-       +++ unfold wx, wy.
-           apply sqrt_le_1_alt.
-           repeat rewrite Rsqr_minus.
-           setl (r² * ((sin φ₂)² + (sin (θ1 x y r))² - 2 * sin φ₂ * sin (θ1 x y r) +
-                       (1 - cos φ₂)² + (1 - cos (θ1 x y r))² -
-                                       2 * (1 - cos φ₂) * (1 - cos (θ1 x y r)))).
-           setr (r² * ((sin (φ₂ - θ1 x y r))² + (1 - cos (φ₂ - θ1 x y r))²)).
-           repeat rewrite Rsqr_minus.
-           replace ((sin φ₂)² + (sin (θ1 x y r))² - 2 * sin φ₂ * sin (θ1 x y r)
-                    + (1² + (cos φ₂)² - 2 * 1 * cos φ₂) + (1² + (cos (θ1 x y r))²
-                    - 2 * 1 * cos (θ1 x y r)) - 2 * (1 - cos φ₂) * (1 - cos (θ1 x y r))) with
-               (((sin φ₂)² + (cos φ₂)²) + ((sin (θ1 x y r))² + (cos (θ1 x y r))²)
-                - 2 * sin φ₂ * sin (θ1 x y r) + 1 - 2 * cos φ₂ + 1 
-                - 2 * 1 * cos (θ1 x y r) - 2 * (1 - cos φ₂) * (1 - cos (θ1 x y r)))
-             by (unfold Rsqr; lra).
-           replace ((sin (φ₂ - θ1 x y r))² + (1² + (cos (φ₂ - θ1 x y r))²
-                    - 2 * 1 * cos (φ₂ - θ1 x y r))) with
-               (((sin (φ₂ - θ1 x y r))² + (cos (φ₂ - θ1 x y r))²) + 1 - 2 * cos (φ₂ - θ1 x y r))
-             by (unfold Rsqr; lra).
-           repeat rewrite sin2_cos2.
-           rewrite cos_minus.
-           lra.
-       +++ assert (2 * r * (r * (1 - cos (φ₂ - θ1 x y r))) =
-                   (r * sin (φ₂ - θ1 x y r))² + (r * (1 - cos (φ₂ - θ1 x y r)))²) as id. {
-             repeat rewrite Rsqr_mult.
-             rewrite Rsqr_minus.
-             setr (r² * (((sin (φ₂ - θ1 x y r))² + (cos (φ₂ - θ1 x y r))²)
-                         + 1 - 2 * cos (φ₂ - θ1 x y r))).
-             rewrite sin2_cos2.
-             unfold Rsqr.
-             field. }
-
-           
-           assert (0 < 1 - cos φ₂) as omcp2gt0. {
-             specialize (COS_bound φ₂) as [cbl [cbu |cbe]].
-             lra.
-             apply cosθeq1 in cbe ;try lra. }
-
-           destruct ygt0 as [ygt0 | yeq0].
-           2 : {
-             exfalso.
-             apply straightcond in oc.
-             rewrite yeq0, <- zeq0 in *.
-             autorewrite with null in *.
-             lra. }
-           
-           assert (0 < φ₂ - θ1 x y r < 2 * PI) as ab. {
-             destruct (total_order_T φ₂ PI) as [[plt|peq]|pgt].
-             ++ exfalso.
-               assert (0 < sin φ₂) as sp2gt0. {
-                 apply sin_gt_0; try lra. }
-               apply (Rmult_lt_compat_l r) in sp2gt0; try lra.
-               autorewrite with null in sp2gt0.
-               change (0 < wx) in sp2gt0.
-               apply Rle_not_lt in ld.
-               apply ld.
-               rewrite <- zeq0.
-               arn.
-               zltab.
-               
-             ++ assert (2 * r < y) as ygt2r. {
-                  apply (Rmult_lt_reg_r y); try lra.
-                  setr (0² + y²).
-                  rewrite zeq0.
-                  apply straightcond in oc.
-                  assumption. }
-                assert (wx = 0) as wxeq0. {
-                  unfold wx.
-                  rewrite peq.
-                  arn.
-                  reflexivity. }
-                assert (wy = 2 * r) as wyeq2r. {
-                  unfold wy.
-                  rewrite Rmult_comm.
-                  apply Rmult_eq_compat_r; try lra.
-                  rewrite peq.
-                  arn.
-                  lra. }
-                rewrite wxeq0, wyeq2r in *.
-                autorewrite with null in ld.
-                
-
-                split; try lra.
-
-                specialize (root_ordering_Q1top x y r rgt0  ltac:(lra) ltac:(lra) oc)
-                  as [[tml tmu] [[t1rl t1ru] t2r]].
-                clear tmu t2r.
-                apply (Rplus_lt_reg_r (θ1 x y r)).
-                arn.
-                setr φ₂.
-                apply (Rlt_le_trans _ (calcθ₁ 0 0 0 x y)); try lra.
-                rewrite thms; try lra.
-                rewrite <- (chord_property r); try lra.
-                apply Rmult_le_compat_l; try lra.
-
-                rewrite peq, <- zeq0.
-                arn.
-                replace (r * (1 - -1)) with (2 * r) by lra.
-                repeat rewrite atan2_PI2; lra.
-
-             ++ destruct (total_order_T 0 (2 * r - y)) as [[lt|eq]|gt].
-                +++ exfalso.
-                    apply straightcond in oc.
-
-                    rewrite <- zeq0 in oc.
-                    autorewrite with null in *.
-                    unfold Rsqr in oc.
-                    apply (Rmult_lt_reg_r) in oc; lra.
-
-                +++ exfalso.
-                    apply straightcond in oc.
-
-                    rewrite <- zeq0 in oc.
-                    autorewrite with null in *.
-                    unfold Rsqr in oc.
-                    apply (Rmult_lt_reg_r) in oc; lra.
-
-             +++ specialize (root_ordering_Q2top x y r rgt0 gt ltac:(lra) oc)
-                 as [[tml tmu] [[t1rl t1ru] t2r]].
-                 split; lra. }
-
-           assert (r * (1 - cos (φ₂ - θ1 x y r)) > 0) as id2. {
-             apply Rlt_gt.
-             zltab.
-             specialize (COS_bound (φ₂ - θ1 x y r)) as [cl [cu |ce]]; try lra.
-             apply cosθeq1 in ce; lra. }
-
-           assert (calcθ₁ 0 0 0 (r * sin (φ₂ - θ1 x y r)) (r * (1 - cos (φ₂ - θ1 x y r))) =
-                   (φ₂ - θ1 x y r)) as id3. {
-             unfold calcθ₁.
-             arn.
-             apply chord_property; lra. }
-           rewrite <- id3 at 3.
-           apply (underapprox_turning_std _ _ _ rgt0 id id2).
-
-
-  + unfold L.
-    apply condstraight in oc.
-
-    apply (Rplus_le_reg_r (- r * θ1 x y r)).
-    (* setl (sqrt (x² - (2 * r - y) * y)). *)
-    setl (sqrt ((x - r * sin (θ1 x y r))² + (y - r * (1 - cos (θ1 x y r)))²)).
-    setr (r * (φ₂  - θ1 x y r) + sqrt ((x - wx)² + (y - wy)²)).
-    apply (Rle_trans _ (sqrt ((x - wx)² + (y - wy)²) +
-                        sqrt ((wx - r * sin (θ1 x y r))² + (wy - r * (1 - cos (θ1 x y r)) )²))).
-    ++ apply triangle.
-    ++ apply (Rplus_le_reg_r (- sqrt ((x - wx)² + (y - wy)²))).
-       setl (sqrt ((wx - r * sin (θ1 x y r))² + (wy - r * (1 - cos (θ1 x y r)))²)).
-       setr (r * (φ₂ - θ1 x y r)).
-
-       apply (Rle_trans _ (sqrt ((r * sin (φ₂ - θ1 x y r))² + (r * (1 - cos (φ₂ - θ1 x y r)))²))).
-       +++ unfold wx, wy.
-           apply sqrt_le_1_alt.
-           repeat rewrite Rsqr_minus.
-           setl (r² * ((sin φ₂)² + (sin (θ1 x y r))² - 2 * sin φ₂ * sin (θ1 x y r) +
-                       (1 - cos φ₂)² + (1 - cos (θ1 x y r))² -
-                                       2 * (1 - cos φ₂) * (1 - cos (θ1 x y r)))).
-           setr (r² * ((sin (φ₂ - θ1 x y r))² + (1 - cos (φ₂ - θ1 x y r))²)).
-           repeat rewrite Rsqr_minus.
-           replace ((sin φ₂)² + (sin (θ1 x y r))² - 2 * sin φ₂ * sin (θ1 x y r)
-                    + (1² + (cos φ₂)² - 2 * 1 * cos φ₂) + (1² + (cos (θ1 x y r))²
-                    - 2 * 1 * cos (θ1 x y r)) - 2 * (1 - cos φ₂) * (1 - cos (θ1 x y r))) with
-               (((sin φ₂)² + (cos φ₂)²) + ((sin (θ1 x y r))² + (cos (θ1 x y r))²)
-                - 2 * sin φ₂ * sin (θ1 x y r) + 1 - 2 * cos φ₂ + 1 
-                - 2 * 1 * cos (θ1 x y r) - 2 * (1 - cos φ₂) * (1 - cos (θ1 x y r)))
-             by (unfold Rsqr; lra).
-           replace ((sin (φ₂ - θ1 x y r))² + (1² + (cos (φ₂ - θ1 x y r))²
-                    - 2 * 1 * cos (φ₂ - θ1 x y r))) with
-               (((sin (φ₂ - θ1 x y r))² + (cos (φ₂ - θ1 x y r))²) + 1 - 2 * cos (φ₂ - θ1 x y r))
-             by (unfold Rsqr; lra).
-           repeat rewrite sin2_cos2.
-           rewrite cos_minus.
-           lra.
-       +++ assert (2 * r * (r * (1 - cos (φ₂ - θ1 x y r))) =
-                   (r * sin (φ₂ - θ1 x y r))² + (r * (1 - cos (φ₂ - θ1 x y r)))²) as id. {
-             repeat rewrite Rsqr_mult.
-             rewrite Rsqr_minus.
-             setr (r² * (((sin (φ₂ - θ1 x y r))² + (cos (φ₂ - θ1 x y r))²)
-                         + 1 - 2 * cos (φ₂ - θ1 x y r))).
-             rewrite sin2_cos2.
-             unfold Rsqr.
-             field. }
-
-           
-           assert (0 < 1 - cos φ₂) as omcp2gt0. {
-             specialize (COS_bound φ₂) as [cbl [cbu |cbe]].
-             lra.
-             apply cosθeq1 in cbe ;try lra. }
-
-           destruct ygt0 as [ygt0 | yeq0].
-           2 : {
-             exfalso.
-             rewrite yeq0 in *.
-             assert (0 < wy) as wygt0. {
-               unfold wy.
-               zltab. }
-             clear - wygt0 ld zgtx.
-             autorewrite with null in ld.
-             apply Rle_not_lt in ld.
-             apply ld.
-             setl (- (wy * (- x))).
-             setr (- 0).
-             apply Ropp_lt_contravar.
-             zltab. }
-           
-           assert (0 < φ₂ - θ1 x y r < 2 * PI) as ab. {
-             destruct (total_order_T φ₂ PI) as [[plt|peq]|pgt].
-             ++ exfalso.
-               assert (0 < sin φ₂) as sp2gt0. {
-                 apply sin_gt_0; try lra. }
-               apply (Rmult_lt_compat_l r) in sp2gt0.
-               autorewrite with null in sp2gt0.
-               change (0 < wx) in sp2gt0.
-               apply Rle_not_lt in ld.
-               apply ld.
-               apply (Rlt_trans _ 0 ).
-               setl (- (wy * (- x))).
-               setr (- 0).
-               apply Ropp_lt_contravar.
-               zltab.
-               unfold wy.
-               zltab.
-               zltab.
-               assumption.
-             ++ exfalso.
-                assert (wx = 0) as wxeq0. {
-                  unfold wx.
-                  rewrite peq.
-                  arn.
-                  reflexivity. }
-                assert (wy = 2 * r) as wyeq2r. {
-                  unfold wy.
-                  rewrite Rmult_comm.
-                  apply Rmult_eq_compat_r; try lra.
-                  rewrite peq.
-                  arn.
-                  lra. }
-                rewrite wxeq0, wyeq2r in *.
-                autorewrite with null in ld.
-                clear - ld zgtx rgt0.
-                apply Rle_not_lt in ld.
-                apply ld.
-                setl (- ((2 * r) * (- x))).
-                setr (- 0).
-                apply Ropp_lt_contravar.
-                zltab.
-
-             ++ destruct (total_order_T 0 (2 * r - y)) as [[lt|eq]|gt].
-                +++ specialize (root_ordering_Q2bot _ _ _ rgt0 lt ygt0 zgtx oc)
-                    as [[tml tmu] [[t1rl t1ru] t2r]].
-                    split; try lra.
-
-                    clear tmu t2r.
-                    apply (Rplus_lt_reg_r (θ1 x y r)).
-                    arn.
-                    setr φ₂.
-                    apply (Rlt_le_trans _ (calcθ₁ 0 0 0 x y)); try lra.
-                    rewrite thms; try lra.
-                    rewrite <- (chord_property r); try lra.
-                    apply Rmult_le_compat_l; try lra.
-
-                    assert (sin φ₂ < 0) as splt0. {
-                      setl (- (- sin φ₂)).
-                      setr (- 0).
-                      apply Ropp_lt_contravar.
-                      setl (- 0).
-                      apply Ropp_lt_contravar.
-                      apply sin_lt_0; lra. }
-
-                    assert (r * sin φ₂ < 0) as rsplt0. {
-                      setl (- (r * (- sin φ₂))).
-                      setr (- 0).
-                      apply Ropp_lt_contravar.
-                      zltab. }
-
-                    repeat rewrite atan2_atan_Q2; try lra; try zltab.
-                    apply Rplus_le_compat_r.
-                    
-                    destruct ld as [ldlt |ldeq].
-                    ++++ left.
-                         apply atan_increasing.
-                         change (y / x < wy / wx).
-                         apply (Rmult_lt_reg_r ((- wx) * (- x))).
-                         unfold wx.
-                         zltab.
-                         setl (wx * y); try lra.
-                         setr (wy * x); try lra.
-                         unfold wx.
-                         apply Rmult_integral_contrapositive_currified; lra.
-                   
-                    ++++ change (atan (y / x) <= atan (wy / wx)).
-                         right; f_equal.
-                         apply (Rmult_eq_reg_r (x * wx)).
-                         2 : {
-                           apply Rmult_integral_contrapositive_currified ; try lra.
-                           unfold wx.
-                           zltab. }
-
-                         setl (wx * y); try lra.
-                         setr (wy * x); try lra.
-                         unfold wx.
-                         zltab.
-                         
-                +++ symmetry in eq.
-                    specialize (root_ordering_Q2arm _ _ _ rgt0 eq zgtx oc)
-                      as [[tml tmu] t1r].
-
-                    specialize (theta1_rsgn_bnd _ _ r ltac:(lra) oc) as [ls rs].
-                    specialize (ls rgt0).
-
-                    split; try lra.
-                    clear tmu t1r.
-                    apply (Rplus_lt_reg_r (θ1 x y r)).
-                    arn.
-                    setr φ₂.
-                    apply (Rlt_le_trans _ (calcθ₁ 0 0 0 x y)); try lra.
-                    rewrite thms; try lra.
-                    rewrite <- (chord_property r); try lra.
-                    apply Rmult_le_compat_l; try lra.
-
-                    assert (sin φ₂ < 0) as splt0. {
-                      setl (- (- sin φ₂)).
-                      setr (- 0).
-                      apply Ropp_lt_contravar.
-                      setl (- 0).
-                      apply Ropp_lt_contravar.
-                      apply sin_lt_0; lra. }
-
-                    assert (r * sin φ₂ < 0) as rsplt0. {
-                      setl (- (r * (- sin φ₂))).
-                      setr (- 0).
-                      apply Ropp_lt_contravar.
-                      zltab. }
-
-                    repeat rewrite atan2_atan_Q2; try lra; try zltab.
-                    apply Rplus_le_compat_r.
-                    
-                    destruct ld as [ldlt |ldeq].
-                    ++++ left.
-                         apply atan_increasing.
-                         change (y / x < wy / wx).
-                         apply (Rmult_lt_reg_r ((- wx) * (- x))).
-                         unfold wx.
-                         zltab.
-                         setl (wx * y); try lra.
-                         setr (wy * x); try lra.
-                         unfold wx.
-                         apply Rmult_integral_contrapositive_currified; lra.
-                   
-                    ++++ change (atan (y / x) <= atan (wy / wx)).
-                         right; f_equal.
-                         apply (Rmult_eq_reg_r (x * wx)).
-                         2 : {
-                           apply Rmult_integral_contrapositive_currified ; try lra.
-                           unfold wx.
-                           zltab. }
-
-                         setl (wx * y); try lra.
-                         setr (wy * x); try lra.
-                         unfold wx.
-                         zltab.
-
-             +++ specialize (root_ordering_Q2top x y r rgt0 gt ltac:(lra) oc)
-                 as [[tml tmu] [[t1rl t1ru] t2r]].
-                 split; lra. }
-
-           assert (r * (1 - cos (φ₂ - θ1 x y r)) > 0) as id2. {
-             apply Rlt_gt.
-             zltab.
-             specialize (COS_bound (φ₂ - θ1 x y r)) as [cl [cu |ce]]; try lra.
-             apply cosθeq1 in ce; lra. }
-
-           assert (calcθ₁ 0 0 0 (r * sin (φ₂ - θ1 x y r)) (r * (1 - cos (φ₂ - θ1 x y r))) =
-                   (φ₂ - θ1 x y r)) as id3. {
-             unfold calcθ₁.
-             arn.
-             apply chord_property; lra. }
-           rewrite <- id3 at 3.
-           apply (underapprox_turning_std _ _ _ rgt0 id id2).
-Qed.
+(* end hide *)
 
 
 
@@ -2157,6 +1408,1206 @@ express K in terms of only theta
 sqrt (x² + y²) * r * θ / (2 * r * sin (θ / 2)) = r * θ
 sqrt (x² + y²) * θ / (2 * sin (θ / 2)) = r * θ
 *)
+
+
+
+
+Lemma minlength_outer_infinite_hat_straight_std :
+  forall r x y φ₂
+         (p1p2 : 0 < φ₂)
+         (p2ub : φ₂ <= 2 * PI)
+         (lt : 0 < r)
+         (oc : 2 * r * y < x² + y²),
+    let wx := r*sin φ₂ in
+    let wy := r*(1 - cos φ₂) in
+    (y >= 0 /\ wx * y <= wy * x) -> 
+    sqrt (x² + y²) <= L x y (θ1 x y r) r.
+Proof.
+  intros until 4.
+  intros * [rb lb].
+
+  unfold L.
+  assert (sqrt (x² + y²) = L x y 0 r) as id. {
+    unfold L.
+    arn.
+    reflexivity. }
+  rewrite id; clear id.
+
+  destruct (total_order_T 0 x) as [[zltx|zeq0]|zgtx].
+  + destruct rb as [ygt0 |yeq0].
+    unfold L.
+    arn.
+    apply condstraight in oc.
+    specialize (Darm_Q_gen 0 0 0 x y r oc ltac:(lra)) as daqg.
+    simpl in daqg.
+    autorewrite with null in daqg.
+    rewrite daqg.
+    fieldrewrite (x² + y²) (x² - (2 * 0 - y) * y).
+    setl (0 + sqrt (x² - (2 * 0 - y) * y)).
+    left.
+    specialize (full_path_dist_increasing_req0_s x y r ltac:(lra) oc lt) as zr.
+    simpl in zr.
+    destruct Rbar_le_dec; simpl in *; try lra.
+    destruct Rbar_le_dec; simpl in *; try lra.
+    (* y=0 case *)
+    unfold L, θ1.
+    destruct total_order_T as [[zltr|zeqr] | zgtr];
+    try destruct total_order_T as [[zltx2|zeqx] | zgtx];
+    try destruct total_order_T as [[zlty|zeqy] | zgty];
+    try destruct total_order_T as [[zltA|zeqA] | zgtA]; try lra.
+  + destruct rb as [ygt0|yeq0];
+      [|rewrite <- zeq0, yeq0 in oc;
+        autorewrite with null in oc;
+        lra].
+    unfold L.
+    arn.
+    apply condstraight in oc.
+    specialize (Darm_Q_gen 0 0 0 x y r oc ltac:(lra)) as daqg.
+    simpl in daqg.
+    autorewrite with null in daqg.
+    rewrite daqg.
+    fieldrewrite (x² + y²) (x² - (2 * 0 - y) * y).
+    setl (0 + sqrt (x² - (2 * 0 - y) * y)).
+    left.
+    specialize (full_path_dist_increasing_req0_s x y r ltac:(lra) oc lt) as zr.
+    simpl in zr.
+    destruct Rbar_le_dec; simpl in *; try lra.
+    destruct Rbar_le_dec; simpl in *; try lra.
+
+  + unfold L.
+    arn.
+    apply condstraight in oc.
+    specialize (Darm_Q_gen 0 0 0 x y r oc ltac:(lra)) as daqg.
+    simpl in daqg.
+    autorewrite with null in daqg.
+    rewrite daqg.
+    fieldrewrite (x² + y²) (x² - (2 * 0 - y) * y).
+    setl (0 + sqrt (x² - (2 * 0 - y) * y)).
+    left.
+    specialize (full_path_dist_increasing_req0_s x y r ltac:(lra) oc lt) as zr.
+    simpl in zr.
+    destruct Rbar_le_dec; simpl in *; try lra.
+    destruct Rbar_le_dec; simpl in *; try lra.
+Qed.
+
+
+
+Lemma maxlength_outer_infinite_hat_straight_std :
+  forall r x y φ₂
+         (p1p2 : 0 < φ₂)
+         (p2ub : φ₂ < 2 * PI)
+         (lt : 0 < r)
+         (oc : 2 * r * y < x² + y²),
+    let wx := r*sin φ₂ in
+    let wy := r*(1 - cos φ₂) in
+    y >= 0 /\ wx * y <= wy * x -> 
+    L x y (θ1 x y r) r <= r * φ₂ + sqrt ((x - wx)² + (y - wy)²).
+Proof.
+  intros * p2lb p2ub rgt0 oc * [ygt0 ld].
+
+         
+  destruct (total_order_T 0 x) as [[zltx|zeq0]|zgtx].
+  + unfold L.
+    apply condstraight in oc.
+    apply (Rplus_le_reg_r (- r * θ1 x y r)).
+    (* setl (sqrt (x² - (2 * r - y) * y)). *)
+    setl (sqrt ((x - r * sin (θ1 x y r))² + (y - r * (1 - cos (θ1 x y r)))²)).
+    setr (r * (φ₂  - θ1 x y r) + sqrt ((x - wx)² + (y - wy)²)).
+    apply (Rle_trans _ (sqrt ((x - wx)² + (y - wy)²) +
+                        sqrt ((wx - r * sin (θ1 x y r))² + (wy - r * (1 - cos (θ1 x y r)) )²))).
+    ++ apply triangle.
+    ++ apply (Rplus_le_reg_r (- sqrt ((x - wx)² + (y - wy)²))).
+       setl (sqrt ((wx - r * sin (θ1 x y r))² + (wy - r * (1 - cos (θ1 x y r)))²)).
+       setr (r * (φ₂ - θ1 x y r)).
+       
+       apply (Rle_trans _ (sqrt ((r * sin (φ₂ - θ1 x y r))² + (r * (1 - cos (φ₂ - θ1 x y r)))²))).
+       +++ unfold wx, wy.
+           apply sqrt_le_1_alt.
+           repeat rewrite Rsqr_minus.
+           setl (r² * ((sin φ₂)² + (sin (θ1 x y r))² - 2 * sin φ₂ * sin (θ1 x y r) +
+                       (1 - cos φ₂)² + (1 - cos (θ1 x y r))² -
+                                       2 * (1 - cos φ₂) * (1 - cos (θ1 x y r)))).
+           setr (r² * ((sin (φ₂ - θ1 x y r))² + (1 - cos (φ₂ - θ1 x y r))²)).
+           repeat rewrite Rsqr_minus.
+           replace ((sin φ₂)² + (sin (θ1 x y r))² - 2 * sin φ₂ * sin (θ1 x y r)
+                    + (1² + (cos φ₂)² - 2 * 1 * cos φ₂) + (1² + (cos (θ1 x y r))²
+                    - 2 * 1 * cos (θ1 x y r)) - 2 * (1 - cos φ₂) * (1 - cos (θ1 x y r))) with
+               (((sin φ₂)² + (cos φ₂)²) + ((sin (θ1 x y r))² + (cos (θ1 x y r))²)
+              - 2 * sin φ₂ * sin (θ1 x y r) + 1 - 2 * cos φ₂ + 1 
+             - 2 * 1 * cos (θ1 x y r) - 2 * (1 - cos φ₂) * (1 - cos (θ1 x y r)))
+           by (unfold Rsqr; lra).
+         replace ((sin (φ₂ - θ1 x y r))² + (1² + (cos (φ₂ - θ1 x y r))²
+                  - 2 * 1 * cos (φ₂ - θ1 x y r))) with
+             (((sin (φ₂ - θ1 x y r))² + (cos (φ₂ - θ1 x y r))²)
+              + 1 - 2 * cos (φ₂ - θ1 x y r))
+           by (unfold Rsqr; lra).
+         repeat rewrite sin2_cos2.
+         rewrite cos_minus.
+         lra.
+     +++ assert (2 * r * (r * (1 - cos (φ₂ - θ1 x y r))) =
+                 (r * sin (φ₂ - θ1 x y r))² + (r * (1 - cos (φ₂ - θ1 x y r)))²) as id. {
+           repeat rewrite Rsqr_mult.
+           rewrite Rsqr_minus.
+           setr (r² * (((sin (φ₂ - θ1 x y r))² + (cos (φ₂ - θ1 x y r))²)
+                       + 1 - 2 * cos (φ₂ - θ1 x y r))).
+           rewrite sin2_cos2.
+           unfold Rsqr.
+           field. }
+
+           destruct ygt0 as [ygt0 | yeq0].
+           2 : {
+             rewrite <- id.
+             replace (φ₂ - θ1 x y r) with φ₂.
+             apply Rsqr_incr_0; [|apply sqrt_pos| zltab].
+             rewrite Rsqr_sqrt; [| zltab ;specialize (COS_bound φ₂) as [lb ub]; try lra].
+             apply (Rmult_le_reg_l (/ (4 * r * r))); try zltab.
+             setl ((1 - cos φ₂) / 2); try lra.
+             setr ((φ₂ / 2)²); try lra.
+             rewrite <- sint22.
+             apply Rsqr_incr_1; try lra.
+             left.
+             apply (Rplus_lt_reg_r (- sin (φ₂ / 2))).
+             setl 0.
+             setr (φ₂ / 2  - sin (φ₂ / 2)).
+             apply x_minus_sin_x_pos; try lra.
+             apply sin_ge_0; try lra.
+             rewrite yeq0.
+             
+             unfold θ1.
+             destruct total_order_T as [[ltr|eqr]|gtr]; try lra.
+             destruct total_order_T as [[ltx|eqx]|gtx]; try lra.
+             destruct total_order_T as [[lt0|eq0]|gt0]; try lra.
+           }
+           
+           assert (0 < φ₂ - θ1 x y r < 2 * PI) as ab. {
+             destruct (total_order_T φ₂ PI) as [[plt|peq]|pgt];
+               destruct (total_order_T 0 (2 * r - y)) as [[lt|eq]|gt].
+             ++ (* phi2 lt pi *)
+               specialize (root_ordering_Q1bot _ _ _ rgt0 lt ygt0 zltx oc)
+                 as [[tml tmu] [[t1rl t1ru] t2r]].
+               clear tmu t2r.
+               split; try lra.
+               apply (Rplus_lt_reg_r (θ1 x y r)).
+               arn.
+               setr φ₂.
+               apply (Rlt_le_trans _ (calcθ₁ 0 0 0 x y)); try lra.
+               rewrite thms; try lra.
+               rewrite <- (chord_property r); try lra.
+               apply Rmult_le_compat_l; try lra.
+               assert (0 < sin φ₂) as sp2gt0. {
+                 apply sin_gt_0; try lra. }
+
+               assert (0 < 1 - cos φ₂) as omcp2gt0. {
+                 specialize (COS_bound φ₂) as [cbl [cbu |cbe]].
+                 lra.
+                 apply cosθeq1 in cbe ;try lra. }
+
+               repeat rewrite atan2_atan_Q1; try lra; try zltab.
+                
+               destruct ld as [ldlt |ldeq].
+               +++ left.
+                   apply atan_increasing.
+                   change (y / x < wy / wx).
+                   apply (Rmult_lt_reg_r (wx * x)).
+                   unfold wx.
+                   zltab.
+                   setl (wx * y); try lra.
+                   setr (wy * x); try lra.
+                   unfold wx.
+                   apply Rmult_integral_contrapositive_currified; lra.
+                   
+               +++ change (atan (y / x) <= atan (wy / wx)).
+                   right; f_equal.
+                   apply (Rmult_eq_reg_r (x * wx)).
+                   2 : {
+                     apply Rmult_integral_contrapositive_currified ; try lra.
+                     unfold wx.
+                     zltab.
+                     apply Rmult_integral_contrapositive_currified; lra. }
+
+                   setl (wx * y); try lra.
+                   setr (wy * x); try lra.
+                   unfold wx.
+                   zltab.
+                   apply Rmult_integral_contrapositive_currified; lra.
+             ++ (* phi2 lt pi *)
+               specialize (root_ordering_Q1arm _ _ _ rgt0 eq ygt0 zltx oc)
+                 as [[tml tmu] [t1rl t1ru]].
+               clear tmu.
+               split; try lra.
+               apply (Rplus_lt_reg_r (θ1 x y r)).
+               arn.
+               setr φ₂.
+               apply (Rlt_le_trans _ (calcθ₁ 0 0 0 x y)); try lra.
+               rewrite thms; try lra.
+               rewrite <- (chord_property r); try lra.
+               apply Rmult_le_compat_l; try lra.
+               assert (0 < sin φ₂) as sp2gt0. {
+                 apply sin_gt_0; try lra. }
+
+               assert (0 < 1 - cos φ₂) as omcp2gt0. {
+                 specialize (COS_bound φ₂) as [cbl [cbu |cbe]].
+                 lra.
+                 apply cosθeq1 in cbe ;try lra. }
+
+               repeat rewrite atan2_atan_Q1; try lra; try zltab.
+                
+               destruct ld as [ldlt |ldeq].
+               +++ left.
+                   apply atan_increasing.
+                   change (y / x < wy / wx).
+                   apply (Rmult_lt_reg_r (wx * x)).
+                   unfold wx.
+                   zltab.
+                   setl (wx * y); try lra.
+                   setr (wy * x); try lra.
+                   unfold wx.
+                   apply Rmult_integral_contrapositive_currified; lra.
+                   
+               +++ change (atan (y / x) <= atan (wy / wx)).
+                   right; f_equal.
+                   apply (Rmult_eq_reg_r (x * wx)).
+                   2 : {
+                     apply Rmult_integral_contrapositive_currified ; try lra.
+                     unfold wx.
+                     zltab.
+                     apply Rmult_integral_contrapositive_currified; lra. }
+
+                   setl (wx * y); try lra.
+                   setr (wy * x); try lra.
+                   unfold wx.
+                   zltab.
+                   apply Rmult_integral_contrapositive_currified; lra.
+             ++ (* phi2 lt pi *)
+               specialize (root_ordering_Q1top x y r rgt0 gt ltac:(lra) oc)
+                 as [[tml tmu] [[t1rl t1ru] t2r]].
+               clear tmu t2r.
+               split; try lra.
+               apply (Rplus_lt_reg_r (θ1 x y r)).
+               arn.
+               setr φ₂.
+               apply (Rlt_le_trans _ (calcθ₁ 0 0 0 x y)); try lra.
+               rewrite thms; try lra.
+               rewrite <- (chord_property r); try lra.
+               apply Rmult_le_compat_l; try lra.
+               assert (0 < sin φ₂) as sp2gt0. {
+                 apply sin_gt_0; try lra. }
+
+               assert (0 < 1 - cos φ₂) as omcp2gt0. {
+                 specialize (COS_bound φ₂) as [cbl [cbu |cbe]].
+                 lra.
+                 apply cosθeq1 in cbe ;try lra. }
+
+               repeat rewrite atan2_atan_Q1; try lra; try zltab.
+                
+               destruct ld as [ldlt |ldeq].
+               +++ left.
+                   apply atan_increasing.
+                   change (y / x < wy / wx).
+                   apply (Rmult_lt_reg_r (wx * x)).
+                   unfold wx.
+                   zltab.
+                   setl (wx * y); try lra.
+                   setr (wy * x); try lra.
+                   unfold wx.
+                   apply Rmult_integral_contrapositive_currified; lra.
+                   
+               +++ change (atan (y / x) <= atan (wy / wx)).
+                   right; f_equal.
+                   apply (Rmult_eq_reg_r (x * wx)).
+                   2 : {
+                     apply Rmult_integral_contrapositive_currified ; try lra.
+                     unfold wx.
+                     zltab.
+                     apply Rmult_integral_contrapositive_currified; lra. }
+
+                   setl (wx * y); try lra.
+                   setr (wy * x); try lra.
+                   unfold wx.
+                   zltab.
+                   apply Rmult_integral_contrapositive_currified; lra.
+
+             ++ specialize (root_ordering_Q1bot _ _ _ rgt0 lt ygt0 zltx oc)
+                 as [[tml tmu] [[t1rl t1ru] t2r]].
+                split; lra.
+
+             ++ specialize (root_ordering_Q1arm _ _ _ rgt0 eq ygt0 zltx oc)
+                 as [[tml tmu] [t1rl t1ru]].
+                split; lra.
+
+             ++ specialize (root_ordering_Q1top x y r rgt0 gt ltac:(lra) oc)
+                 as [[tml tmu] [[t1rl t1ru] t2r]].
+                split; lra.
+
+             ++ specialize (root_ordering_Q1bot _ _ _ rgt0 lt ygt0 zltx oc)
+                 as [[tml tmu] [[t1rl t1ru] t2r]].
+                split; lra.
+
+             ++ specialize (root_ordering_Q1arm _ _ _ rgt0 eq ygt0 zltx oc)
+                 as [[tml tmu] [t1rl t1ru]].
+                split; lra.
+
+             ++ specialize (root_ordering_Q1top x y r rgt0 gt ltac:(lra) oc)
+                 as [[tml tmu] [[t1rl t1ru] t2r]].
+                split; lra. }
+
+           assert (r * (1 - cos (φ₂ - θ1 x y r)) > 0) as id2. {
+             apply Rlt_gt.
+             zltab.
+             specialize (COS_bound (φ₂ - θ1 x y r)) as [cl [cu |ce]]; try lra.
+             apply cosθeq1 in ce; lra. }
+
+           assert (calcθ₁ 0 0 0 (r * sin (φ₂ - θ1 x y r)) (r * (1 - cos (φ₂ - θ1 x y r))) =
+                   (φ₂ - θ1 x y r)) as id3. {
+             unfold calcθ₁.
+             arn.
+             apply chord_property; lra. }
+           rewrite <- id3 at 3.
+           apply (underapprox_turning_std _ _ _ rgt0 id id2).
+
+  + (* template inserted here *)
+    apply condstraight in oc.
+    specialize (theta1_rsgn_bnd _ _ r ltac:(lra) oc) as [ls rs].
+    specialize (ls rgt0).
+    unfold L.
+
+    apply (Rplus_le_reg_r (- r * θ1 x y r)).
+    (* setl (sqrt (x² - (2 * r - y) * y)). *)
+    setl (sqrt ((x - r * sin (θ1 x y r))² + (y - r * (1 - cos (θ1 x y r)))²)).
+    setr (r * (φ₂  - θ1 x y r) + sqrt ((x - wx)² + (y - wy)²)).
+    apply (Rle_trans _ (sqrt ((x - wx)² + (y - wy)²) +
+                        sqrt ((wx - r * sin (θ1 x y r))² + (wy - r * (1 - cos (θ1 x y r)) )²))).
+    ++ apply triangle.
+    ++ apply (Rplus_le_reg_r (- sqrt ((x - wx)² + (y - wy)²))).
+       setl (sqrt ((wx - r * sin (θ1 x y r))² + (wy - r * (1 - cos (θ1 x y r)))²)).
+       setr (r * (φ₂ - θ1 x y r)).
+
+       apply (Rle_trans _ (sqrt ((r * sin (φ₂ - θ1 x y r))² + (r * (1 - cos (φ₂ - θ1 x y r)))²))).
+       +++ unfold wx, wy.
+           apply sqrt_le_1_alt.
+           repeat rewrite Rsqr_minus.
+           setl (r² * ((sin φ₂)² + (sin (θ1 x y r))² - 2 * sin φ₂ * sin (θ1 x y r) +
+                       (1 - cos φ₂)² + (1 - cos (θ1 x y r))² -
+                                       2 * (1 - cos φ₂) * (1 - cos (θ1 x y r)))).
+           setr (r² * ((sin (φ₂ - θ1 x y r))² + (1 - cos (φ₂ - θ1 x y r))²)).
+           repeat rewrite Rsqr_minus.
+           replace ((sin φ₂)² + (sin (θ1 x y r))² - 2 * sin φ₂ * sin (θ1 x y r)
+                    + (1² + (cos φ₂)² - 2 * 1 * cos φ₂) + (1² + (cos (θ1 x y r))²
+                    - 2 * 1 * cos (θ1 x y r)) - 2 * (1 - cos φ₂) * (1 - cos (θ1 x y r))) with
+               (((sin φ₂)² + (cos φ₂)²) + ((sin (θ1 x y r))² + (cos (θ1 x y r))²)
+                - 2 * sin φ₂ * sin (θ1 x y r) + 1 - 2 * cos φ₂ + 1 
+                - 2 * 1 * cos (θ1 x y r) - 2 * (1 - cos φ₂) * (1 - cos (θ1 x y r)))
+             by (unfold Rsqr; lra).
+           replace ((sin (φ₂ - θ1 x y r))² + (1² + (cos (φ₂ - θ1 x y r))²
+                    - 2 * 1 * cos (φ₂ - θ1 x y r))) with
+               (((sin (φ₂ - θ1 x y r))² + (cos (φ₂ - θ1 x y r))²) + 1 - 2 * cos (φ₂ - θ1 x y r))
+             by (unfold Rsqr; lra).
+           repeat rewrite sin2_cos2.
+           rewrite cos_minus.
+           lra.
+       +++ assert (2 * r * (r * (1 - cos (φ₂ - θ1 x y r))) =
+                   (r * sin (φ₂ - θ1 x y r))² + (r * (1 - cos (φ₂ - θ1 x y r)))²) as id. {
+             repeat rewrite Rsqr_mult.
+             rewrite Rsqr_minus.
+             setr (r² * (((sin (φ₂ - θ1 x y r))² + (cos (φ₂ - θ1 x y r))²)
+                         + 1 - 2 * cos (φ₂ - θ1 x y r))).
+             rewrite sin2_cos2.
+             unfold Rsqr.
+             field. }
+
+           
+           assert (0 < 1 - cos φ₂) as omcp2gt0. {
+             specialize (COS_bound φ₂) as [cbl [cbu |cbe]].
+             lra.
+             apply cosθeq1 in cbe ;try lra. }
+
+           destruct ygt0 as [ygt0 | yeq0].
+           2 : {
+             exfalso.
+             apply straightcond in oc.
+             rewrite yeq0, <- zeq0 in *.
+             autorewrite with null in *.
+             lra. }
+           
+           assert (0 < φ₂ - θ1 x y r < 2 * PI) as ab. {
+             destruct (total_order_T φ₂ PI) as [[plt|peq]|pgt].
+             ++ exfalso.
+               assert (0 < sin φ₂) as sp2gt0. {
+                 apply sin_gt_0; try lra. }
+               apply (Rmult_lt_compat_l r) in sp2gt0; try lra.
+               autorewrite with null in sp2gt0.
+               change (0 < wx) in sp2gt0.
+               apply Rle_not_lt in ld.
+               apply ld.
+               rewrite <- zeq0.
+               arn.
+               zltab.
+               
+             ++ assert (2 * r < y) as ygt2r. {
+                  apply (Rmult_lt_reg_r y); try lra.
+                  setr (0² + y²).
+                  rewrite zeq0.
+                  apply straightcond in oc.
+                  assumption. }
+                assert (wx = 0) as wxeq0. {
+                  unfold wx.
+                  rewrite peq.
+                  arn.
+                  reflexivity. }
+                assert (wy = 2 * r) as wyeq2r. {
+                  unfold wy.
+                  rewrite Rmult_comm.
+                  apply Rmult_eq_compat_r; try lra.
+                  rewrite peq.
+                  arn.
+                  lra. }
+                rewrite wxeq0, wyeq2r in *.
+                autorewrite with null in ld.
+                
+
+                split; try lra.
+
+                specialize (root_ordering_Q1top x y r rgt0  ltac:(lra) ltac:(lra) oc)
+                  as [[tml tmu] [[t1rl t1ru] t2r]].
+                clear tmu t2r.
+                apply (Rplus_lt_reg_r (θ1 x y r)).
+                arn.
+                setr φ₂.
+                apply (Rlt_le_trans _ (calcθ₁ 0 0 0 x y)); try lra.
+                rewrite thms; try lra.
+                rewrite <- (chord_property r); try lra.
+                apply Rmult_le_compat_l; try lra.
+
+                rewrite peq, <- zeq0.
+                arn.
+                replace (r * (1 - -1)) with (2 * r) by lra.
+                repeat rewrite atan2_PI2; lra.
+
+             ++ destruct (total_order_T 0 (2 * r - y)) as [[lt|eq]|gt].
+                +++ exfalso.
+                    apply straightcond in oc.
+
+                    rewrite <- zeq0 in oc.
+                    autorewrite with null in *.
+                    unfold Rsqr in oc.
+                    apply (Rmult_lt_reg_r) in oc; lra.
+
+                +++ exfalso.
+                    apply straightcond in oc.
+
+                    rewrite <- zeq0 in oc.
+                    autorewrite with null in *.
+                    unfold Rsqr in oc.
+                    apply (Rmult_lt_reg_r) in oc; lra.
+
+             +++ specialize (root_ordering_Q2top x y r rgt0 gt ltac:(lra) oc)
+                 as [[tml tmu] [[t1rl t1ru] t2r]].
+                 split; lra. }
+
+           assert (r * (1 - cos (φ₂ - θ1 x y r)) > 0) as id2. {
+             apply Rlt_gt.
+             zltab.
+             specialize (COS_bound (φ₂ - θ1 x y r)) as [cl [cu |ce]]; try lra.
+             apply cosθeq1 in ce; lra. }
+
+           assert (calcθ₁ 0 0 0 (r * sin (φ₂ - θ1 x y r)) (r * (1 - cos (φ₂ - θ1 x y r))) =
+                   (φ₂ - θ1 x y r)) as id3. {
+             unfold calcθ₁.
+             arn.
+             apply chord_property; lra. }
+           rewrite <- id3 at 3.
+           apply (underapprox_turning_std _ _ _ rgt0 id id2).
+
+
+  + unfold L.
+    apply condstraight in oc.
+
+    apply (Rplus_le_reg_r (- r * θ1 x y r)).
+    (* setl (sqrt (x² - (2 * r - y) * y)). *)
+    setl (sqrt ((x - r * sin (θ1 x y r))² + (y - r * (1 - cos (θ1 x y r)))²)).
+    setr (r * (φ₂  - θ1 x y r) + sqrt ((x - wx)² + (y - wy)²)).
+    apply (Rle_trans _ (sqrt ((x - wx)² + (y - wy)²) +
+                        sqrt ((wx - r * sin (θ1 x y r))² + (wy - r * (1 - cos (θ1 x y r)) )²))).
+    ++ apply triangle.
+    ++ apply (Rplus_le_reg_r (- sqrt ((x - wx)² + (y - wy)²))).
+       setl (sqrt ((wx - r * sin (θ1 x y r))² + (wy - r * (1 - cos (θ1 x y r)))²)).
+       setr (r * (φ₂ - θ1 x y r)).
+
+       apply (Rle_trans _ (sqrt ((r * sin (φ₂ - θ1 x y r))² + (r * (1 - cos (φ₂ - θ1 x y r)))²))).
+       +++ unfold wx, wy.
+           apply sqrt_le_1_alt.
+           repeat rewrite Rsqr_minus.
+           setl (r² * ((sin φ₂)² + (sin (θ1 x y r))² - 2 * sin φ₂ * sin (θ1 x y r) +
+                       (1 - cos φ₂)² + (1 - cos (θ1 x y r))² -
+                                       2 * (1 - cos φ₂) * (1 - cos (θ1 x y r)))).
+           setr (r² * ((sin (φ₂ - θ1 x y r))² + (1 - cos (φ₂ - θ1 x y r))²)).
+           repeat rewrite Rsqr_minus.
+           replace ((sin φ₂)² + (sin (θ1 x y r))² - 2 * sin φ₂ * sin (θ1 x y r)
+                    + (1² + (cos φ₂)² - 2 * 1 * cos φ₂) + (1² + (cos (θ1 x y r))²
+                    - 2 * 1 * cos (θ1 x y r)) - 2 * (1 - cos φ₂) * (1 - cos (θ1 x y r))) with
+               (((sin φ₂)² + (cos φ₂)²) + ((sin (θ1 x y r))² + (cos (θ1 x y r))²)
+                - 2 * sin φ₂ * sin (θ1 x y r) + 1 - 2 * cos φ₂ + 1 
+                - 2 * 1 * cos (θ1 x y r) - 2 * (1 - cos φ₂) * (1 - cos (θ1 x y r)))
+             by (unfold Rsqr; lra).
+           replace ((sin (φ₂ - θ1 x y r))² + (1² + (cos (φ₂ - θ1 x y r))²
+                    - 2 * 1 * cos (φ₂ - θ1 x y r))) with
+               (((sin (φ₂ - θ1 x y r))² + (cos (φ₂ - θ1 x y r))²) + 1 - 2 * cos (φ₂ - θ1 x y r))
+             by (unfold Rsqr; lra).
+           repeat rewrite sin2_cos2.
+           rewrite cos_minus.
+           lra.
+       +++ assert (2 * r * (r * (1 - cos (φ₂ - θ1 x y r))) =
+                   (r * sin (φ₂ - θ1 x y r))² + (r * (1 - cos (φ₂ - θ1 x y r)))²) as id. {
+             repeat rewrite Rsqr_mult.
+             rewrite Rsqr_minus.
+             setr (r² * (((sin (φ₂ - θ1 x y r))² + (cos (φ₂ - θ1 x y r))²)
+                         + 1 - 2 * cos (φ₂ - θ1 x y r))).
+             rewrite sin2_cos2.
+             unfold Rsqr.
+             field. }
+
+           
+           assert (0 < 1 - cos φ₂) as omcp2gt0. {
+             specialize (COS_bound φ₂) as [cbl [cbu |cbe]].
+             lra.
+             apply cosθeq1 in cbe ;try lra. }
+
+           destruct ygt0 as [ygt0 | yeq0].
+           2 : {
+             exfalso.
+             rewrite yeq0 in *.
+             assert (0 < wy) as wygt0. {
+               unfold wy.
+               zltab. }
+             clear - wygt0 ld zgtx.
+             autorewrite with null in ld.
+             apply Rle_not_lt in ld.
+             apply ld.
+             setl (- (wy * (- x))).
+             setr (- 0).
+             apply Ropp_lt_contravar.
+             zltab. }
+           
+           assert (0 < φ₂ - θ1 x y r < 2 * PI) as ab. {
+             destruct (total_order_T φ₂ PI) as [[plt|peq]|pgt].
+             ++ exfalso.
+               assert (0 < sin φ₂) as sp2gt0. {
+                 apply sin_gt_0; try lra. }
+               apply (Rmult_lt_compat_l r) in sp2gt0.
+               autorewrite with null in sp2gt0.
+               change (0 < wx) in sp2gt0.
+               apply Rle_not_lt in ld.
+               apply ld.
+               apply (Rlt_trans _ 0 ).
+               setl (- (wy * (- x))).
+               setr (- 0).
+               apply Ropp_lt_contravar.
+               zltab.
+               unfold wy.
+               zltab.
+               zltab.
+               assumption.
+             ++ exfalso.
+                assert (wx = 0) as wxeq0. {
+                  unfold wx.
+                  rewrite peq.
+                  arn.
+                  reflexivity. }
+                assert (wy = 2 * r) as wyeq2r. {
+                  unfold wy.
+                  rewrite Rmult_comm.
+                  apply Rmult_eq_compat_r; try lra.
+                  rewrite peq.
+                  arn.
+                  lra. }
+                rewrite wxeq0, wyeq2r in *.
+                autorewrite with null in ld.
+                clear - ld zgtx rgt0.
+                apply Rle_not_lt in ld.
+                apply ld.
+                setl (- ((2 * r) * (- x))).
+                setr (- 0).
+                apply Ropp_lt_contravar.
+                zltab.
+
+             ++ destruct (total_order_T 0 (2 * r - y)) as [[lt|eq]|gt].
+                +++ specialize (root_ordering_Q2bot _ _ _ rgt0 lt ygt0 zgtx oc)
+                    as [[tml tmu] [[t1rl t1ru] t2r]].
+                    split; try lra.
+
+                    clear tmu t2r.
+                    apply (Rplus_lt_reg_r (θ1 x y r)).
+                    arn.
+                    setr φ₂.
+                    apply (Rlt_le_trans _ (calcθ₁ 0 0 0 x y)); try lra.
+                    rewrite thms; try lra.
+                    rewrite <- (chord_property r); try lra.
+                    apply Rmult_le_compat_l; try lra.
+
+                    assert (sin φ₂ < 0) as splt0. {
+                      setl (- (- sin φ₂)).
+                      setr (- 0).
+                      apply Ropp_lt_contravar.
+                      setl (- 0).
+                      apply Ropp_lt_contravar.
+                      apply sin_lt_0; lra. }
+
+                    assert (r * sin φ₂ < 0) as rsplt0. {
+                      setl (- (r * (- sin φ₂))).
+                      setr (- 0).
+                      apply Ropp_lt_contravar.
+                      zltab. }
+
+                    repeat rewrite atan2_atan_Q2; try lra; try zltab.
+                    apply Rplus_le_compat_r.
+                    
+                    destruct ld as [ldlt |ldeq].
+                    ++++ left.
+                         apply atan_increasing.
+                         change (y / x < wy / wx).
+                         apply (Rmult_lt_reg_r ((- wx) * (- x))).
+                         unfold wx.
+                         zltab.
+                         setl (wx * y); try lra.
+                         setr (wy * x); try lra.
+                         unfold wx.
+                         apply Rmult_integral_contrapositive_currified; lra.
+                   
+                    ++++ change (atan (y / x) <= atan (wy / wx)).
+                         right; f_equal.
+                         apply (Rmult_eq_reg_r (x * wx)).
+                         2 : {
+                           apply Rmult_integral_contrapositive_currified ; try lra.
+                           unfold wx.
+                           zltab. }
+
+                         setl (wx * y); try lra.
+                         setr (wy * x); try lra.
+                         unfold wx.
+                         zltab.
+                         
+                +++ symmetry in eq.
+                    specialize (root_ordering_Q2arm _ _ _ rgt0 eq zgtx oc)
+                      as [[tml tmu] t1r].
+
+                    specialize (theta1_rsgn_bnd _ _ r ltac:(lra) oc) as [ls rs].
+                    specialize (ls rgt0).
+
+                    split; try lra.
+                    clear tmu t1r.
+                    apply (Rplus_lt_reg_r (θ1 x y r)).
+                    arn.
+                    setr φ₂.
+                    apply (Rlt_le_trans _ (calcθ₁ 0 0 0 x y)); try lra.
+                    rewrite thms; try lra.
+                    rewrite <- (chord_property r); try lra.
+                    apply Rmult_le_compat_l; try lra.
+
+                    assert (sin φ₂ < 0) as splt0. {
+                      setl (- (- sin φ₂)).
+                      setr (- 0).
+                      apply Ropp_lt_contravar.
+                      setl (- 0).
+                      apply Ropp_lt_contravar.
+                      apply sin_lt_0; lra. }
+
+                    assert (r * sin φ₂ < 0) as rsplt0. {
+                      setl (- (r * (- sin φ₂))).
+                      setr (- 0).
+                      apply Ropp_lt_contravar.
+                      zltab. }
+
+                    repeat rewrite atan2_atan_Q2; try lra; try zltab.
+                    apply Rplus_le_compat_r.
+                    
+                    destruct ld as [ldlt |ldeq].
+                    ++++ left.
+                         apply atan_increasing.
+                         change (y / x < wy / wx).
+                         apply (Rmult_lt_reg_r ((- wx) * (- x))).
+                         unfold wx.
+                         zltab.
+                         setl (wx * y); try lra.
+                         setr (wy * x); try lra.
+                         unfold wx.
+                         apply Rmult_integral_contrapositive_currified; lra.
+                   
+                    ++++ change (atan (y / x) <= atan (wy / wx)).
+                         right; f_equal.
+                         apply (Rmult_eq_reg_r (x * wx)).
+                         2 : {
+                           apply Rmult_integral_contrapositive_currified ; try lra.
+                           unfold wx.
+                           zltab. }
+
+                         setl (wx * y); try lra.
+                         setr (wy * x); try lra.
+                         unfold wx.
+                         zltab.
+
+             +++ specialize (root_ordering_Q2top x y r rgt0 gt ltac:(lra) oc)
+                 as [[tml tmu] [[t1rl t1ru] t2r]].
+                 split; lra. }
+
+           assert (r * (1 - cos (φ₂ - θ1 x y r)) > 0) as id2. {
+             apply Rlt_gt.
+             zltab.
+             specialize (COS_bound (φ₂ - θ1 x y r)) as [cl [cu |ce]]; try lra.
+             apply cosθeq1 in ce; lra. }
+
+           assert (calcθ₁ 0 0 0 (r * sin (φ₂ - θ1 x y r)) (r * (1 - cos (φ₂ - θ1 x y r))) =
+                   (φ₂ - θ1 x y r)) as id3. {
+             unfold calcθ₁.
+             arn.
+             apply chord_property; lra. }
+           rewrite <- id3 at 3.
+           apply (underapprox_turning_std _ _ _ rgt0 id id2).
+Qed.
+
+(* begin hide *)
+
+Lemma trigeqvx2 : forall θ,
+    ((1 - cos θ)² + (sin θ)² * (sin θ)² + (sin θ)² * (1 - cos θ)²
+       - 2 * (1 - cos θ) * sin θ * sin θ) * (1 + cos θ) =
+    ((sin θ)² - cos θ * (sin θ)²).
+Proof.
+  intros.
+  unfold Rsqr.
+  setl (1 - cos θ
+        - ((sin θ)² + (cos θ)²)
+        - sin θ * sin θ * cos θ
+        + cos θ * cos θ * cos θ
+        + sin θ * sin θ * ((sin θ)² + (cos θ)²)
+        + sin θ * sin θ * cos θ * ((sin θ)² + (cos θ)²)
+       ).
+  rewrite sin2_cos2.
+  arn.
+  setl (- cos θ
+        + cos θ * cos θ * cos θ
+        + (sin θ)²).
+  apply (Rplus_eq_reg_r (- (sin θ)²)).
+  setl (- cos θ * ( 1 - (cos θ)²)).
+  setr (- cos θ * (sin θ)²).
+  specialize (sin2_cos2 θ) as s2c2.
+  apply (Rplus_eq_compat_r (- (cos θ)²)) in s2c2.
+  assert ((sin θ)² = 1 - (cos θ)²) as id2; try (lrag s2c2).
+  rewrite <- id2.
+  reflexivity.
+Qed.
+
+
+Lemma trigeqvy2 : forall θ,
+    ((1 - cos θ)² + (cos θ)² * (sin θ)² + (cos θ)² * (1 - cos θ)² +
+     2 * (1 - cos θ) * cos θ * (1 - cos θ)) * (1 + cos θ) =
+    (1 + cos θ)² - cos θ * (1 + cos θ)².
+Proof.
+  intros.
+  unfold Rsqr.
+  setl (1 + cos θ
+        - 2 * (cos θ)²
+        - 2 * (cos θ)² * cos θ
+        + (cos θ)² * ((sin θ)² + (cos θ)²)
+        + (cos θ)² * cos θ * ((sin θ)² + (cos θ)²)
+       ).
+  rewrite sin2_cos2.
+  setl (1 + cos θ - (cos θ)² - (cos θ)² * cos θ).
+  setr (1 + cos θ - (cos θ)² - (cos θ)² * cos θ).
+  reflexivity.
+Qed.
+  
+Lemma trigeqvxy : forall θ,
+    ((1 - cos θ) * cos θ * sin θ - sin θ * sin θ * cos θ * sin θ -
+     sin θ * (1 - cos θ) * cos θ * (1 - cos θ) - (1 - cos θ) * sin θ * (1 - cos θ)) * 
+    (1 + cos θ) = (cos θ * (1 + cos θ) * sin θ - (1 + cos θ) * sin θ).
+Proof.
+  intros.
+  unfold Rsqr.
+  setl (- sin θ
+        + sin θ * cos θ
+        + 2 * sin θ * cos θ * cos θ
+        - sin θ * cos θ * ((sin θ)² + (cos θ)²)
+        - sin θ * cos θ * cos θ * ((sin θ)² + (cos θ)²)
+       ).
+  rewrite sin2_cos2.
+  arn.
+  setl (cos θ * (1 + cos θ) * sin θ - (1 + cos θ) * sin θ).
+  reflexivity.
+Qed.
+
+
+
+
+
+Lemma linear2form : forall x y θ,
+    cos (θ/2) <> 0 -> 
+    (x * (1 - cos θ) - (x * sin θ - y * cos θ) * sin θ)² +
+    (y * (1 - cos θ) - (x * sin θ - y * cos θ) * (1 - cos θ))² =
+    4 * (sin (θ / 2))² * (y * cos(θ / 2) - x * sin(θ / 2))².
+Proof.
+  intros.
+  setr (4 * (sin (θ / 2))² * (cos (θ / 2))² * (y  - x * sin (θ / 2) / cos (θ / 2))²); try assumption.
+  replace (y - x * sin (θ / 2) / cos (θ / 2)) with (y - x * tan (θ / 2)); try assumption.
+  2 : { unfold tan; field; assumption. }
+  rewrite sint22, cost22, tant2; try assumption.
+  rewrite <- RmultRinv.
+  apply (Rmult_eq_reg_r (1 + cos θ));
+    [|rewrite cost2_cost in H; intro; apply H; lra].
+  setr ((1 - cos θ) * (y * (1 + cos θ) - x * sin θ)²);
+    [rewrite cost2_cost in H; intro; apply H; lra |].
+
+  repeat rewrite Rsqr_minus at 1.
+  repeat rewrite Rmult_minus_distr_r.
+  repeat rewrite Rsqr_minus at 1.
+  repeat rewrite Rsqr_mult.
+  setl (x² * (((1 - cos θ)²
+              + (sin θ)² * (sin θ)²
+              + (sin θ)² * (1 - cos θ)²
+                - 2 * (1 - cos θ) * sin θ * sin θ) * (1 + cos θ))
+        + y² * (((1 - cos θ)²
+                + (cos θ)² * (sin θ)²
+                + (cos θ)² * (1 - cos θ)²
+                + 2 * (1 - cos θ) * cos θ * (1 - cos θ)) * (1 + cos θ))
+        + 2 * x * y * (((1 - cos θ) * cos θ * sin θ
+                       - sin θ * sin θ * cos θ * sin θ
+                       - sin θ * (1 - cos θ) * cos θ * (1 - cos θ)
+                       - (1 - cos θ) * sin θ * (1 - cos θ)) * (1 + cos θ))
+       ).
+
+  setr (x² * ((sin θ)²
+              - cos θ * (sin θ)²)
+        + y² * ((1 + cos θ)²
+                - cos θ * (1 + cos θ)²)
+        + 2 * x * y * (cos θ * (1 + cos θ) * sin θ
+                       - (1 + cos θ) * sin θ)
+       ).
+
+  rewrite trigeqvx2.
+  rewrite trigeqvy2.
+  rewrite trigeqvxy.
+  reflexivity.
+Qed.
+
+
+
+Lemma dist_linear_wave :
+  forall x y θ,
+    let r := (x * sin θ - y * cos θ) / (1 - cos θ) in
+    cos θ < 1 ->
+    - 1 < cos θ ->
+    ((x - r * sin θ)² + (y - r * (1 - cos θ))²) = (x - y * cos (θ / 2) / sin (θ / 2))².
+Proof.
+  intros * costlt1 n1ltcost.
+  assert (0 < 1 - cos θ) as pd; try lra.
+
+  + assert (sin (θ / 2) <> 0) as st2ne0. {
+    intro sint2eq0.
+    generalize costlt1.
+    change (~ cos θ < 1).
+    apply Rle_not_lt.
+    right.
+    symmetry.
+    apply sin_eq_0_0 in sint2eq0 as [k t2d].
+    assert (θ = 2 * IZR k * PI) as td; try lra.
+    rewrite <- (Rplus_0_l θ).
+    rewrite td, cos_period1, cos_0.
+    reflexivity. }
+  
+  unfold r.
+  clear r.
+  rewrite <- RmultRinv.
+  
+  setl (((x * (1 - cos θ) - (x * sin θ - y * cos θ) * sin θ)²  +
+         (y * (1 - cos θ) - (x * sin θ - y * cos θ) * (1 - cos θ))²) * (/ (1 - cos θ))²);
+    try lra.
+
+  rewrite linear2form ; [| rewrite cost2_cost_not ; lra ].
+  setl (4 * ((sin (θ / 2))²)² * (y * cos (θ / 2) * / sin (θ / 2) - x )² * (/ (1 - cos θ))²);
+    try lra.
+  rewrite sint22.
+  setl ((y * cos (θ / 2) * / sin (θ / 2) - x)²); try lra.
+  rewrite RmultRinv.
+  rewrite Rsqr_neg.
+  setl ((x - y * cos (θ/2) / sin (θ/2))²); try assumption.
+  reflexivity.
+Qed.
+
+Lemma plane_wave_form_std :
+  forall (D:nonnegreal) (x y r θc:R) rtp
+         (rp : 0 < r)
+         (no : ~ (x = 0 /\ y = 0))
+         (phase : straight r 0 0 0 x y)
+         (P : path_segment D (Hx r 0 0 θc rtp) (Hy r 0 0 θc rtp) (mkpt 0 0) (mkpt x y)),
+  nonneg D = r * θc + Rabs (x - y * cos (θc / 2) / sin (θc / 2)).
+Proof.
+  intros.
+
+  set (o := {| ptx := 0; pty := 0 |}) in *.
+  set (p := {| ptx := x; pty := y |}) in *.
+  specialize (not_colinear_s _ _ _ _ rtp D P) as nc.
+  specialize (ottb_compute_r_s _ _ _ _ rtp D no P) as [[trn rd] | [str rd]];
+    [apply turningcond in trn; apply straightcond in phase; lra| clear str].
+  specialize (ottb_compute_straight_t_s _ _ _ _ rtp D phase P) as tcd.
+  specialize (ottb_path_distance _ _ _ _ _ _ _ _ rtp P) as [[trn dd] | [str dd]];
+    [apply turningcond in trn; apply straightcond in phase; lra| clear str].
+  autorewrite with null in dd.
+  replace (y - (r - r * cos θc)) with (y - r * (1 - cos θc)) in dd by lra.
+
+  destruct (total_order_T y 0) as [[ylt0 | yeq0]| ygt0].
+  + destruct (total_order_T x 0) as [xle0o| xgt0].
+    ++ assert (x <= 0) as xle0; try (destruct xle0o; lra); clear xle0o.
+       specialize (root_ordering_Q3 _ _ _ rp ylt0 xle0 phase) as [t1t2o [t2r [t1lb t1ub]]];
+         clear t1t2o t2r.
+       rewrite <- tcd in *.
+
+       assert (cos θc < 1) as ctlt1. {
+         rewrite <- cos_2PI.
+         apply cos_increasing_1; lra. }
+  
+       assert (-1 < cos θc) as n1ltct. {
+         rewrite <- cos_PI.
+         apply cos_increasing_1; lra. }
+
+       specialize (dist_linear_wave x y _ ctlt1 n1ltct) as dstid.
+       rewrite <- rd in dstid.
+       rewrite dstid in dd.
+       rewrite sqrt_Rsqr_abs in dd.
+       assumption.
+    ++ assert (0 <= x) as zlex; try lra.
+       specialize (root_ordering_Q4 _ _ _ rp ylt0 zlex phase) as [t1t2o [t2r [t1lb t1ub]]];
+         clear t1t2o t2r.
+       rewrite <- tcd in *.
+
+       assert (cos θc < 1) as ctlt1. {
+         rewrite <- cos_2PI.
+         apply cos_increasing_1; lra. }
+  
+       assert (-1 < cos θc) as n1ltct. {
+         rewrite <- cos_PI.
+         apply cos_increasing_1; lra. }
+
+       specialize (dist_linear_wave x y _ ctlt1 n1ltct) as dstid.
+       rewrite <- rd in dstid.
+       rewrite dstid in dd.
+       rewrite sqrt_Rsqr_abs in dd.
+       assumption.
+
+  + destruct (total_order_T x 0) as [[xlt0 | xeq0]| xgt0]; try lra.
+    specialize (root_ordering_nxarm _ _ _ rp yeq0 xlt0 phase) as [t1t2o [t2r [t1lb t1ub]]];
+         clear t1t2o t2r.
+       rewrite <- tcd in *.
+
+       assert (cos θc < 1) as ctlt1. {
+         rewrite <- cos_2PI.
+         apply cos_increasing_1; lra. }
+  
+       assert (-1 < cos θc) as n1ltct. {
+         rewrite <- cos_PI.
+         apply cos_increasing_1; lra. }
+
+       specialize (dist_linear_wave x y _ ctlt1 n1ltct) as dstid.
+       rewrite <- rd in dstid.
+       rewrite dstid in dd.
+       rewrite sqrt_Rsqr_abs in dd.
+       assumption.
+
+  + destruct (total_order_T x 0) as [xle0| xgt0].
+    ++ destruct (total_order_T (2 * r - y) 0) as [[top | arm]| bot].
+       +++ (* top *)
+         assert (x <= 0) as xle; try (destruct xle0; lra). clear xle0.
+         specialize (root_ordering_Q2top _ _ _ rp top xle phase) as [t1t2o [[t1lb t1ub] t2r]];
+           clear t1t2o t2r.
+         rewrite <- tcd in *.
+         
+         assert (cos θc < 1) as ctlt1. {
+           rewrite <- cos_0.
+           apply cos_decreasing_1; lra. }
+         
+         assert (-1 < cos θc) as n1ltct. {
+           rewrite <- cos_PI.
+           apply cos_decreasing_1; lra. }
+         
+         specialize (dist_linear_wave x y _ ctlt1 n1ltct) as dstid.
+         rewrite <- rd in dstid.
+         rewrite dstid in dd.
+         rewrite sqrt_Rsqr_abs in dd.
+         assumption.
+       +++ (* arm *)
+         destruct xle0 as [xlt0 | xeq0].
+         unfold θ1 in *.
+         destruct total_order_T as [[z0 | z1] | z2]; try lra; clear z0.
+         destruct total_order_T as [[z0 | z1] | z2]; try lra; clear z2.
+         destruct total_order_T as [[z0 | z1] | z2]; try lra; clear z0.
+         destruct total_order_T as [[z0 | z1] | z2]; try lra; clear z1.
+         subst.
+         autorewrite with null in *.
+         replace (y - - (y * -1) / (1 - -1) * (1 - -1)) with 0 in dd by lra.
+         rewrite <- (RmultRinv _ 1).
+         autorewrite with null in *.
+         rewrite sqrt_Rsqr_abs in dd.
+         assumption.
+         
+         unfold θ1 in *.
+         destruct total_order_T as [[z0 | z1] | z2]; try lra; clear z0.
+         destruct total_order_T as [[z0 | z1] | z2]; try lra; clear z1.
+         destruct total_order_T as [[z0 | z1] | z2]; try lra; clear z0.
+         destruct total_order_T as [[z0 | z1] | z2]; try lra; clear z1.
+         subst.
+
+         exfalso.
+         clear - phase.
+         apply straightcond in phase.
+         subst.
+         autorewrite with null in *.
+         replace (2 * (- (y * -1) / (1 - -1)) * y) with (y*y) in phase by lra.
+         unfold Rsqr in phase.
+         lra.
+         
+       +++ (* bottom *)
+         assert (x <= 0) as xle; try (destruct xle0; lra). clear xle0.
+         destruct xle as [xlt |xeq].
+         specialize (root_ordering_Q2bot _ _ _ rp bot ygt0 xlt phase) as [t1t2o [[t1lb t1ub] t2r]];
+           clear t1t2o t2r.
+         rewrite <- tcd in *.
+         
+         assert (cos θc < 1) as ctlt1. {
+           rewrite <- cos_2PI.
+           apply cos_increasing_1; lra. }
+         
+         assert (-1 < cos θc) as n1ltct. {
+           rewrite <- cos_PI.
+           apply cos_increasing_1; lra. }
+         
+         specialize (dist_linear_wave x y _ ctlt1 n1ltct) as dstid.
+         rewrite <- rd in dstid.
+         rewrite dstid in dd.
+         rewrite sqrt_Rsqr_abs in dd.
+         assumption.
+
+         (* x=0, 0 < y points are inside the turning circle, unreachable *)
+         exfalso.
+         clear - ygt0 bot xeq phase.
+         apply straightcond in phase.
+         subst.
+         autorewrite with null in *.
+         unfold Rsqr in phase.
+         apply Rmult_lt_reg_r in phase; try assumption.
+         lra.
+
+    ++ destruct (total_order_T (2 * r - y) 0) as [[top | arm]| bot].
+       +++ (* top *)
+         assert (0 <= x) as xle; try lra. clear xgt0.
+         specialize (root_ordering_Q1top _ _ _ rp top xle phase) as [t1t2o [[t1lb t1ub] t2r]];
+           clear t1t2o t2r.
+         rewrite <- tcd in *.
+         
+         assert (cos θc < 1) as ctlt1. {
+           rewrite <- cos_0.
+           apply cos_decreasing_1; lra. }
+         
+         assert (-1 < cos θc) as n1ltct. {
+           rewrite <- cos_PI.
+           apply cos_decreasing_1; lra. }
+         
+         specialize (dist_linear_wave x y _ ctlt1 n1ltct) as dstid.
+         rewrite <- rd in dstid.
+         rewrite dstid in dd.
+         rewrite sqrt_Rsqr_abs in dd.
+         assumption.
+       +++ (* arm *)
+         symmetry in arm.
+         specialize (root_ordering_Q1arm _ _ _ rp arm ygt0 xgt0 phase) as [t2r [t1lb t1ub]];
+           clear t2r.
+         rewrite <- tcd in *.
+         
+         assert (cos θc < 1) as ctlt1. {
+           rewrite <- cos_0.
+           apply cos_decreasing_1; lra. }
+         
+         assert (-1 < cos θc) as n1ltct. {
+           rewrite <- cos_PI.
+           apply cos_decreasing_1; lra. }
+         
+         specialize (dist_linear_wave x y _ ctlt1 n1ltct) as dstid.
+         rewrite <- rd in dstid.
+         rewrite dstid in dd.
+         rewrite sqrt_Rsqr_abs in dd.
+         assumption.
+
+       +++ (* bottom *)
+         specialize (root_ordering_Q1bot _ _ _ rp bot ygt0 xgt0 phase) as [t1t2o [[t1lb t1ub] t2r]];
+           clear t1t2o t2r.
+         rewrite <- tcd in *.
+         
+         assert (cos θc < 1) as ctlt1. {
+           rewrite <- cos_0.
+           apply cos_decreasing_1; lra. }
+         
+         assert (-1 < cos θc) as n1ltct. {
+           rewrite <- cos_PI.
+           apply cos_decreasing_1; lra. }
+         
+         specialize (dist_linear_wave x y _ ctlt1 n1ltct) as dstid.
+         rewrite <- rd in dstid.
+         rewrite dstid in dd.
+         rewrite sqrt_Rsqr_abs in dd.
+         assumption.
+Qed.
+
+
+Lemma plane_wave_form_pre :
+  forall (D:nonnegreal) (x₀ y₀ x₁ y₁ r θ₀ θc:R) rtp
+         (rp : 0 < r)
+         (no : ~ (x₁ - x₀ = 0 /\ y₁ - y₀ = 0))
+         (phase : straight r θ₀ x₀ y₀ x₁ y₁)
+         (P : path_segment D (Hx r θ₀ x₀ θc rtp) (Hy r θ₀ y₀ θc rtp) (mkpt x₀ y₀) (mkpt x₁ y₁)),
+    let x := (x₁ - x₀) * cos θ₀ + (y₁ - y₀) * sin θ₀ in
+    let y := - (x₁ - x₀) * sin θ₀ + (y₁ - y₀) * cos θ₀ in
+    nonneg D = r * θc + Rabs (x - y * cos (θc / 2) / sin (θc / 2)).
+Proof.
+  intros.
+  unfold x, y; clear x y.
+  apply path_stdR in P.
+  apply straight_rot in phase.
+  apply (notid_rot θ₀) in no.
+  set (x := (x₁ - x₀) * cos θ₀ + (y₁ - y₀) * sin θ₀) in *.
+  set (y := - (x₁ - x₀) * sin θ₀ + (y₁ - y₀) * cos θ₀) in *.
+  set (o := {| ptx := 0; pty := 0 |}) in *.
+  set (p := {| ptx := x; pty := y |}) in *.
+  specialize (not_colinear_s _ _ _ _ rtp D P) as nc.
+  specialize (ottb_compute_r_s _ _ _ _ rtp D no P) as [[trn rd] | [str rd]];
+    [apply turningcond in trn; apply straightcond in phase; lra| clear str].
+  specialize (ottb_compute_straight_t_s _ _ _ _ rtp D phase P) as tcd.
+  specialize (ottb_path_distance _ _ _ _ _ _ _ _ rtp P) as [[trn dd] | [str dd]];
+    [apply turningcond in trn; apply straightcond in phase; lra| clear str].
+  autorewrite with null in dd.
+  eapply plane_wave_form_std; try assumption.
+  Unshelve.
+  assumption.
+Qed.
+
+
+Definition cot t := cos t / sin t.
+
+(* end hide *)
+
+Lemma plane_wave_part :
+  forall (D:nonnegreal) (x₀ y₀ x₁ y₁ r θ₀ θc:R) rtp
+         (rp : 0 < r)
+         (no : ~ (x₁ - x₀ = 0 /\ y₁ - y₀ = 0))               
+         (phase : straight r θ₀ x₀ y₀ x₁ y₁)
+         (P : path_segment D (Hx r θ₀ x₀ θc rtp) (Hy r θ₀ y₀ θc rtp) (mkpt x₀ y₀) (mkpt x₁ y₁)),
+    let x := (x₁ - x₀) * cos θ₀ + (y₁ - y₀) * sin θ₀ in
+    let y := - (x₁ - x₀) * sin θ₀ + (y₁ - y₀) * cos θ₀ in
+    forall (valid : y * cot (θc / 2) > x), 
+    nonneg D = r * θc + y * cot (θc / 2) - x.
+Proof.
+  intros.
+  unfold cot in *.
+  specialize (plane_wave_form_pre _ _ _ _ _ _ _ _ rtp rp no phase P) as Ddef.
+  simpl in *.
+  change (nonneg D = r * θc + Rabs (x - y * cos (θc / 2) / sin (θc / 2))) in Ddef.
+  rewrite Rabs_left in Ddef; try lra.
+Qed.
 
 
 Lemma spreading_circle_matches_fixed_orientation_xy:
