@@ -7,8 +7,8 @@ themselves.
 ## Dependencies
 
 These proofs formalizing horizontal one-turn-to-bearing motion were
-developed with the Coq proof assistant and the Coquelicot real
-library.
+developed with the Coq proof assistant v. 8.12.0 and the Coquelicot
+real library v. 3.1.0.
 
 One reliable way to get set up to check these proofs is to use the
 opam package manager.
@@ -35,32 +35,9 @@ $ opam install coq-coquelicot
 
 ## To check the proofs
 $ coqtop --version
-The Coq Proof Assistant, version 8.10.2 (December 2019)
-compiled on Dec 8 2019 9:00:07 with OCaml 4.07.1
+The Coq Proof Assistant, version 8.12.0 (October 2020)
+compiled on Oct 3 2020 17:19:54 with OCaml 4.08.1
 
-$ time make
-coqc util.v
-coqc atan2.v
-coqc ttyp.v
-coqc strt.v
-coqdoc -g -utf8 strt.v
-coqc strt2.v
-coqdoc -g -utf8 strt2.v
-coqdoc -g -utf8 atan2.v
-coqdoc -g -utf8 ttyp.v
-coqc tdyn.v
-coqdoc -g -utf8 tdyn.v
-coqc ttim.v
-coqdoc -g -utf8 ttim.v
-coqc incr_function_le_ep.v
-coqc tlens.v
-coqdoc -g -utf8 tlens.v
-coqc dtlen.v
-coqdoc -g -utf8 dtlen.v
+$ make
 
-real	7m3.619s
-user	6m44.490s
-sys	0m8.378s
-
-$ 
 You can Print Assumptions to see axioms of the development.

@@ -1368,7 +1368,11 @@ Proof.
     field_simplify; lra.
 Qed.
 
-  
+
+(** The following proofs are formalizations of Theorems 11-13 and
+Lemma 1 in Section 6, giving sound over and underapproximations of the
+path distance/timing equations for two vehicles following
+turn-to-bearing motion. *)
   
 Lemma spreading_circle_matches_fixed_orientation_rt:
   forall θ r s t
